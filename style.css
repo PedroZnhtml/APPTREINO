@@ -563,6 +563,47 @@ html, body {
 }
 
 /* ==================== ABA TREINOS ==================== */
+.workouts-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.workouts-title-col h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.preset-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.preset-chip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-chip:active,
+.preset-chip:hover {
+  border-color: var(--cyan);
+  color: #fff;
+  background: rgba(0, 210, 255, 0.12);
+}
+
 .workouts-nav-bar {
   margin-bottom: 12px;
 }

@@ -192,8 +192,14 @@
 
         <!-- Treino do Dia -->
         <div class="section-header">
-          <h3>Treino Recomendado</h3>
-          <button class="link-btn" id="btn-home-manage-workouts">Abrir Fichas →</button>
+          <div>
+            <h3>Treino do Dia</h3>
+            <span class="text-xs text-muted" id="home-routine-label">Sua divisão ativa</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-sm btn-primary" id="btn-home-add-routine">➕ Novo Treino</button>
+            <button class="link-btn" id="btn-home-manage-workouts">Ver Fichas →</button>
+          </div>
         </div>
         <div class="card card-glow" id="home-workout-box"></div>
 
@@ -215,6 +221,17 @@
 
       <!-- ==================== ABA 2: TREINOS (CONSTRUTOR ZERADO) ==================== -->
       <section id="tab-workouts" class="tab-panel">
+        <!-- Topo da Seção de Treinos -->
+        <div class="workouts-top-bar">
+          <div class="workouts-title-col">
+            <h2 class="section-title">Minhas Fichas</h2>
+            <span class="text-xs text-muted" id="workouts-count-label">Monte seus treinos personalizados</span>
+          </div>
+          <button class="btn btn-primary" id="btn-add-routine-top" style="gap: 6px;">
+            <span>➕</span> <strong>Adicionar Treino</strong>
+          </button>
+        </div>
+
         <div class="workouts-nav-bar">
           <div class="workouts-scroll-pills" id="workout-tabs-bar"></div>
         </div>
@@ -234,7 +251,7 @@
         </div>
 
         <!-- Cronômetro de Descanso -->
-        <div class="rest-timer-bar">
+        <div class="rest-timer-bar" id="rest-timer-bar">
           <div class="rest-info">
             <span class="rest-tag">⏱️ DESCANSO:</span>
             <span class="rest-display" id="rest-timer-text">Parado</span>
@@ -255,6 +272,9 @@
             <span class="workout-subtitle" id="active-routine-focus">Monte sua divisão</span>
           </div>
           <div class="workout-action-buttons">
+            <button class="btn btn-sm btn-outline" id="btn-add-exercise-top" title="Adicionar exercício a esta ficha">
+              + Exercício
+            </button>
             <button class="btn-icon" id="btn-edit-routine" title="Renomear ficha">✏️</button>
             <button class="btn-icon text-danger" id="btn-delete-routine" title="Excluir ficha">🗑️</button>
           </div>
@@ -680,13 +700,29 @@
   <div class="modal-backdrop" id="modal-routine">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
-        <h3 id="modal-routine-title">Montar Ficha de Treino</h3>
+        <div>
+          <h3 id="modal-routine-title">Montar Ficha de Treino</h3>
+          <span class="text-xs text-muted">Defina o nome da ficha e os grupos musculares</span>
+        </div>
         <button class="btn-modal-close" data-dismiss="modal-routine">✕</button>
       </div>
       <form id="form-routine">
         <input type="hidden" id="input-routine-id">
+
+        <div class="preset-suggestions mb-3">
+          <label class="form-label" style="margin-bottom: 6px;">Modelos Prontos (Toque para preencher):</label>
+          <div class="preset-chips-wrap">
+            <button type="button" class="preset-chip" data-name="Treino A" data-focus="Peito, Ombros e Tríceps">Treino A • Push</button>
+            <button type="button" class="preset-chip" data-name="Treino B" data-focus="Costas, Trapézio e Bíceps">Treino B • Pull</button>
+            <button type="button" class="preset-chip" data-name="Treino C" data-focus="Quadríceps, Posterior e Panturrilhas">Treino C • Legs</button>
+            <button type="button" class="preset-chip" data-name="Treino D" data-focus="Ombros, Trapézio e Abdômen">Treino D • Delts</button>
+            <button type="button" class="preset-chip" data-name="Treino Superior" data-focus="Membros Superiores Geral">Superior Geral</button>
+            <button type="button" class="preset-chip" data-name="Treino Inferior" data-focus="Membros Inferiores Geral">Inferior Geral</button>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label class="form-label" for="input-routine-name">Identificação da Ficha</label>
+          <label class="form-label" for="input-routine-name">Nome da Ficha</label>
           <input type="text" id="input-routine-name" class="form-control" placeholder="Ex: Treino A • Push, Perna Pesado, etc." required>
         </div>
         <div class="form-group">
@@ -695,7 +731,7 @@
         </div>
         <div class="modal-sheet-footer">
           <button type="button" class="btn btn-outline" data-dismiss="modal-routine">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar Ficha</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-routine">Salvar Ficha ➔</button>
         </div>
       </form>
     </div>

@@ -523,6 +523,14 @@
 
     document.getElementById('home-goal-badge').textContent = user.goal;
 
+    const btnHomeAddRoutine = document.getElementById('btn-home-add-routine');
+    if (btnHomeAddRoutine) {
+      btnHomeAddRoutine.onclick = () => {
+        switchTab('tab-workouts');
+        openNewRoutineModal();
+      };
+    }
+
     const homeWorkoutBox = document.getElementById('home-workout-box');
 
     // Se treinos estão zerados
@@ -531,8 +539,8 @@
         <div class="empty-state-luxury">
           <span class="empty-state-icon">🏋️</span>
           <h4>Nenhum treino criado</h4>
-          <p>Monte suas próprias fichas personalizadas quando quiser.</p>
-          <button class="btn btn-primary btn-sm" id="btn-home-create-workout">+ Montar Meu Primeiro Treino</button>
+          <p>Monte suas próprias divisões personalizadas (Treino A, B, C...).</p>
+          <button class="btn btn-primary btn-sm" id="btn-home-create-workout">+ Adicionar Treino Agora</button>
         </div>
       `;
       document.getElementById('btn-home-create-workout').onclick = () => {
@@ -672,20 +680,33 @@
     const headerCard = document.getElementById('workout-header-card');
     const bottomActions = document.getElementById('workout-bottom-actions');
     const stack = document.getElementById('exercises-stack');
+    const countLabel = document.getElementById('workouts-count-label');
+    const sessionHud = document.getElementById('session-hud');
+    const restTimerBar = document.getElementById('rest-timer-bar');
+    const btnAddExTop = document.getElementById('btn-add-exercise-top');
 
     // Se ZERADO
     if (!user.routines || user.routines.length === 0) {
+      if (countLabel) countLabel.textContent = 'Nenhuma ficha criada ainda';
+      if (sessionHud) sessionHud.style.display = 'none';
+      if (restTimerBar) restTimerBar.style.display = 'none';
       headerCard.style.display = 'none';
       bottomActions.style.display = 'none';
-      bar.innerHTML = '';
+
+      bar.innerHTML = `
+        <button class="routine-tab-pill btn-add-routine" id="pill-add-routine-empty">
+          ➕ Adicionar Treino
+        </button>
+      `;
+      document.getElementById('pill-add-routine-empty').onclick = openNewRoutineModal;
 
       stack.innerHTML = `
         <div class="empty-state-luxury" style="margin-top: 10px;">
           <span class="empty-state-icon">🏋️</span>
-          <h4>Seus Treinos Estão Zerados</h4>
-          <p>Você tem total liberdade para montar suas fichas do zero: adicione seus exercícios favoritos com cargas e séries individuais.</p>
+          <h4>Nenhum Treino Cadastrado</h4>
+          <p>Você tem total liberdade para montar suas divisões (Treino A, Treino B, etc.) e adicionar seus exercícios favoritos com cargas e séries personalizadas.</p>
           <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-routine">
-            + Criar Minha Primeira Ficha de Treino
+            ➕ Adicionar Meu Primeiro Treino
           </button>
         </div>
       `;
@@ -695,8 +716,17 @@
     }
 
     // Se tem fichas
+    if (countLabel) {
+      countLabel.textContent = `${user.routines.length} ${user.routines.length === 1 ? 'ficha cadastrada' : 'fichas cadastradas'}`;
+    }
+    if (sessionHud) sessionHud.style.display = 'flex';
+    if (restTimerBar) restTimerBar.style.display = 'flex';
     headerCard.style.display = 'flex';
     bottomActions.style.display = 'block';
+
+    if (btnAddExTop) {
+      btnAddExTop.onclick = () => document.getElementById('btn-open-catalog').click();
+    }
 
     let activeRoutine = user.routines.find(r => r.id === user.activeRoutineId);
     if (!activeRoutine && user.routines.length > 0) {
@@ -719,7 +749,7 @@
 
     const addPill = document.createElement('button');
     addPill.className = 'routine-tab-pill btn-add-routine';
-    addPill.innerHTML = '+ Criar Ficha';
+    addPill.innerHTML = '➕ Adicionar Treino';
     addPill.onclick = openNewRoutineModal;
     bar.appendChild(addPill);
 
@@ -1573,7 +1603,8 @@
 
   // Modais de Fichas
   function openNewRoutineModal() {
-    document.getElementById('modal-routine-title').textContent = 'Montar Nova Ficha';
+    switchTab('tab-workouts');
+    document.getElementById('modal-routine-title').textContent = 'Montar Ficha de Treino';
     document.getElementById('input-routine-id').value = '';
     document.getElementById('input-routine-name').value = '';
     document.getElementById('input-routine-focus').value = '';
@@ -1595,25 +1626,33 @@
     const name = document.getElementById('input-routine-name').value.trim();
     const focus = document.getElementById('input-routine-focus').value.trim();
 
+    let isNew = false;
     if (id) {
       const routine = user.routines.find(r => r.id === id);
       if (routine) {
         routine.name = name;
         routine.focus = focus;
-        showToast('Ficha atualizada!', 'success');
+        showToast('Ficha atualizada com sucesso!', 'success');
       }
     } else {
+      isNew = true;
       const newR = { id: 'routine-' + Date.now(), name, focus, exercises: [] };
       if (!user.routines) user.routines = [];
       user.routines.push(newR);
       user.activeRoutineId = newR.id;
-      showToast('Nova ficha criada! Agora adicione seus exercícios. 🏋️', 'success');
+      showToast(`Ficha "${name}" criada! Escolha seus exercícios 🏋️`, 'success');
     }
 
     saveCurrentUser();
     document.getElementById('modal-routine').classList.remove('open');
     renderWorkoutsTab();
     renderHomeTab();
+
+    if (isNew) {
+      setTimeout(() => {
+        document.getElementById('btn-open-catalog').click();
+      }, 300);
+    }
   });
 
   function confirmDeleteRoutine(routine) {
@@ -1822,6 +1861,20 @@
     initCatalog();
     initTacoPicker();
     initWater();
+
+    const btnAddRoutineTop = document.getElementById('btn-add-routine-top');
+    if (btnAddRoutineTop) {
+      btnAddRoutineTop.onclick = openNewRoutineModal;
+    }
+
+    document.querySelectorAll('.preset-chip').forEach(chip => {
+      chip.onclick = () => {
+        const name = chip.getAttribute('data-name');
+        const focus = chip.getAttribute('data-focus');
+        if (name) document.getElementById('input-routine-name').value = name;
+        if (focus) document.getElementById('input-routine-focus').value = focus;
+      };
+    });
 
     document.getElementById('btn-start-session').onclick = toggleSession;
     document.getElementById('btn-add-meal').onclick = openAddMealModal;
