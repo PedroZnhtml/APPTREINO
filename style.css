@@ -585,7 +585,8 @@ html, body {
   margin-top: 6px;
 }
 
-.preset-chip {
+.preset-chip,
+.preset-chip-meal {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-muted);
@@ -598,10 +599,22 @@ html, body {
 }
 
 .preset-chip:active,
-.preset-chip:hover {
+.preset-chip:hover,
+.preset-chip-meal:active,
+.preset-chip-meal:hover {
   border-color: var(--cyan);
   color: #fff;
   background: rgba(0, 210, 255, 0.12);
+}
+
+.modal-confirm-sheet {
+  background: linear-gradient(180deg, #131722 0%, #080a0f 100%);
+  border: 1px solid rgba(0, 230, 118, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 230, 118, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 26px 22px;
+  width: 90%;
+  max-width: 380px;
 }
 
 .workouts-nav-bar {

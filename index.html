@@ -143,7 +143,8 @@
             </div>
             <div class="header-sync-status">
               <span class="sync-dot" id="header-sync-dot"></span>
-              <span class="header-small-email" id="header-sync-text">Local</span>
+              <span class="header-small-email" id="header-sync-text">Nuvem</span>
+              <span class="text-xs text-muted" id="header-user-email" style="display: none;"></span>
             </div>
           </div>
         </div>
@@ -374,9 +375,19 @@
         </div>
 
         <!-- Lista de Refeições -->
-        <div class="section-header">
-          <h3>Refeições do Dia</h3>
-          <button class="btn btn-sm btn-outline" id="btn-add-meal">+ Nova Refeição</button>
+        <div class="section-header" style="flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3>Refeições do Dia</h3>
+            <span class="text-xs text-muted" id="meals-count-label">Planeje seus horários e alimentos com a Tabela TACO</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-sm btn-outline text-cyan" id="btn-open-taco-catalog" title="Consultar Tabela TACO Completa">
+              🥗 Tabela TACO
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-add-meal">
+              ➕ Nova Refeição
+            </button>
+          </div>
         </div>
 
         <div class="meals-stack" id="meals-stack"></div>
@@ -618,6 +629,10 @@
           <div class="live-macro"><span class="text-xs">Carb:</span> <strong id="taco-res-c" style="color:var(--macro-c);">0g</strong></div>
           <div class="live-macro"><span class="text-xs">Gord:</span> <strong id="taco-res-f" style="color:var(--macro-f);">0g</strong></div>
         </div>
+        <div class="form-group mt-2" id="taco-meal-picker-select-group" style="display: none;">
+          <label class="form-label text-xs" for="taco-select-meal">Adicionar a qual refeição?</label>
+          <select id="taco-select-meal" class="form-control"></select>
+        </div>
         <button class="btn btn-primary btn-block btn-sm mt-2" id="btn-confirm-add-taco">
           + Adicionar à Refeição
         </button>
@@ -741,11 +756,28 @@
   <div class="modal-backdrop" id="modal-meal">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
-        <h3 id="modal-meal-title">Refeição</h3>
+        <div>
+          <h3 id="modal-meal-title">Refeição</h3>
+          <span class="text-xs text-muted">Defina o nome e o horário da refeição</span>
+        </div>
         <button class="btn-modal-close" data-dismiss="modal-meal">✕</button>
       </div>
       <form id="form-meal">
         <input type="hidden" id="input-meal-id">
+
+        <div class="preset-suggestions mb-3">
+          <label class="form-label" style="margin-bottom: 6px;">Sugestões Rápidas (Toque para usar):</label>
+          <div class="preset-chips-wrap">
+            <button type="button" class="preset-chip-meal" data-name="Café da Manhã" data-time="07:30">☕ Café da Manhã (07:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Lanche da Manhã" data-time="10:00">🥪 Lanche Manhã (10:00)</button>
+            <button type="button" class="preset-chip-meal" data-name="Almoço" data-time="12:30">🍲 Almoço (12:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Lanche da Tarde" data-time="16:00">🍌 Lanche Tarde (16:00)</button>
+            <button type="button" class="preset-chip-meal" data-name="Pré-Treino" data-time="17:30">⚡ Pré-Treino (17:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Jantar" data-time="20:00">🍗 Jantar (20:00)</button>
+            <button type="button" class="preset-chip-meal" data-name="Ceia" data-time="22:30">🥛 Ceia (22:30)</button>
+          </div>
+        </div>
+
         <div class="form-row">
           <div class="form-group col-8">
             <label class="form-label" for="input-meal-name">Nome da Refeição</label>
@@ -758,7 +790,7 @@
         </div>
         <div class="modal-sheet-footer">
           <button type="button" class="btn btn-outline" data-dismiss="modal-meal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar Refeição</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-meal">Salvar e Adicionar Alimentos ➔</button>
         </div>
       </form>
     </div>
@@ -805,6 +837,21 @@
       <div class="history-table-box" id="history-table-records"></div>
       <div class="modal-sheet-footer">
         <button type="button" class="btn btn-outline btn-block" data-dismiss="modal-history">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmação Customizado (Substitui confirm do navegador) -->
+  <div class="modal-backdrop" id="modal-confirm-action">
+    <div class="modal-sheet modal-confirm-sheet" style="text-align: center; max-width: 380px; margin: auto;">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;" id="confirm-modal-icon">🚪</div>
+      <h3 id="confirm-modal-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Você deseja sair?</h3>
+      <p id="confirm-modal-message" class="text-sm text-muted" style="margin-bottom: 20px;">
+        Seus dados estão sincronizados em tempo real no banco de dados em nuvem.
+      </p>
+      <div class="modal-sheet-footer" style="display: flex; gap: 10px;">
+        <button type="button" class="btn btn-outline" style="flex: 1;" id="btn-confirm-cancel">Cancelar</button>
+        <button type="button" class="btn btn-danger" style="flex: 1;" id="btn-confirm-ok">Sair</button>
       </div>
     </div>
   </div>

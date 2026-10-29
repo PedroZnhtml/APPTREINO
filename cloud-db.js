@@ -21,11 +21,12 @@
     }
 
     loadConfig() {
+      const defaultUrl = window.IRONPULSE_CLOUD_URL || 'https://meu-treino-1b995-default-rtdb.firebaseio.com';
       try {
         const raw = localStorage.getItem(CONFIG_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && parsed.url) return parsed;
+          if (parsed && parsed.url && parsed.url.trim().length > 0) return parsed;
         }
       } catch (e) {
         console.error('Erro ao ler configuração da nuvem:', e);
@@ -33,7 +34,7 @@
 
       return {
         type: 'firebase',
-        url: window.IRONPULSE_CLOUD_URL || '',
+        url: defaultUrl,
         apiKey: ''
       };
     }

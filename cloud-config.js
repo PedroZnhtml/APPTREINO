@@ -1,7 +1,6 @@
 /**
  * IronPulse Cloud Database Configuration
- * Se você tiver uma URL do Firebase Realtime Database, pode colar aqui
- * Exemplo: window.IRONPULSE_CLOUD_URL = "https://seu-projeto-default-rtdb.firebaseio.com";
+ * Banco de Dados Firebase Realtime Database oficial do projeto
  */
 
-window.IRONPULSE_CLOUD_URL = "";
+window.IRONPULSE_CLOUD_URL = "https://meu-treino-1b995-default-rtdb.firebaseio.com";

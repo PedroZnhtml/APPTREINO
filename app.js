@@ -103,6 +103,48 @@
     });
   }
 
+  // Modal Customizado de Confirmação (Substitui confirm do navegador sem mensagens como "github.io diz")
+  function showConfirmModal({ title = 'Você deseja sair?', message = 'Seus dados permanecem seguros na nuvem.', okText = 'Sim, Sair', okClass = 'btn-danger', icon = '🚪' } = {}) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('modal-confirm-action');
+      const titleEl = document.getElementById('confirm-modal-title');
+      const msgEl = document.getElementById('confirm-modal-message');
+      const iconEl = document.getElementById('confirm-modal-icon');
+      const okBtn = document.getElementById('btn-confirm-ok');
+      const cancelBtn = document.getElementById('btn-confirm-cancel');
+
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl) msgEl.textContent = message;
+      if (iconEl) iconEl.textContent = icon;
+      if (okBtn) {
+        okBtn.textContent = okText;
+        okBtn.className = `btn ${okClass}`;
+      }
+
+      const cleanup = () => {
+        if (modal) modal.classList.remove('open');
+        if (okBtn) okBtn.onclick = null;
+        if (cancelBtn) cancelBtn.onclick = null;
+      };
+
+      if (okBtn) {
+        okBtn.onclick = () => {
+          cleanup();
+          resolve(true);
+        };
+      }
+
+      if (cancelBtn) {
+        cancelBtn.onclick = () => {
+          cleanup();
+          resolve(false);
+        };
+      }
+
+      if (modal) modal.classList.add('open');
+    });
+  }
+
   function initAuthEvents() {
     // Alternar abas de Login e Cadastro
     const btnLogin = document.getElementById('tab-btn-login');
@@ -160,17 +202,29 @@
       }
     };
 
-    // Logout
-    document.getElementById('btn-header-logout').onclick = () => {
-      if (confirm('Deseja sair desta conta?')) {
+    // Logout Customizado (Sem pop-up do navegador)
+    document.getElementById('btn-header-logout').onclick = async () => {
+      const ok = await showConfirmModal({
+        title: 'Você deseja sair?',
+        message: 'Seus dados permanecem 100% seguros e sincronizados no Firebase.',
+        okText: 'Sim, Sair',
+        icon: '🚪'
+      });
+      if (ok) {
         window.IronAuth.logout();
         checkAuth();
         showToast('Você saiu da conta.', 'success');
       }
     };
 
-    document.getElementById('btn-account-logout').onclick = () => {
-      if (confirm('Deseja sair desta conta para trocar de usuário?')) {
+    document.getElementById('btn-account-logout').onclick = async () => {
+      const ok = await showConfirmModal({
+        title: 'Trocar de Usuário?',
+        message: 'Deseja sair desta conta para entrar com outro perfil?',
+        okText: 'Sair e Trocar',
+        icon: '👥'
+      });
+      if (ok) {
         window.IronAuth.logout();
         checkAuth();
         showToast('Você saiu da conta.', 'success');
@@ -272,7 +326,7 @@
           window.CloudDB.saveConfig({ type: 'firebase', url: url, apiKey: '' });
           updateCloudStatusUI();
 
-          const currentUser = getUser();
+          const currentUser = getCurrentUser();
           if (currentUser) {
             await window.CloudDB.saveUser(currentUser);
           }
@@ -498,21 +552,51 @@
     if (!user) return;
 
     const initials = (user.name || 'U').charAt(0).toUpperCase();
-    document.getElementById('header-avatar-circle').textContent = initials;
-    document.getElementById('header-profile-name').textContent = user.name;
-    document.getElementById('header-profile-goal').textContent = user.goal;
-    document.getElementById('header-user-email').textContent = user.email;
+    const avatarEl = document.getElementById('header-avatar-circle');
+    if (avatarEl) avatarEl.textContent = initials;
+
+    const nameEl = document.getElementById('header-profile-name');
+    if (nameEl) nameEl.textContent = user.name || 'Atleta';
+
+    const goalEl = document.getElementById('header-profile-goal');
+    if (goalEl) goalEl.textContent = user.goal || 'Hipertrofia';
+
+    const emailEl = document.getElementById('header-user-email');
+    if (emailEl) emailEl.textContent = user.email || '';
+
+    const syncDot = document.getElementById('header-sync-dot');
+    const syncText = document.getElementById('header-sync-text');
+    const isCloud = window.CloudDB && window.CloudDB.isConnected();
+    if (syncDot) {
+      syncDot.style.background = isCloud ? 'var(--accent)' : 'var(--cyan)';
+      syncDot.style.boxShadow = isCloud ? '0 0 8px var(--accent)' : 'none';
+    }
+    if (syncText) {
+      syncText.textContent = isCloud ? 'Firebase Conectado' : 'Local';
+    }
 
     const minWater = Math.round((Number(user.weight) || 70) * 35);
-    document.getElementById('water-display').textContent = user.water || 0;
-    document.getElementById('water-calc-desc').textContent = `Mínimo recomendado: 35ml × ${user.weight || 70}kg = ${minWater}ml`;
-    document.getElementById('water-current-total').textContent = user.water || 0;
-    document.getElementById('water-target-total').textContent = minWater;
+    const waterDisplay = document.getElementById('water-display');
+    if (waterDisplay) waterDisplay.textContent = user.water || 0;
+
+    const waterDesc = document.getElementById('water-calc-desc');
+    if (waterDesc) waterDesc.textContent = `Mínimo recomendado: 35ml × ${user.weight || 70}kg = ${minWater}ml`;
+
+    const waterCur = document.getElementById('water-current-total');
+    if (waterCur) waterCur.textContent = user.water || 0;
+
+    const waterTar = document.getElementById('water-target-total');
+    if (waterTar) waterTar.textContent = minWater;
 
     const pct = minWater > 0 ? Math.min(100, Math.round(((user.water || 0) / minWater) * 100)) : 0;
-    document.getElementById('water-progress-fill').style.width = `${pct}%`;
-    document.getElementById('water-percent-badge').textContent = `${pct}%`;
-    document.getElementById('home-water-ratio').textContent = `${pct}%`;
+    const waterFill = document.getElementById('water-progress-fill');
+    if (waterFill) waterFill.style.width = `${pct}%`;
+
+    const waterBadge = document.getElementById('water-percent-badge');
+    if (waterBadge) waterBadge.textContent = `${pct}%`;
+
+    const homeWaterRatio = document.getElementById('home-water-ratio');
+    if (homeWaterRatio) homeWaterRatio.textContent = `${pct}%`;
   }
 
   // 1. Início
@@ -892,14 +976,19 @@
     renderWorkoutsTab();
   }
 
-  function confirmDeleteExercise(routine, ex) {
-    if (confirm(`Remover "${ex.name}" da ficha?`)) {
-      routine.exercises = routine.exercises.filter(item => item.id !== ex.id);
-      saveCurrentUser();
-      renderWorkoutsTab();
-      renderHomeTab();
-      showToast('Exercício removido.', 'success');
-    }
+  async function confirmDeleteExercise(routine, ex) {
+    const ok = await showConfirmModal({
+      title: 'Remover Exercício?',
+      message: `Deseja remover "${ex.name}" da ficha "${routine.name}"?`,
+      okText: 'Remover',
+      icon: '🗑️'
+    });
+    if (!ok) return;
+    routine.exercises = routine.exercises.filter(item => item.id !== ex.id);
+    saveCurrentUser();
+    renderWorkoutsTab();
+    renderHomeTab();
+    showToast('Exercício removido.', 'success');
   }
 
   // 3. Dieta (ZERADA POR PADRÃO)
@@ -1058,7 +1147,25 @@
     gramInput.addEventListener('input', () => calculateLiveTacoMacros());
 
     document.getElementById('btn-confirm-add-taco').onclick = () => {
-      if (!currentTargetMeal || !currentSelectedTacoFood) return;
+      if (!currentSelectedTacoFood) {
+        showToast('Selecione um alimento da lista primeiro.', 'error');
+        return;
+      }
+
+      const user = getCurrentUser();
+      let targetMeal = currentTargetMeal;
+
+      if (!targetMeal) {
+        if (user && user.meals && user.meals.length > 0) {
+          const selId = document.getElementById('taco-select-meal').value;
+          targetMeal = user.meals.find(m => m.id === selId) || user.meals[0];
+        } else {
+          document.getElementById('modal-taco-picker').classList.remove('open');
+          openAddMealModal();
+          showToast('Cadastre sua primeira refeição para adicionar alimentos!', 'info');
+          return;
+        }
+      }
 
       const grams = parseFloat(gramInput.value) || 100;
       const factor = grams / 100;
@@ -1073,14 +1180,14 @@
         fat: Math.round((currentSelectedTacoFood.fat * factor) * 10) / 10
       };
 
-      if (!currentTargetMeal.items) currentTargetMeal.items = [];
-      currentTargetMeal.items.push(newItem);
+      if (!targetMeal.items) targetMeal.items = [];
+      targetMeal.items.push(newItem);
 
       saveCurrentUser();
       document.getElementById('modal-taco-picker').classList.remove('open');
       renderDietTab();
       renderHomeTab();
-      showToast(`${grams}g de ${newItem.name} adicionados! 🥗`, 'success');
+      showToast(`${grams}g de ${newItem.name} adicionados à "${targetMeal.name}"! 🥗`, 'success');
     };
   }
 
@@ -1089,6 +1196,34 @@
     currentSelectedTacoFood = null;
     document.getElementById('taco-calc-box').style.display = 'none';
     document.getElementById('taco-search-input').value = '';
+
+    const selectGroup = document.getElementById('taco-meal-picker-select-group');
+    const selectEl = document.getElementById('taco-select-meal');
+    const confirmBtn = document.getElementById('btn-confirm-add-taco');
+    const user = getCurrentUser();
+
+    if (meal) {
+      if (selectGroup) selectGroup.style.display = 'none';
+      if (confirmBtn) confirmBtn.textContent = `+ Adicionar à ${meal.name}`;
+    } else {
+      if (user && user.meals && user.meals.length > 0) {
+        if (selectEl) {
+          selectEl.innerHTML = '';
+          user.meals.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = `${m.name} (${m.time})`;
+            selectEl.appendChild(opt);
+          });
+        }
+        if (selectGroup) selectGroup.style.display = 'block';
+        if (confirmBtn) confirmBtn.textContent = '+ Adicionar à Refeição Selecionada';
+      } else {
+        if (selectGroup) selectGroup.style.display = 'none';
+        if (confirmBtn) confirmBtn.textContent = '➕ Criar Refeição com este Alimento';
+      }
+    }
+
     filterTacoList();
     document.getElementById('modal-taco-picker').classList.add('open');
   }
@@ -1197,7 +1332,13 @@
         card.querySelector('.btn-compare-select').onclick = () => togglePhotoComparison(photo);
 
         card.querySelector('.btn-del-photo').onclick = async () => {
-          if (confirm('Deseja excluir esta foto?')) {
+          const ok = await showConfirmModal({
+            title: 'Excluir Foto?',
+            message: 'Esta foto de evolução será apagada permanentemente.',
+            okText: 'Excluir Foto',
+            icon: '📸'
+          });
+          if (ok) {
             await window.IronDB.deletePhoto(photo.id);
             selectedPhotosToCompare = selectedPhotosToCompare.filter(p => p.id !== photo.id);
             renderPhotosGallery();
@@ -1313,8 +1454,14 @@
 
     document.getElementById('btn-quick-water').onclick = () => addWater(250);
 
-    document.getElementById('btn-reset-water').onclick = () => {
-      if (confirm('Zerar contador de água de hoje?')) {
+    document.getElementById('btn-reset-water').onclick = async () => {
+      const ok = await showConfirmModal({
+        title: 'Zerar Contador de Água?',
+        message: 'Deseja reiniciar a contagem de água consumida hoje?',
+        okText: 'Zerar Água',
+        icon: '💧'
+      });
+      if (ok) {
         const u = getCurrentUser();
         u.water = 0;
         saveCurrentUser();
@@ -1655,16 +1802,21 @@
     }
   });
 
-  function confirmDeleteRoutine(routine) {
+  async function confirmDeleteRoutine(routine) {
     const user = getCurrentUser();
-    if (confirm(`Deseja excluir a ficha "${routine.name}"?`)) {
-      user.routines = user.routines.filter(r => r.id !== routine.id);
-      user.activeRoutineId = user.routines.length > 0 ? user.routines[0].id : null;
-      saveCurrentUser();
-      renderWorkoutsTab();
-      renderHomeTab();
-      showToast('Ficha excluída.', 'success');
-    }
+    const ok = await showConfirmModal({
+      title: 'Excluir Ficha?',
+      message: `Deseja excluir a ficha "${routine.name}" e todos os seus exercícios?`,
+      okText: 'Excluir Ficha',
+      icon: '🗑️'
+    });
+    if (!ok) return;
+    user.routines = user.routines.filter(r => r.id !== routine.id);
+    user.activeRoutineId = user.routines.length > 0 ? user.routines[0].id : null;
+    saveCurrentUser();
+    renderWorkoutsTab();
+    renderHomeTab();
+    showToast('Ficha excluída.', 'info');
   }
 
   // Modais de Exercício
@@ -1734,6 +1886,8 @@
     const name = document.getElementById('input-meal-name').value.trim();
     const time = document.getElementById('input-meal-time').value;
 
+    let newMealRef = null;
+
     if (id) {
       const meal = user.meals.find(m => m.id === id);
       if (meal) {
@@ -1743,31 +1897,43 @@
       }
     } else {
       if (!user.meals) user.meals = [];
-      user.meals.push({
+      newMealRef = {
         id: 'meal-' + Date.now(),
         name,
         time,
         done: false,
         items: []
-      });
-      showToast('Refeição cadastrada! Agora adicione alimentos pela Tabela TACO.', 'success');
+      };
+      user.meals.push(newMealRef);
+      showToast(`Refeição "${name}" criada! Escolha os alimentos da Tabela TACO 🥗`, 'success');
     }
 
     saveCurrentUser();
     document.getElementById('modal-meal').classList.remove('open');
     renderDietTab();
     renderHomeTab();
+
+    if (newMealRef) {
+      setTimeout(() => {
+        openTacoPickerForMeal(newMealRef);
+      }, 300);
+    }
   });
 
-  function confirmDeleteMeal(meal) {
+  async function confirmDeleteMeal(meal) {
     const user = getCurrentUser();
-    if (confirm(`Excluir a refeição "${meal.name}"?`)) {
-      user.meals = user.meals.filter(m => m.id !== meal.id);
-      saveCurrentUser();
-      renderDietTab();
-      renderHomeTab();
-      showToast('Refeição removida.', 'success');
-    }
+    const ok = await showConfirmModal({
+      title: 'Excluir Refeição?',
+      message: `Deseja remover "${meal.name}" da sua dieta?`,
+      okText: 'Excluir',
+      icon: '🗑️'
+    });
+    if (!ok) return;
+    user.meals = user.meals.filter(m => m.id !== meal.id);
+    saveCurrentUser();
+    renderDietTab();
+    renderHomeTab();
+    showToast('Refeição removida.', 'info');
   }
 
   // Backup Export & Import
@@ -1876,6 +2042,21 @@
       };
     });
 
+    // Modelos Rápidos de Refeição
+    document.querySelectorAll('.preset-chip-meal').forEach(chip => {
+      chip.onclick = () => {
+        const name = chip.getAttribute('data-name');
+        const time = chip.getAttribute('data-time');
+        if (name) document.getElementById('input-meal-name').value = name;
+        if (time) document.getElementById('input-meal-time').value = time;
+      };
+    });
+
+    const btnOpenTacoCatalog = document.getElementById('btn-open-taco-catalog');
+    if (btnOpenTacoCatalog) {
+      btnOpenTacoCatalog.onclick = () => openTacoPickerForMeal(null);
+    }
+
     document.getElementById('btn-start-session').onclick = toggleSession;
     document.getElementById('btn-add-meal').onclick = openAddMealModal;
 
@@ -1883,6 +2064,15 @@
       chip.onclick = () => startRestTimer(parseInt(chip.getAttribute('data-sec'), 10));
     });
     document.getElementById('btn-stop-rest').onclick = stopRestTimer;
+
+    // Sincronização automática quando a rede voltar
+    window.addEventListener('online', () => {
+      showToast('Rede restabelecida! Sincronizando com a nuvem...', 'success');
+      const user = getCurrentUser();
+      if (user && window.CloudDB && window.CloudDB.isConnected()) {
+        window.CloudDB.saveUser(user);
+      }
+    });
 
     // Checa autenticação inicial
     checkAuth();
