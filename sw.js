@@ -1,7 +1,7 @@
 /**
  * Service Worker - IronPulse PWA
- * Suporte offline robusto com estratégia Cache First para assets estáticos
- * Totalmente compatível com subpastas (ex: GitHub Pages)
+ * Build: 2026-10-29-0047
+ * Suporte offline robusto com estratégia Network First
  */
 
 const CACHE_NAME = 'ironpulse-cache-v9';
