@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="./icon.svg">
   
   <title>IronPulse • Treinos & Dieta em Nuvem</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=20261029_v9">
 </head>
 <body>
 
@@ -912,12 +912,23 @@
   <!-- Toast Hub -->
   <div class="toast-hub" id="toast-hub"></div>
 
-  <!-- Scripts -->
-  <script src="./cloud-config.js"></script>
-  <script src="./cloud-db.js"></script>
-  <script src="./auth.js"></script>
-  <script src="./taco.js"></script>
-  <script src="./db.js"></script>
-  <script src="./app.js"></script>
+  <!-- Scripts com Cache Busting -->
+  <script src="./cloud-config.js?v=20261029_v9"></script>
+  <script src="./cloud-db.js?v=20261029_v9"></script>
+  <script src="./auth.js?v=20261029_v9"></script>
+  <script src="./taco.js?v=20261029_v9"></script>
+  <script src="./db.js?v=20261029_v9"></script>
+  <script src="./app.js?v=20261029_v9"></script>
+
+  <!-- Auto-update Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (var i = 0; i < registrations.length; i++) {
+          registrations[i].update();
+        }
+      });
+    }
+  </script>
 </body>
 </html>
