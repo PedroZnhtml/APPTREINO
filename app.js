@@ -51,6 +51,8 @@
     const authView = document.getElementById('auth-view');
     const mainAppView = document.getElementById('main-app-view');
 
+    updateCloudStatusUI();
+
     if (!user) {
       authView.style.display = 'flex';
       mainAppView.style.display = 'none';
@@ -174,6 +176,114 @@
         showToast('Você saiu da conta.', 'success');
       }
     };
+  }
+
+  // ==================== CONFIGURAÇÃO DO BANCO EM NUVEM ====================
+  function updateCloudStatusUI() {
+    const isConn = window.CloudDB && window.CloudDB.isConnected();
+    const dot = document.getElementById('auth-cloud-status-dot');
+    const title = document.getElementById('auth-cloud-status-title');
+    const sub = document.getElementById('auth-cloud-status-sub');
+    const tag = document.getElementById('auth-cloud-tag');
+    const headerCloudBtn = document.getElementById('btn-header-cloud');
+
+    if (dot && title && sub && tag) {
+      if (isConn) {
+        dot.style.background = 'var(--accent)';
+        dot.style.boxShadow = '0 0 8px var(--accent)';
+        title.textContent = 'Banco em Nuvem Ativo';
+        sub.textContent = 'Sincronizado entre navegadores e celular';
+        tag.textContent = 'Conectado';
+        tag.className = 'tag tag-accent';
+      } else {
+        dot.style.background = '#888';
+        dot.style.boxShadow = 'none';
+        title.textContent = 'Banco em Nuvem (Multi-aparelho)';
+        sub.textContent = 'Toque aqui para conectar e sincronizar';
+        tag.textContent = 'Configurar';
+        tag.className = 'tag tag-outline';
+      }
+    }
+
+    if (headerCloudBtn) {
+      headerCloudBtn.title = isConn ? 'Nuvem Conectada' : 'Configurar Nuvem';
+      headerCloudBtn.style.opacity = isConn ? '1' : '0.6';
+    }
+  }
+
+  function initCloudDbEvents() {
+    updateCloudStatusUI();
+
+    const openBtns = [
+      document.getElementById('btn-auth-open-cloud-modal'),
+      document.getElementById('btn-header-cloud'),
+      document.getElementById('btn-open-cloud-settings')
+    ];
+
+    const modal = document.getElementById('modal-cloud-config');
+    const urlInput = document.getElementById('input-cloud-url');
+    const form = document.getElementById('form-cloud-config');
+    const btnTest = document.getElementById('btn-test-cloud-connection');
+    const statusBox = document.getElementById('cloud-test-status');
+
+    openBtns.forEach(btn => {
+      if (!btn) return;
+      btn.onclick = () => {
+        if (window.CloudDB && window.CloudDB.config && window.CloudDB.config.url) {
+          urlInput.value = window.CloudDB.config.url;
+        } else if (window.IRONPULSE_CLOUD_URL) {
+          urlInput.value = window.IRONPULSE_CLOUD_URL;
+        }
+        if (statusBox) statusBox.style.display = 'none';
+        if (modal) modal.classList.add('open');
+      };
+    });
+
+    if (btnTest) {
+      btnTest.onclick = async () => {
+        const url = urlInput.value.trim();
+        if (!url) {
+          showToast('Informe a URL do Firebase Realtime Database.', 'error');
+          return;
+        }
+        statusBox.style.display = 'block';
+        statusBox.innerHTML = '<span style="color: var(--cyan);">⏳ Testando conexão com a nuvem...</span>';
+        try {
+          const res = await window.CloudDB.testConnection(url);
+          statusBox.innerHTML = `<span style="color: var(--accent);">✅ ${res.message}</span>`;
+          showToast('Conexão testada com sucesso!', 'success');
+        } catch (err) {
+          statusBox.innerHTML = `<span style="color: var(--danger);">❌ ${err.message}</span>`;
+          showToast(err.message, 'error');
+        }
+      };
+    }
+
+    if (form) {
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const url = urlInput.value.trim();
+        if (!url) {
+          showToast('Informe uma URL válida.', 'error');
+          return;
+        }
+
+        try {
+          window.CloudDB.saveConfig({ type: 'firebase', url: url, apiKey: '' });
+          updateCloudStatusUI();
+
+          const currentUser = getUser();
+          if (currentUser) {
+            await window.CloudDB.saveUser(currentUser);
+          }
+
+          if (modal) modal.classList.remove('open');
+          showToast('Banco em nuvem salvo e conectado com sucesso! ☁️', 'success');
+        } catch (err) {
+          showToast('Erro ao salvar conexão: ' + err.message, 'error');
+        }
+      };
+    }
   }
 
   // ==================== WAKE LOCK & CRONÔMETRO ====================
@@ -1706,6 +1816,7 @@
   }
 
   function init() {
+    initCloudDbEvents();
     initAuthEvents();
     initNav();
     initCatalog();

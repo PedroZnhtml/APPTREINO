@@ -7,18 +7,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IronPulse">
-  <meta name="description" content="App de Treinos e Dieta TACO para Academia">
+  <meta name="description" content="App de Treinos e Dieta TACO com Banco de Dados em Nuvem">
   
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon.svg">
   
-  <title>IronPulse • Treinos & Dieta TACO</title>
+  <title>IronPulse • Treinos & Dieta em Nuvem</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-  <!-- ==================== TELA DE LOGIN / CADASTRO (PORTAL DE ENTRADA) ==================== -->
+  <!-- ==================== TELA DE LOGIN / CADASTRO ==================== -->
   <div id="auth-view" class="auth-wrapper" style="display: none;">
     <div class="auth-container">
       <!-- Logo & Apresentação -->
@@ -26,6 +26,18 @@
         <div class="auth-logo-glow">⚡</div>
         <h1 class="auth-title">IronPulse</h1>
         <p class="auth-desc">Treinos de Alta Performance & Dieta Tabela TACO</p>
+      </div>
+
+      <!-- Card de Status do Banco de Dados em Nuvem -->
+      <div class="cloud-status-banner mb-3" id="btn-auth-open-cloud-modal">
+        <div class="cloud-status-left">
+          <span class="cloud-dot" id="auth-cloud-status-dot"></span>
+          <div>
+            <strong id="auth-cloud-status-title">Banco em Nuvem</strong>
+            <span class="text-xs" id="auth-cloud-status-sub">Toque para configurar multi-dispositivo</span>
+          </div>
+        </div>
+        <span class="tag tag-accent" id="auth-cloud-tag">Configurar</span>
       </div>
 
       <!-- Abas de Autenticação -->
@@ -129,13 +141,19 @@
               <strong id="header-profile-name">Pedro</strong>
               <span class="badge-tag" id="header-profile-goal">Hipertrofia</span>
             </div>
-            <span class="header-small-email" id="header-user-email">usuario@app</span>
+            <div class="header-sync-status">
+              <span class="sync-dot" id="header-sync-dot"></span>
+              <span class="header-small-email" id="header-sync-text">Local</span>
+            </div>
           </div>
         </div>
 
         <div class="header-actions">
           <button id="btn-quick-water" class="btn-pill" title="Registrar Água">
             💧 <span id="water-display">0</span>ml
+          </button>
+          <button id="btn-header-cloud" class="btn-icon-tiny text-cyan" title="Status da Nuvem">
+            ☁️
           </button>
           <button id="btn-header-logout" class="btn-icon-tiny text-muted" title="Sair da Conta">
             🚪
@@ -149,7 +167,6 @@
 
       <!-- ==================== ABA 1: INÍCIO ==================== -->
       <section id="tab-home" class="tab-panel active">
-        <!-- Hero Card de Boas-Vindas -->
         <div class="hero-card">
           <div class="hero-top">
             <span class="tag tag-accent" id="home-goal-badge">Hipertrofia</span>
@@ -173,23 +190,19 @@
           </div>
         </div>
 
-        <!-- Treino do Dia em Destaque -->
+        <!-- Treino do Dia -->
         <div class="section-header">
           <h3>Treino Recomendado</h3>
           <button class="link-btn" id="btn-home-manage-workouts">Abrir Fichas →</button>
         </div>
-        <div class="card card-glow" id="home-workout-box">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div class="card card-glow" id="home-workout-box"></div>
 
         <!-- Próxima Refeição -->
         <div class="section-header">
           <h3>Próxima Refeição</h3>
           <button class="link-btn" id="btn-home-go-diet">Ver Dieta →</button>
         </div>
-        <div class="card" id="home-meal-box">
-          <!-- Renderizado dinamicamente -->
-        </div>
+        <div class="card" id="home-meal-box"></div>
 
         <!-- Consistência Semanal -->
         <div class="section-header">
@@ -202,18 +215,17 @@
 
       <!-- ==================== ABA 2: TREINOS (CONSTRUTOR ZERADO) ==================== -->
       <section id="tab-workouts" class="tab-panel">
-        <!-- Pílulas de Fichas Customizadas -->
         <div class="workouts-nav-bar">
           <div class="workouts-scroll-pills" id="workout-tabs-bar"></div>
         </div>
 
-        <!-- HUD de Sessão Ativa & Wake Lock -->
+        <!-- HUD de Treino & Wake Lock -->
         <div class="session-hud" id="session-hud">
           <div class="hud-left">
             <button class="btn btn-primary btn-sm" id="btn-start-session">
               <span id="session-icon">▶</span> <span id="session-text">Iniciar Treino</span>
             </button>
-            <div class="wakelock-pill" id="wakelock-pill" title="Manter a tela acesa durante o treino">
+            <div class="wakelock-pill" id="wakelock-pill" title="Manter tela acesa">
               <span class="pulse-dot"></span>
               <span class="wakelock-text">Tela Ativa</span>
             </div>
@@ -221,7 +233,7 @@
           <div class="hud-timer" id="session-stopwatch">00:00</div>
         </div>
 
-        <!-- Descanso Rápido entre Séries -->
+        <!-- Cronômetro de Descanso -->
         <div class="rest-timer-bar">
           <div class="rest-info">
             <span class="rest-tag">⏱️ DESCANSO:</span>
@@ -236,11 +248,11 @@
           </div>
         </div>
 
-        <!-- Header da Ficha Selecionada -->
+        <!-- Header da Ficha -->
         <div class="workout-header-card" id="workout-header-card" style="display: none;">
           <div class="workout-title-group">
             <h2 id="active-routine-name">Meu Treino</h2>
-            <span class="workout-subtitle" id="active-routine-focus">Monte sua divisão como preferir</span>
+            <span class="workout-subtitle" id="active-routine-focus">Monte sua divisão</span>
           </div>
           <div class="workout-action-buttons">
             <button class="btn-icon" id="btn-edit-routine" title="Renomear ficha">✏️</button>
@@ -251,7 +263,6 @@
         <!-- Lista de Exercícios -->
         <div class="exercises-stack" id="exercises-stack"></div>
 
-        <!-- Ações do Treino -->
         <div class="workout-bottom-actions" id="workout-bottom-actions" style="display: none;">
           <button class="btn btn-outline btn-block" id="btn-open-catalog">
             + Adicionar Exercício à Ficha
@@ -263,7 +274,6 @@
 
       <!-- ==================== ABA 3: DIETA (TABELA TACO ZERADA) ==================== -->
       <section id="tab-diet" class="tab-panel">
-        <!-- Resumo Nutricional -->
         <div class="card diet-summary-box">
           <div class="diet-summary-top">
             <div>
@@ -475,9 +485,12 @@
           </div>
 
           <div class="section-header">
-            <h3>Gerenciamento da Conta</h3>
+            <h3>Banco de Dados & Nuvem</h3>
           </div>
           <div class="card">
+            <button class="btn btn-outline btn-block mb-3" id="btn-open-cloud-settings">
+              ☁️ Configurar Banco de Dados em Nuvem
+            </button>
             <button class="btn btn-danger-soft btn-block mb-3" id="btn-account-logout">
               🚪 Sair desta Conta / Trocar Usuário
             </button>
@@ -518,7 +531,44 @@
 
   </div>
 
-  <!-- ==================== MODAL: TABELA TACO (ALIMENTOS E GRAMAS) ==================== -->
+  <!-- ==================== MODAL: CONFIGURAÇÃO DO BANCO EM NUVEM ==================== -->
+  <div class="modal-backdrop" id="modal-cloud-config">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div>
+          <h3>Banco de Dados em Nuvem</h3>
+          <span class="text-xs text-muted">Acesse seus dados em qualquer navegador e aparelho</span>
+        </div>
+        <button class="btn-modal-close" data-dismiss="modal-cloud-config">✕</button>
+      </div>
+
+      <div class="cloud-tutorial-box mb-3">
+        <strong style="color: var(--cyan); font-size: 0.9rem;">Como ter seu banco gratuito em 1 minuto:</strong>
+        <ol style="font-size: 0.8rem; color: var(--text-muted); margin-left: 18px; margin-top: 6px; line-height: 1.5;">
+          <li>Acesse <strong>console.firebase.google.com</strong> com sua conta Google.</li>
+          <li>Crie um projeto grátis (ex: <code>meu-treino</code>).</li>
+          <li>Vá em <strong>Realtime Database</strong> > <strong>Criar banco de dados</strong> > Selecione <strong>Modo de teste</strong>.</li>
+          <li>Copie a URL gerada (termina com <code>.firebaseio.com</code>) e cole abaixo!</li>
+        </ol>
+      </div>
+
+      <form id="form-cloud-config">
+        <div class="form-group">
+          <label class="form-label" for="input-cloud-url">URL do Banco de Dados Firebase</label>
+          <input type="url" id="input-cloud-url" class="form-control" placeholder="https://seu-projeto-default-rtdb.firebaseio.com" required>
+        </div>
+
+        <div id="cloud-test-status" class="mb-3 text-sm" style="display: none;"></div>
+
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" id="btn-test-cloud-connection">Testar Conexão</button>
+          <button type="submit" class="btn btn-primary">Salvar e Conectar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAIS DE ALIMENTOS, FOTOS E FICHAS ==================== -->
   <div class="modal-backdrop" id="modal-taco-picker">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -533,7 +583,6 @@
         <input type="text" id="taco-search-input" class="form-control" placeholder="🔍 Buscar alimento (arroz, frango, ovo, aveia...)">
       </div>
 
-      <!-- Calculadora de Gramas e Macros em Tempo Real -->
       <div class="taco-calc-box mb-3" id="taco-calc-box" style="display: none;">
         <div class="taco-calc-header">
           <strong id="taco-calc-food-name">Alimento</strong>
@@ -558,7 +607,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: SALVAR FOTO DE EVOLUÇÃO ==================== -->
+  <!-- Modal Salvar Foto -->
   <div class="modal-backdrop" id="modal-save-photo">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -596,7 +645,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: BIBLIOTECA DE EXERCÍCIOS ==================== -->
+  <!-- Modal Catálogo de Exercícios -->
   <div class="modal-backdrop" id="modal-catalog">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -627,7 +676,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: CRIAR / EDITAR FICHA ==================== -->
+  <!-- Modal Criar / Editar Ficha -->
   <div class="modal-backdrop" id="modal-routine">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -652,7 +701,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: REFEIÇÃO ==================== -->
+  <!-- Modal Refeição -->
   <div class="modal-backdrop" id="modal-meal">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -679,7 +728,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: EDITAR EXERCÍCIO ==================== -->
+  <!-- Modal Editar Exercício -->
   <div class="modal-backdrop" id="modal-edit-ex">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -704,7 +753,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: HISTÓRICO DE CARGA ==================== -->
+  <!-- Modal Histórico de Carga -->
   <div class="modal-backdrop" id="modal-history">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -728,6 +777,8 @@
   <div class="toast-hub" id="toast-hub"></div>
 
   <!-- Scripts -->
+  <script src="./cloud-config.js"></script>
+  <script src="./cloud-db.js"></script>
   <script src="./auth.js"></script>
   <script src="./taco.js"></script>
   <script src="./db.js"></script>
