@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090c10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="IronPulse">
+  <meta name="description" content="Construtor e rastreador de treinos e dieta no celular">
+  
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  
+  <title>IronPulse • Seus Treinos & Dieta</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-badge">⚡</div>
+        <div class="brand-info">
+          <h1>IronPulse</h1>
+          <span class="header-subtitle" id="header-date-text">Hoje</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-quick-water" class="btn-pill" title="Registrar Água">
+          💧 <span id="water-display">0</span>ml
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-content">
+
+    <!-- ==================== ABA 1: INÍCIO ==================== -->
+    <section id="tab-home" class="tab-panel active">
+      <!-- Status Card Superior -->
+      <div class="hero-card">
+        <div class="hero-top">
+          <div>
+            <span class="tag tag-accent" id="home-goal-badge">Hipertrofia</span>
+            <h2 id="home-greeting">Pronto pro treino de hoje?</h2>
+          </div>
+        </div>
+        <div class="hero-stats-row">
+          <div class="hero-stat-item">
+            <span class="stat-label">Treinos na Semana</span>
+            <strong class="stat-val" id="home-week-workouts-count">0/7</strong>
+          </div>
+          <div class="hero-divider"></div>
+          <div class="hero-stat-item">
+            <span class="stat-label">Kcal de Hoje</span>
+            <strong class="stat-val"><span id="home-kcal-val">0</span> / <span id="home-target-kcal-val">2400</span></strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Treino Ativo / Recomendado -->
+      <div class="section-header">
+        <h3>Treino Atual</h3>
+        <button class="link-btn" id="btn-home-manage-workouts">Gerenciar Fichas →</button>
+      </div>
+      <div class="card card-glow" id="home-workout-box">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+
+      <!-- Próxima Refeição -->
+      <div class="section-header">
+        <h3>Próxima Refeição</h3>
+        <button class="link-btn" id="btn-home-go-diet">Ver Dieta →</button>
+      </div>
+      <div class="card" id="home-meal-box">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+
+      <!-- Consistência dos Últimos 7 Dias -->
+      <div class="section-header">
+        <h3>Sua Consistência (7 Dias)</h3>
+      </div>
+      <div class="card">
+        <div class="week-strip" id="home-week-strip">
+          <!-- Gerado dinamicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 2: TREINOS (CONSTRUTOR & LOG REAL SÉRIE A SÉRIE) ==================== -->
+    <section id="tab-workouts" class="tab-panel">
+      <!-- Seletor de Fichas Customizadas -->
+      <div class="workouts-nav-bar">
+        <div class="workouts-scroll-pills" id="workout-tabs-bar">
+          <!-- Fichas do Usuário + Botão "+ Nova Ficha" -->
+        </div>
+      </div>
+
+      <!-- Barra de Controle da Sessão Ativa -->
+      <div class="session-hud" id="session-hud">
+        <div class="hud-left">
+          <button class="btn btn-primary btn-sm" id="btn-start-session">
+            <span id="session-icon">▶</span> <span id="session-text">Iniciar Treino</span>
+          </button>
+          <div class="wakelock-pill" id="wakelock-pill" title="Manter a tela acesa durante o treino">
+            <span class="pulse-dot"></span>
+            <span class="wakelock-text">Tela Ativa</span>
+          </div>
+        </div>
+        <div class="hud-timer" id="session-stopwatch">00:00</div>
+      </div>
+
+      <!-- Barra Rápida de Descanso entre Séries -->
+      <div class="rest-timer-bar">
+        <div class="rest-info">
+          <span class="rest-tag">⏱️ DESCANSO:</span>
+          <span class="rest-display" id="rest-timer-text">Parado</span>
+        </div>
+        <div class="rest-chips">
+          <button class="chip-timer" data-sec="30">30s</button>
+          <button class="chip-timer" data-sec="60">60s</button>
+          <button class="chip-timer" data-sec="90">90s</button>
+          <button class="chip-timer" data-sec="120">2m</button>
+          <button class="chip-timer chip-stop" id="btn-stop-rest">✕</button>
+        </div>
+      </div>
+
+      <!-- Header da Ficha Ativa com Ações -->
+      <div class="workout-header-card">
+        <div class="workout-title-group">
+          <h2 id="active-routine-name">Meu Treino</h2>
+          <span class="workout-subtitle" id="active-routine-focus">Monte sua divisão como preferir</span>
+        </div>
+        <div class="workout-action-buttons">
+          <button class="btn-icon" id="btn-edit-routine" title="Renomear ou mudar foco">✏️</button>
+          <button class="btn-icon text-danger" id="btn-delete-routine" title="Excluir esta ficha">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Lista de Exercícios com Séries Individuais (Estilo Hevy / Strong) -->
+      <div class="exercises-stack" id="exercises-stack">
+        <!-- Renderizado dinamicamente -->
+      </div>
+
+      <!-- Ações do Treino: Adicionar Exercício do Catálogo ou Criar do Zero -->
+      <div class="workout-bottom-actions">
+        <button class="btn btn-outline btn-block" id="btn-open-catalog">
+          + Adicionar Exercício (Biblioteca ou Personalizado)
+        </button>
+        
+        <div class="empty-state-help" id="empty-routine-hint" style="display: none;">
+          <p>Sua ficha está vazia! Toque no botão acima para montar seu treino exercício por exercício.</p>
+        </div>
+      </div>
+
+      <div class="spacer-bottom"></div>
+    </section>
+
+    <!-- ==================== ABA 3: DIETA ==================== -->
+    <section id="tab-diet" class="tab-panel">
+      <!-- Painel de Metas e Calorias do Dia -->
+      <div class="card diet-summary-box">
+        <div class="diet-summary-top">
+          <div>
+            <span class="text-xs text-muted">CALORIAS DO DIA</span>
+            <div class="diet-kcal-big">
+              <strong id="diet-consumed-kcal">0</strong> <span class="text-muted text-sm">/ <span id="diet-goal-kcal">2400</span> kcal</span>
+            </div>
+          </div>
+          <div class="diet-remaining-col">
+            <span class="text-xs text-muted">RESTANTE</span>
+            <div class="kcal-remain-num" id="diet-remaining-kcal">2400</div>
+          </div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill fill-kcal" id="diet-kcal-progress" style="width: 0%"></div>
+        </div>
+
+        <!-- 3 Barras de Macros -->
+        <div class="macro-bars-list">
+          <div class="macro-bar-row">
+            <div class="macro-info-left">
+              <span class="dot dot-protein"></span>
+              <span class="macro-title">Proteína</span>
+            </div>
+            <span class="macro-numbers"><strong id="diet-consumed-p">0</strong> / <span id="diet-goal-p">160</span>g</span>
+            <div class="progress-track-sm">
+              <div class="progress-fill fill-protein" id="diet-p-progress" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="macro-bar-row">
+            <div class="macro-info-left">
+              <span class="dot dot-carbs"></span>
+              <span class="macro-title">Carboidrato</span>
+            </div>
+            <span class="macro-numbers"><strong id="diet-consumed-c">0</strong> / <span id="diet-goal-c">260</span>g</span>
+            <div class="progress-track-sm">
+              <div class="progress-fill fill-carbs" id="diet-c-progress" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="macro-bar-row">
+            <div class="macro-info-left">
+              <span class="dot dot-fat"></span>
+              <span class="macro-title">Gordura</span>
+            </div>
+            <span class="macro-numbers"><strong id="diet-consumed-f">0</strong> / <span id="diet-goal-f">65</span>g</span>
+            <div class="progress-track-sm">
+              <div class="progress-fill fill-fat" id="diet-f-progress" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refeições Cadastradas -->
+      <div class="section-header">
+        <h3>Suas Refeições</h3>
+        <button class="btn btn-sm btn-outline" id="btn-add-meal">+ Nova Refeição</button>
+      </div>
+
+      <div class="meals-stack" id="meals-stack">
+        <!-- Renderizado dinamicamente -->
+      </div>
+
+      <div class="spacer-bottom"></div>
+    </section>
+
+    <!-- ==================== ABA 4: PROGRESSO & CONFIGURAÇÕES ==================== -->
+    <section id="tab-progress" class="tab-panel">
+      <!-- Gráfico de Evolução de Carga -->
+      <div class="section-header">
+        <h3>Evolução de Cargas</h3>
+      </div>
+      <div class="card">
+        <label for="select-chart-ex" class="form-label">Exercício para Análise:</label>
+        <select id="select-chart-ex" class="form-control mb-3">
+          <!-- Populado via app.js -->
+        </select>
+
+        <div class="chart-box">
+          <div class="chart-headline">
+            <span class="text-sm text-muted">Histórico de Carga Máxima</span>
+            <span class="badge badge-accent" id="chart-max-weight">-- kg</span>
+          </div>
+          <div class="svg-chart-wrapper" id="progress-chart-container">
+            <!-- Gráfico SVG interativo -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuração de Metas do Usuário -->
+      <div class="section-header">
+        <h3>Minhas Metas & Objetivo</h3>
+      </div>
+      <div class="card">
+        <form id="form-user-goals">
+          <div class="form-group">
+            <label class="form-label" for="input-goal-title">Objetivo Atual</label>
+            <select id="input-goal-title" class="form-control">
+              <option value="Hipertrofia">Hipertrofia (Ganho de Massa Muscular)</option>
+              <option value="Emagrecimento">Emagrecimento / Cutting (Definição)</option>
+              <option value="Manutenção">Manutenção / Performance</option>
+              <option value="Força Pura">Powerlifting / Força</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-goal-kcal">Calorias Diárias (kcal)</label>
+            <input type="number" inputmode="numeric" id="input-goal-kcal" class="form-control" min="500" max="8000" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col">
+              <label class="form-label" for="input-goal-p">Proteína (g)</label>
+              <input type="number" inputmode="numeric" id="input-goal-p" class="form-control" min="0" max="600" required>
+            </div>
+            <div class="form-group col">
+              <label class="form-label" for="input-goal-c">Carbo (g)</label>
+              <input type="number" inputmode="numeric" id="input-goal-c" class="form-control" min="0" max="1000" required>
+            </div>
+            <div class="form-group col">
+              <label class="form-label" for="input-goal-f">Gordura (g)</label>
+              <input type="number" inputmode="numeric" id="input-goal-f" class="form-control" min="0" max="300" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Salvar Novas Metas</button>
+        </form>
+      </div>
+
+      <!-- Backup e Gerenciamento -->
+      <div class="section-header">
+        <h3>Seus Dados & Backup</h3>
+      </div>
+      <div class="card">
+        <p class="text-sm text-muted mb-3">
+          Todos os seus treinos e refeições ficam salvos no seu próprio celular. Você pode exportar e importar a qualquer hora.
+        </p>
+
+        <div class="backup-grid">
+          <button class="btn btn-outline btn-block" id="btn-export-backup">
+            📥 Exportar Backup (.JSON)
+          </button>
+          
+          <label class="btn btn-outline btn-block btn-file-upload" for="input-backup-file">
+            📤 Importar Backup (.JSON)
+            <input type="file" id="input-backup-file" accept=".json" style="display:none;">
+          </label>
+
+          <button class="btn btn-outline btn-block text-danger mt-2" id="btn-clear-all-data">
+            🗑️ Limpar Tudo e Começar do Zero
+          </button>
+        </div>
+      </div>
+
+      <div class="spacer-bottom"></div>
+    </section>
+
+  </main>
+
+  <!-- ==================== BOTTOM NAV (FIXA) ==================== -->
+  <nav class="bottom-bar">
+    <button class="bar-item active" data-tab="tab-home">
+      <span class="bar-icon">🏠</span>
+      <span class="bar-label">Início</span>
+    </button>
+    <button class="bar-item" data-tab="tab-workouts">
+      <span class="bar-icon">🏋️</span>
+      <span class="bar-label">Treinos</span>
+    </button>
+    <button class="bar-item" data-tab="tab-diet">
+      <span class="bar-icon">🥗</span>
+      <span class="bar-label">Dieta</span>
+    </button>
+    <button class="bar-item" data-tab="tab-progress">
+      <span class="bar-icon">📈</span>
+      <span class="bar-label">Progresso</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MODAL: BIBLIOTECA DE EXERCÍCIOS & CRIADOR ==================== -->
+  <div class="modal-backdrop" id="modal-catalog">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div>
+          <h3>Adicionar Exercício</h3>
+          <span class="text-xs text-muted">Escolha da lista ou digite o seu</span>
+        </div>
+        <button class="btn-modal-close" data-dismiss="modal-catalog">✕</button>
+      </div>
+
+      <!-- Filtro por Grupo Muscular -->
+      <div class="catalog-filters" id="catalog-filters">
+        <button class="filter-chip active" data-muscle="all">Todos</button>
+        <button class="filter-chip" data-muscle="Peito">Peito</button>
+        <button class="filter-chip" data-muscle="Costas">Costas</button>
+        <button class="filter-chip" data-muscle="Pernas">Pernas</button>
+        <button class="filter-chip" data-muscle="Ombros">Ombros</button>
+        <button class="filter-chip" data-muscle="Bíceps">Bíceps</button>
+        <button class="filter-chip" data-muscle="Tríceps">Tríceps</button>
+        <button class="filter-chip" data-muscle="Abdômen">Abdômen</button>
+      </div>
+
+      <!-- Barra de Busca Rápida -->
+      <div class="search-box-wrap mb-3">
+        <input type="text" id="catalog-search-input" class="form-control" placeholder="🔍 Buscar exercício ou digitar novo...">
+      </div>
+
+      <!-- Criar Personalizado Rápido se não achar -->
+      <div class="custom-ex-prompt" id="custom-ex-prompt" style="display: none;">
+        <span>Não encontrou?</span>
+        <button class="btn btn-sm btn-primary" id="btn-create-custom-ex">+ Criar com este nome</button>
+      </div>
+
+      <!-- Lista Rolável da Biblioteca -->
+      <div class="catalog-list" id="catalog-list">
+        <!-- Preenchido via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CRIAR / EDITAR FICHA DE TREINO ==================== -->
+  <div class="modal-backdrop" id="modal-routine">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <h3 id="modal-routine-title">Montar Ficha de Treino</h3>
+        <button class="btn-modal-close" data-dismiss="modal-routine">✕</button>
+      </div>
+      <form id="form-routine">
+        <input type="hidden" id="input-routine-id">
+        <div class="form-group">
+          <label class="form-label" for="input-routine-name">Nome da Ficha</label>
+          <input type="text" id="input-routine-name" class="form-control" placeholder="Ex: Treino A (Push), Perna Pesado, etc." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-routine-focus">Músculos / Divisão</label>
+          <input type="text" id="input-routine-focus" class="form-control" placeholder="Ex: Peito, Tríceps e Deltóides" required>
+        </div>
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" data-dismiss="modal-routine">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Ficha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: EDITAR EXERCÍCIO (NOTAS / OPÇÕES) ==================== -->
+  <div class="modal-backdrop" id="modal-edit-ex">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <h3 id="modal-edit-ex-title">Configurar Exercício</h3>
+        <button class="btn-modal-close" data-dismiss="modal-edit-ex">✕</button>
+      </div>
+      <form id="form-edit-ex">
+        <input type="hidden" id="input-edit-ex-id">
+        <div class="form-group">
+          <label class="form-label" for="input-edit-ex-name">Nome do Exercício</label>
+          <input type="text" id="input-edit-ex-name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-edit-ex-notes">Observações / Dicas de Execução</label>
+          <input type="text" id="input-edit-ex-notes" class="form-control" placeholder="Ex: Cadência 3-1, pausa embaixo, pegada aberta">
+        </div>
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" data-dismiss="modal-edit-ex">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: HISTÓRICO DE CARGA ==================== -->
+  <div class="modal-backdrop" id="modal-history">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div>
+          <h3 id="history-modal-title">Evolução do Exercício</h3>
+          <span class="text-xs text-muted" id="history-modal-sub">Histórico de cargas</span>
+        </div>
+        <button class="btn-modal-close" data-dismiss="modal-history">✕</button>
+      </div>
+      <div class="chart-box mb-3">
+        <div class="svg-chart-wrapper" id="history-modal-chart"></div>
+      </div>
+      <div class="history-table-box" id="history-table-records">
+        <!-- Registros históricos -->
+      </div>
+      <div class="modal-sheet-footer">
+        <button type="button" class="btn btn-outline btn-block" data-dismiss="modal-history">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADICIONAR / EDITAR REFEIÇÃO ==================== -->
+  <div class="modal-backdrop" id="modal-meal">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <h3 id="modal-meal-title">Refeição</h3>
+        <button class="btn-modal-close" data-dismiss="modal-meal">✕</button>
+      </div>
+      <form id="form-meal">
+        <input type="hidden" id="input-meal-id">
+        <div class="form-row">
+          <div class="form-group col-8">
+            <label class="form-label" for="input-meal-name">Nome da Refeição</label>
+            <input type="text" id="input-meal-name" class="form-control" placeholder="Ex: Café da Manhã" required>
+          </div>
+          <div class="form-group col-4">
+            <label class="form-label" for="input-meal-time">Horário</label>
+            <input type="time" id="input-meal-time" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-meal-foods">Alimentos / Descrição</label>
+          <textarea id="input-meal-foods" class="form-control" rows="2" placeholder="Ex: 3 ovos, 2 fatias pão integral, 1 banana, café" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label" for="input-meal-kcal">Kcal</label>
+            <input type="number" inputmode="numeric" id="input-meal-kcal" class="form-control" placeholder="480" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label" for="input-meal-p">Prot (g)</label>
+            <input type="number" inputmode="numeric" id="input-meal-p" class="form-control" placeholder="30" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label" for="input-meal-c">Carb (g)</label>
+            <input type="number" inputmode="numeric" id="input-meal-c" class="form-control" placeholder="50" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label" for="input-meal-f">Gord (g)</label>
+            <input type="number" inputmode="numeric" id="input-meal-f" class="form-control" placeholder="12" required>
+          </div>
+        </div>
+
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" data-dismiss="modal-meal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Refeição</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-hub" id="toast-hub"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

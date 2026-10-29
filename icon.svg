@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#151a23" />
+      <stop offset="100%" stop-color="#0b0e14" />
+    </linearGradient>
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e676" />
+      <stop offset="100%" stop-color="#00d2ff" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Fundo com cantos arredondados (squircle moderno) -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="6" y="6" width="500" height="500" rx="106" fill="none" stroke="url(#neonGrad)" stroke-width="8" opacity="0.35" />
+
+  <!-- Haltere estilizado & Raio Central -->
+  <g transform="translate(256, 256) scale(1.1) translate(-256, -256)" filter="url(#glow)">
+    <!-- Barra Central -->
+    <rect x="140" y="244" width="232" height="24" rx="12" fill="#f0f6fc" />
+
+    <!-- Anilhas Esquerdas -->
+    <rect x="110" y="196" width="30" height="120" rx="10" fill="url(#neonGrad)" />
+    <rect x="75" y="216" width="25" height="80" rx="8" fill="url(#neonGrad)" opacity="0.85" />
+    <rect x="140" y="234" width="12" height="44" rx="4" fill="#8b949e" />
+
+    <!-- Anilhas Direitas -->
+    <rect x="372" y="196" width="30" height="120" rx="10" fill="url(#neonGrad)" />
+    <rect x="412" y="216" width="25" height="80" rx="8" fill="url(#neonGrad)" opacity="0.85" />
+    <rect x="360" y="234" width="12" height="44" rx="4" fill="#8b949e" />
+
+    <!-- Raio Elétrico de Energia -->
+    <path d="M 270 140 L 225 240 L 265 240 L 240 370 L 305 260 L 265 260 Z" fill="#ffffff" />
+    <path d="M 270 140 L 225 240 L 265 240 L 240 370 L 305 260 L 265 260 Z" fill="url(#neonGrad)" opacity="0.9" />
+  </g>
+</svg>
