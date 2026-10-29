@@ -1,391 +1,211 @@
 /**
- * IronPulse - Construtor & Rastreador de Treinos e Dieta
- * Estilo Hevy / Strong • Otimizado para Criação Livre pelo Usuário
+ * IronPulse - Treinos, Dieta TACO, Multiperfil & Fotos
+ * Alta Performance • IndexedDB + LocalStorage
  */
 
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'ironpulse_app_state_v2';
+  const STORAGE_KEY = 'ironpulse_multi_profile_v1';
 
-  // Obter chave da data de hoje (YYYY-MM-DD)
   function getTodayKey() {
     const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${y}-${m}-${day}`;
   }
 
-  // ==================== BIBLIOTECA COMPLETA DE EXERCÍCIOS ====================
-  const EXERCISE_CATALOG = [
-    // Peito
-    { name: 'Supino Reto com Barra', muscle: 'Peito' },
-    { name: 'Supino Inclinado com Halteres', muscle: 'Peito' },
-    { name: 'Supino Inclinado com Barra', muscle: 'Peito' },
-    { name: 'Supino Reto com Halteres', muscle: 'Peito' },
-    { name: 'Supino Declinado', muscle: 'Peito' },
-    { name: 'Crucifixo Reto com Halteres', muscle: 'Peito' },
-    { name: 'Crucifixo Inclinado com Halteres', muscle: 'Peito' },
-    { name: 'Crossover na Polia Média', muscle: 'Peito' },
-    { name: 'Crossover na Polia Alta', muscle: 'Peito' },
-    { name: 'Crossover na Polia Baixa', muscle: 'Peito' },
-    { name: 'Voador / Peck Deck', muscle: 'Peito' },
-    { name: 'Paralelas (Foco Peitoral)', muscle: 'Peito' },
-    { name: 'Flexão de Braço', muscle: 'Peito' },
-
-    // Costas
-    { name: 'Puxada Alta Frontal', muscle: 'Costas' },
-    { name: 'Puxada com Triângulo', muscle: 'Costas' },
-    { name: 'Remada Curvada com Barra', muscle: 'Costas' },
-    { name: 'Remada Curvada com Halteres', muscle: 'Costas' },
-    { name: 'Remada Baixa no Triângulo', muscle: 'Costas' },
-    { name: 'Remada Cavalinho (Barra T)', muscle: 'Costas' },
-    { name: 'Remada Articulada Unilateral', muscle: 'Costas' },
-    { name: 'Pull-Down na Polia com Corda', muscle: 'Costas' },
-    { name: 'Barra Fixa (Pronada ou Supinada)', muscle: 'Costas' },
-    { name: 'Levantamento Terra', muscle: 'Costas' },
-
-    // Pernas (Quadríceps, Posterior, Glúteo, Panturrilha)
-    { name: 'Agachamento Livre com Barra', muscle: 'Pernas' },
-    { name: 'Leg Press 45°', muscle: 'Pernas' },
-    { name: 'Cadeira Extensora', muscle: 'Pernas' },
-    { name: 'Agachamento Hack', muscle: 'Pernas' },
-    { name: 'Agachamento Búlgaro', muscle: 'Pernas' },
-    { name: 'Passada / Avanço com Halteres', muscle: 'Pernas' },
-    { name: 'Mesa Flexora', muscle: 'Pernas' },
-    { name: 'Cadeira Flexora', muscle: 'Pernas' },
-    { name: 'Stiff com Halteres', muscle: 'Pernas' },
-    { name: 'Stiff com Barra', muscle: 'Pernas' },
-    { name: 'Elevação Pélvica com Barra', muscle: 'Pernas' },
-    { name: 'Cadeira Abdutora', muscle: 'Pernas' },
-    { name: 'Cadeira Adutora', muscle: 'Pernas' },
-    { name: 'Panturrilha em Pé na Máquina', muscle: 'Pernas' },
-    { name: 'Panturrilha no Leg Press', muscle: 'Pernas' },
-    { name: 'Panturrilha Sentado (Gêmeos)', muscle: 'Pernas' },
-
-    // Ombros
-    { name: 'Desenvolvimento com Halteres', muscle: 'Ombros' },
-    { name: 'Desenvolvimento Militar com Barra', muscle: 'Ombros' },
-    { name: 'Desenvolvimento na Máquina', muscle: 'Ombros' },
-    { name: 'Elevação Lateral com Halteres', muscle: 'Ombros' },
-    { name: 'Elevação Lateral na Polia', muscle: 'Ombros' },
-    { name: 'Elevação Frontal', muscle: 'Ombros' },
-    { name: 'Crucifixo Inverso com Halteres', muscle: 'Ombros' },
-    { name: 'Crucifixo Inverso no Peck Deck', muscle: 'Ombros' },
-    { name: 'Face Pull na Polia', muscle: 'Ombros' },
-    { name: 'Encolhimento com Halteres (Trapézio)', muscle: 'Ombros' },
-
-    // Bíceps
-    { name: 'Rosca Direta com Barra W', muscle: 'Bíceps' },
-    { name: 'Rosca Direta com Barra Reta', muscle: 'Bíceps' },
-    { name: 'Rosca Alternada com Halteres', muscle: 'Bíceps' },
-    { name: 'Rosca Martelo com Halteres', muscle: 'Bíceps' },
-    { name: 'Rosca Scott com Barra W', muscle: 'Bíceps' },
-    { name: 'Rosca no Banco Inclinado', muscle: 'Bíceps' },
-    { name: 'Rosca Concentrada', muscle: 'Bíceps' },
-    { name: 'Rosca na Polia Baixa', muscle: 'Bíceps' },
-
-    // Tríceps
-    { name: 'Tríceps Corda na Polia', muscle: 'Tríceps' },
-    { name: 'Tríceps Barra Reta na Polia', muscle: 'Tríceps' },
-    { name: 'Tríceps Testa com Barra W', muscle: 'Tríceps' },
-    { name: 'Tríceps Francês com Halter', muscle: 'Tríceps' },
-    { name: 'Mergulho em Paralelas', muscle: 'Tríceps' },
-    { name: 'Tríceps Coice na Polia ou Halter', muscle: 'Tríceps' },
-    { name: 'Supino Fechado com Barra', muscle: 'Tríceps' },
-
-    // Abdômen
-    { name: 'Abdominal Supra na Polia (Crunch)', muscle: 'Abdômen' },
-    { name: 'Elevação de Pernas na Barra Fixa', muscle: 'Abdômen' },
-    { name: 'Abdominal Infra no Banco ou Chão', muscle: 'Abdômen' },
-    { name: 'Prancha Isométrica', muscle: 'Abdômen' },
-    { name: 'Abdominal na Roda (Ab Wheel)', muscle: 'Abdômen' }
-  ];
-
-  // ==================== DADOS BASE INICIAIS ====================
-  const DEFAULT_DATA = {
-    profile: {
-      goal: 'Hipertrofia',
+  // Perfil Padrão Inicial
+  function createDefaultProfile(id, name, weight = 75, height = 175, goal = 'Hipertrofia') {
+    const minWater = Math.round(weight * 35);
+    return {
+      id: id,
+      name: name,
+      weight: weight,
+      height: height,
+      goal: goal,
       targetKcal: 2400,
       targetProtein: 160,
       targetCarbs: 260,
       targetFat: 65,
-      water: 0
-    },
-    activeRoutineId: 'routine-1',
-    routines: [
-      {
-        id: 'routine-1',
-        name: 'Treino A • Push',
-        focus: 'Peito, Ombros e Tríceps',
-        exercises: [
-          {
-            id: 'ex-1',
-            name: 'Supino Reto com Barra',
-            muscle: 'Peito',
-            notes: 'Pausa de 1s embaixo, escápulas aduzidas',
-            sets: [
-              { weight: 60, reps: 10, completed: false, prev: '55kg × 10' },
-              { weight: 70, reps: 8, completed: false, prev: '65kg × 8' },
-              { weight: 70, reps: 8, completed: false, prev: '70kg × 7' }
-            ],
-            history: [
-              { date: '2026-10-05', weight: 60 },
-              { date: '2026-10-15', weight: 65 },
-              { date: '2026-10-26', weight: 70 }
-            ]
-          },
-          {
-            id: 'ex-2',
-            name: 'Supino Inclinado com Halteres',
-            muscle: 'Peito',
-            notes: 'Banco a 30 graus, amplitude máxima',
-            sets: [
-              { weight: 24, reps: 12, completed: false, prev: '22kg × 12' },
-              { weight: 26, reps: 10, completed: false, prev: '24kg × 10' },
-              { weight: 26, reps: 10, completed: false, prev: '26kg × 9' }
-            ],
-            history: [
-              { date: '2026-10-05', weight: 22 },
-              { date: '2026-10-15', weight: 24 },
-              { date: '2026-10-26', weight: 26 }
-            ]
-          },
-          {
-            id: 'ex-3',
-            name: 'Desenvolvimento com Halteres',
-            muscle: 'Ombros',
-            notes: 'Sem bater os halteres no topo',
-            sets: [
-              { weight: 20, reps: 10, completed: false, prev: '18kg × 10' },
-              { weight: 22, reps: 8, completed: false, prev: '20kg × 8' }
-            ],
-            history: [
-              { date: '2026-10-10', weight: 18 },
-              { date: '2026-10-26', weight: 22 }
-            ]
-          },
-          {
-            id: 'ex-4',
-            name: 'Tríceps Corda na Polia',
-            muscle: 'Tríceps',
-            notes: 'Abra a corda e segure a contração',
-            sets: [
-              { weight: 22.5, reps: 12, completed: false, prev: '20kg × 12' },
-              { weight: 25, reps: 10, completed: false, prev: '22.5kg × 10' }
-            ],
-            history: [
-              { date: '2026-10-10', weight: 20 },
-              { date: '2026-10-26', weight: 25 }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'routine-2',
-        name: 'Treino B • Pull',
-        focus: 'Costas e Bíceps',
-        exercises: [
-          {
-            id: 'ex-5',
-            name: 'Puxada Alta Frontal',
-            muscle: 'Costas',
-            notes: 'Puxada controlada até a altura do queixo',
-            sets: [
-              { weight: 55, reps: 12, completed: false, prev: '50kg × 12' },
-              { weight: 60, reps: 10, completed: false, prev: '55kg × 10' },
-              { weight: 65, reps: 8, completed: false, prev: '60kg × 8' }
-            ],
-            history: [
-              { date: '2026-10-08', weight: 55 },
-              { date: '2026-10-20', weight: 60 },
-              { date: '2026-10-27', weight: 65 }
-            ]
-          },
-          {
-            id: 'ex-6',
-            name: 'Remada Curvada com Barra',
-            muscle: 'Costas',
-            notes: 'Tronco firme e escápulas travadas',
-            sets: [
-              { weight: 60, reps: 10, completed: false, prev: '55kg × 10' },
-              { weight: 65, reps: 8, completed: false, prev: '60kg × 8' }
-            ],
-            history: [
-              { date: '2026-10-08', weight: 55 },
-              { date: '2026-10-27', weight: 65 }
-            ]
-          },
-          {
-            id: 'ex-7',
-            name: 'Rosca Direta com Barra W',
-            muscle: 'Bíceps',
-            notes: 'Sem balançar o corpo',
-            sets: [
-              { weight: 24, reps: 10, completed: false, prev: '22kg × 10' },
-              { weight: 26, reps: 10, completed: false, prev: '24kg × 10' }
-            ],
-            history: [
-              { date: '2026-10-12', weight: 22 },
-              { date: '2026-10-27', weight: 26 }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'routine-3',
-        name: 'Treino C • Legs',
-        focus: 'Pernas Completas',
-        exercises: [
-          {
-            id: 'ex-8',
-            name: 'Agachamento Livre com Barra',
-            muscle: 'Pernas',
-            notes: 'Desça até quebrar os 90°',
-            sets: [
-              { weight: 70, reps: 10, completed: false, prev: '60kg × 10' },
-              { weight: 80, reps: 8, completed: false, prev: '75kg × 8' },
-              { weight: 85, reps: 6, completed: false, prev: '80kg × 8' }
-            ],
-            history: [
-              { date: '2026-10-05', weight: 65 },
-              { date: '2026-10-15', weight: 75 },
-              { date: '2026-10-25', weight: 85 }
-            ]
-          },
-          {
-            id: 'ex-9',
-            name: 'Leg Press 45°',
-            muscle: 'Pernas',
-            notes: 'Não estenda o joelho por completo',
-            sets: [
-              { weight: 180, reps: 12, completed: false, prev: '160kg × 12' },
-              { weight: 200, reps: 10, completed: false, prev: '180kg × 10' }
-            ],
-            history: [
-              { date: '2026-10-15', weight: 180 },
-              { date: '2026-10-25', weight: 200 }
-            ]
-          }
-        ]
-      }
-    ],
-    meals: [
-      {
-        id: 'm-1',
-        name: 'Café da Manhã',
-        time: '07:30',
-        foods: '3 ovos mexidos, 2 fatias pão integral, 1 banana com aveia e café preto',
-        kcal: 480,
-        protein: 30,
-        carbs: 55,
-        fat: 15,
-        done: false
-      },
-      {
-        id: 'm-2',
-        name: 'Almoço',
-        time: '12:30',
-        foods: '180g filé de frango, 200g arroz, 100g feijão e salada com azeite',
-        kcal: 690,
-        protein: 48,
-        carbs: 75,
-        fat: 18,
-        done: false
-      },
-      {
-        id: 'm-3',
-        name: 'Lanche da Tarde',
-        time: '16:30',
-        foods: 'Whey Protein (30g), 40g aveia, 1 maçã e 20g pasta de amendoim',
-        kcal: 420,
-        protein: 32,
-        carbs: 48,
-        fat: 10,
-        done: false
-      },
-      {
-        id: 'm-4',
-        name: 'Jantar',
-        time: '20:00',
-        foods: '160g patinho moído, 220g batata assada e legumes',
-        kcal: 620,
-        protein: 42,
-        carbs: 65,
-        fat: 16,
-        done: false
-      },
-      {
-        id: 'm-5',
-        name: 'Ceia',
-        time: '22:30',
-        foods: 'Iogurte natural desnatado com 15g castanhas',
-        kcal: 190,
-        protein: 18,
-        carbs: 10,
-        fat: 7,
-        done: false
-      }
-    ],
-    workoutLogs: {}
-  };
+      water: 0,
+      activeRoutineId: 'routine-1',
+      routines: [
+        {
+          id: 'routine-1',
+          name: 'Treino A • Push',
+          focus: 'Peito, Ombros e Tríceps',
+          exercises: [
+            {
+              id: 'ex-1',
+              name: 'Supino Reto com Barra',
+              muscle: 'Peito',
+              notes: 'Pausa de 1s embaixo, escápulas aduzidas',
+              sets: [
+                { weight: 60, reps: 10, completed: false, prev: '55kg × 10' },
+                { weight: 70, reps: 8, completed: false, prev: '65kg × 8' },
+                { weight: 70, reps: 8, completed: false, prev: '70kg × 7' }
+              ],
+              history: [
+                { date: '2026-10-05', weight: 60 },
+                { date: '2026-10-15', weight: 65 },
+                { date: '2026-10-26', weight: 70 }
+              ]
+            },
+            {
+              id: 'ex-2',
+              name: 'Desenvolvimento com Halteres',
+              muscle: 'Ombros',
+              notes: 'Coluna firme, sem bater os halteres',
+              sets: [
+                { weight: 20, reps: 10, completed: false, prev: '18kg × 10' },
+                { weight: 22, reps: 8, completed: false, prev: '20kg × 8' }
+              ],
+              history: [
+                { date: '2026-10-10', weight: 18 },
+                { date: '2026-10-26', weight: 22 }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'routine-2',
+          name: 'Treino B • Pull',
+          focus: 'Costas e Bíceps',
+          exercises: [
+            {
+              id: 'ex-3',
+              name: 'Puxada Alta Frontal',
+              muscle: 'Costas',
+              notes: 'Foco na contração da dorsal',
+              sets: [
+                { weight: 55, reps: 12, completed: false, prev: '50kg × 12' },
+                { weight: 60, reps: 10, completed: false, prev: '55kg × 10' }
+              ],
+              history: [
+                { date: '2026-10-08', weight: 55 },
+                { date: '2026-10-27', weight: 60 }
+              ]
+            }
+          ]
+        }
+      ],
+      meals: [
+        {
+          id: 'm-1',
+          name: 'Café da Manhã',
+          time: '07:30',
+          done: false,
+          items: [
+            { id: 'item-1', name: 'Ovo de galinha inteiro cozido', grams: 150, kcal: 219, protein: 20.0, carbs: 0.9, fat: 14.3 },
+            { id: 'item-2', name: 'Pão de forma integral', grams: 50, kcal: 127, protein: 4.7, carbs: 25.0, fat: 1.9 },
+            { id: 'item-3', name: 'Banana Prata', grams: 100, kcal: 98, protein: 1.3, carbs: 26.0, fat: 0.1 }
+          ]
+        },
+        {
+          id: 'm-2',
+          name: 'Almoço',
+          time: '12:30',
+          done: false,
+          items: [
+            { id: 'item-4', name: 'Peito de frango grelhado', grams: 180, kcal: 286, protein: 57.6, carbs: 0.0, fat: 4.5 },
+            { id: 'item-5', name: 'Arroz branco cozido', grams: 200, kcal: 256, protein: 5.0, carbs: 56.2, fat: 0.4 },
+            { id: 'item-6', name: 'Feijão carioca cozido (50% caldo)', grams: 100, kcal: 76, protein: 4.8, carbs: 13.6, fat: 0.5 },
+            { id: 'item-7', name: 'Azeite de oliva extravirgem', grams: 10, kcal: 88, protein: 0.0, carbs: 0.0, fat: 10.0 }
+          ]
+        }
+      ],
+      workoutLogs: {}
+    };
+  }
 
-  // Gerenciador de Estado
-  class Store {
+  // Gerenciador de Perfis
+  class MultiProfileStore {
     constructor() {
       this.state = this.load();
     }
 
     load() {
       try {
-        const item = localStorage.getItem(STORAGE_KEY);
-        if (item) {
-          const parsed = JSON.parse(item);
-          return Object.assign({}, DEFAULT_DATA, parsed);
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.profiles && parsed.profiles.length > 0) {
+            return parsed;
+          }
         }
       } catch (e) {
-        console.error('Erro ao ler estado do localStorage:', e);
+        console.error('Erro ao ler perfis do localStorage:', e);
       }
-      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+      // Estado inicial com Pedro
+      const initialProfile = createDefaultProfile('p-1', 'Pedro', 76, 178, 'Hipertrofia');
+      return {
+        activeProfileId: 'p-1',
+        profiles: [initialProfile]
+      };
     }
 
     save() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
       } catch (e) {
-        console.error('Erro ao salvar no localStorage:', e);
-        showToast('Erro ao salvar no dispositivo', 'error');
+        console.error('Erro ao salvar perfis:', e);
+        showToast('Erro ao salvar dados!', 'error');
       }
     }
 
-    clearToBlank() {
-      this.state = {
-        profile: {
-          goal: 'Hipertrofia',
-          targetKcal: 2400,
-          targetProtein: 160,
-          targetCarbs: 260,
-          targetFat: 65,
-          water: 0
-        },
-        activeRoutineId: 'routine-custom-1',
-        routines: [
-          {
-            id: 'routine-custom-1',
-            name: 'Meu Treino A',
-            focus: 'Personalizado',
-            exercises: []
-          }
-        ],
-        meals: [],
-        workoutLogs: {}
-      };
+    getActiveProfile() {
+      let p = this.state.profiles.find(item => item.id === this.state.activeProfileId);
+      if (!p && this.state.profiles.length > 0) {
+        p = this.state.profiles[0];
+        this.state.activeProfileId = p.id;
+      }
+      return p;
+    }
+
+    addProfile(name, weight, height, goal) {
+      const id = 'p-' + Date.now();
+      const newP = createDefaultProfile(id, name, weight, height, goal);
+      this.state.profiles.push(newP);
+      this.state.activeProfileId = id;
       this.save();
+      return newP;
+    }
+
+    deleteProfile(id) {
+      if (this.state.profiles.length <= 1) {
+        showToast('Você deve manter pelo menos um perfil cadastrado.', 'error');
+        return false;
+      }
+      this.state.profiles = this.state.profiles.filter(p => p.id !== id);
+      this.state.activeProfileId = this.state.profiles[0].id;
+      this.save();
+      return true;
     }
   }
 
-  const store = new Store();
+  const store = new MultiProfileStore();
+
+  // Helper para somar calorias e macros de uma refeição baseada em seus itens TACO
+  function getMealTotals(meal) {
+    let kcal = 0, p = 0, c = 0, f = 0;
+    if (meal.items && meal.items.length > 0) {
+      meal.items.forEach(it => {
+        kcal += Number(it.kcal) || 0;
+        p += Number(it.protein) || 0;
+        c += Number(it.carbs) || 0;
+        f += Number(it.fat) || 0;
+      });
+    }
+    return {
+      kcal: Math.round(kcal),
+      protein: Math.round(p * 10) / 10,
+      carbs: Math.round(c * 10) / 10,
+      fat: Math.round(f * 10) / 10
+    };
+  }
 
   // ==================== WAKE LOCK & CRONÔMETRO ====================
   let wakeLock = null;
@@ -421,12 +241,6 @@
     pill.querySelector('.wakelock-text').textContent = 'Tela Normal';
   }
 
-  document.addEventListener('visibilitychange', async () => {
-    if (wakeLock !== null && document.visibilityState === 'visible' && isSessionRunning) {
-      await activateWakeLock();
-    }
-  });
-
   function toggleSession() {
     const btn = document.getElementById('btn-start-session');
     const icon = document.getElementById('session-icon');
@@ -446,7 +260,7 @@
         document.getElementById('session-stopwatch').textContent = `${m}:${s}`;
       }, 1000);
 
-      showToast('Sessão iniciada! Tela do celular mantida acesa. 💪', 'success');
+      showToast('Sessão iniciada! Tela do celular mantida ligada. 💪', 'success');
     } else {
       isSessionRunning = false;
       icon.textContent = '▶';
@@ -455,12 +269,12 @@
       clearInterval(sessionTimer);
       deactivateWakeLock();
 
-      // Gravar registro do dia
+      const profile = store.getActiveProfile();
       const today = getTodayKey();
-      store.state.workoutLogs[today] = true;
+      if (!profile.workoutLogs) profile.workoutLogs = {};
+      profile.workoutLogs[today] = true;
 
-      // Gravar histórico de cargas de todos os exercícios que tiveram séries concluídas
-      const activeRoutine = store.state.routines.find(r => r.id === store.state.activeRoutineId);
+      const activeRoutine = profile.routines.find(r => r.id === profile.activeRoutineId);
       if (activeRoutine) {
         activeRoutine.exercises.forEach(ex => {
           const completedSets = ex.sets.filter(s => s.completed);
@@ -476,14 +290,14 @@
 
       store.save();
       renderAll();
-      showToast(`Treino concluído! Duração: ${Math.floor(sessionSeconds / 60)} min. Parabéns! 🔥`, 'success');
+      showToast(`Treino concluído! Duração: ${Math.floor(sessionSeconds / 60)} min. 🔥`, 'success');
 
       sessionSeconds = 0;
       document.getElementById('session-stopwatch').textContent = '00:00';
     }
   }
 
-  // Descanso Rápido entre Séries
+  // Descanso Rápido
   let restTimer = null;
   let restSecondsLeft = 0;
 
@@ -539,7 +353,7 @@
     document.getElementById('rest-timer-text').textContent = 'Parado';
   }
 
-  // ==================== NAVEGAÇÃO DE ABAS ====================
+  // ==================== NAVEGAÇÃO & SUB-ABAS ====================
   function initNav() {
     document.querySelectorAll('.bottom-bar .bar-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -550,6 +364,25 @@
 
     document.getElementById('btn-home-manage-workouts').onclick = () => switchTab('tab-workouts');
     document.getElementById('btn-home-go-diet').onclick = () => switchTab('tab-diet');
+
+    // Sub-abas de Progresso (Fotos vs Cargas)
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.remove('active'));
+
+        btn.classList.add('active');
+        const targetId = btn.getAttribute('data-subtab');
+        const activeSub = document.getElementById(targetId);
+        if (activeSub) activeSub.classList.add('active');
+
+        if (targetId === 'sub-photos') {
+          renderPhotosGallery();
+        } else if (targetId === 'sub-charts') {
+          renderProgressTab();
+        }
+      });
+    });
   }
 
   function switchTab(tabId) {
@@ -565,32 +398,57 @@
     }
 
     if (tabId === 'tab-progress') {
-      renderProgressTab();
+      const activeSubBtn = document.querySelector('.sub-tab-btn.active');
+      if (activeSubBtn && activeSubBtn.getAttribute('data-subtab') === 'sub-photos') {
+        renderPhotosGallery();
+      } else {
+        renderProgressTab();
+      }
     }
   }
 
-  // ==================== ABA 1: INÍCIO ====================
-  function renderHomeTab() {
-    const today = new Date();
-    document.getElementById('header-date-text').textContent = today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
-    document.getElementById('home-goal-badge').textContent = store.state.profile.goal;
-    document.getElementById('water-display').textContent = store.state.profile.water || 0;
+  // ==================== RENDERIZADORES ====================
 
-    // Treino Ativo Card
-    const routine = store.state.routines.find(r => r.id === store.state.activeRoutineId) || store.state.routines[0];
+  // Header e Água
+  function renderHeader() {
+    const profile = store.getActiveProfile();
+    const initials = (profile.name || 'U').charAt(0).toUpperCase();
+
+    document.getElementById('header-avatar-circle').textContent = initials;
+    document.getElementById('header-profile-name').textContent = profile.name;
+    document.getElementById('header-profile-goal').textContent = profile.goal;
+
+    const minWater = Math.round((Number(profile.weight) || 70) * 35);
+    document.getElementById('water-display').textContent = profile.water || 0;
+    document.getElementById('water-min-goal-display').textContent = minWater;
+    document.getElementById('water-calc-desc').textContent = `Mínimo recomendado: 35ml × ${profile.weight || 70}kg = ${minWater}ml`;
+    document.getElementById('water-current-total').textContent = profile.water || 0;
+    document.getElementById('water-target-total').textContent = minWater;
+
+    const pct = minWater > 0 ? Math.min(100, Math.round(((profile.water || 0) / minWater) * 100)) : 0;
+    document.getElementById('water-progress-fill').style.width = `${pct}%`;
+    document.getElementById('water-percent-badge').textContent = `${pct}%`;
+    document.getElementById('home-water-ratio').textContent = `${pct}%`;
+  }
+
+  // 1. Início
+  function renderHomeTab() {
+    renderHeader();
+    const profile = store.getActiveProfile();
+
+    document.getElementById('home-goal-badge').textContent = profile.goal;
+
+    const routine = profile.routines.find(r => r.id === profile.activeRoutineId) || profile.routines[0];
     const homeWorkoutBox = document.getElementById('home-workout-box');
 
     if (routine) {
-      let totalSets = 0;
-      let completedSets = 0;
-
+      let totalSets = 0, completedSets = 0;
       routine.exercises.forEach(ex => {
         totalSets += ex.sets.length;
         completedSets += ex.sets.filter(s => s.completed).length;
       });
 
       const pct = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
-
       homeWorkoutBox.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
           <div>
@@ -607,34 +465,38 @@
           <button class="btn btn-primary btn-sm" id="btn-home-start-now">Abrir Ficha</button>
         </div>
       `;
-
       document.getElementById('btn-home-start-now').onclick = () => switchTab('tab-workouts');
     } else {
       homeWorkoutBox.innerHTML = `
-        <p class="text-muted text-sm">Você ainda não tem uma ficha criada.</p>
-        <button class="btn btn-primary btn-sm mt-2" onclick="switchTab('tab-workouts')">Criar Meu Treino</button>
+        <p class="text-muted text-sm">Nenhuma ficha criada para este perfil.</p>
+        <button class="btn btn-primary btn-sm mt-2" onclick="switchTab('tab-workouts')">Criar Treino</button>
       `;
     }
 
     // Próxima Refeição
-    const nextMeal = store.state.meals.find(m => !m.done) || store.state.meals[0];
+    const nextMeal = profile.meals.find(m => !m.done) || profile.meals[0];
     const mealBox = document.getElementById('home-meal-box');
 
     if (nextMeal) {
+      const totals = getMealTotals(nextMeal);
+      const foodsPreview = nextMeal.items && nextMeal.items.length > 0
+        ? nextMeal.items.map(it => `${it.grams}g ${it.name}`).join(', ')
+        : 'Sem alimentos adicionados';
+
       mealBox.innerHTML = `
         <div class="meal-row-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span class="meal-badge-time">${escapeHtml(nextMeal.time)}</span>
             <h4 style="font-size: 1rem; font-weight: 800;">${escapeHtml(nextMeal.name)}</h4>
           </div>
-          <button class="btn-check-set ${nextMeal.done ? 'checked' : ''}" id="btn-check-home-meal" title="Marcar refeição feita">✓</button>
+          <button class="btn-check-set ${nextMeal.done ? 'checked' : ''}" id="btn-check-home-meal">✓</button>
         </div>
-        <div class="meal-foods-box">${escapeHtml(nextMeal.foods)}</div>
+        <div class="meal-foods-box">${escapeHtml(foodsPreview)}</div>
         <div class="meal-macros-chips">
-          <span>🔥 <strong>${nextMeal.kcal}</strong> kcal</span>
-          <span style="color: var(--macro-p);">🥩 <strong>${nextMeal.protein}</strong>g P</span>
-          <span style="color: var(--macro-c);">🍚 <strong>${nextMeal.carbs}</strong>g C</span>
-          <span style="color: var(--macro-f);">🥑 <strong>${nextMeal.fat}</strong>g G</span>
+          <span>🔥 <strong>${totals.kcal}</strong> kcal</span>
+          <span style="color: var(--macro-p);">🥩 <strong>${totals.protein}</strong>g P</span>
+          <span style="color: var(--macro-c);">🍚 <strong>${totals.carbs}</strong>g C</span>
+          <span style="color: var(--macro-f);">🥑 <strong>${totals.fat}</strong>g G</span>
         </div>
       `;
 
@@ -647,16 +509,18 @@
       mealBox.innerHTML = '<p class="text-muted text-sm">Nenhuma refeição cadastrada na sua dieta.</p>';
     }
 
-    // Totais de Kcal
+    // Calorias de Hoje
     let eatenKcal = 0;
-    store.state.meals.forEach(m => {
-      if (m.done) eatenKcal += Number(m.kcal) || 0;
+    profile.meals.forEach(m => {
+      if (m.done) {
+        const t = getMealTotals(m);
+        eatenKcal += t.kcal;
+      }
     });
 
     document.getElementById('home-kcal-val').textContent = eatenKcal;
-    document.getElementById('home-target-kcal-val').textContent = store.state.profile.targetKcal || 2400;
+    document.getElementById('home-target-kcal-val').textContent = profile.targetKcal || 2400;
 
-    // Resumo de 7 Dias
     renderWeekStrip();
   }
 
@@ -665,6 +529,7 @@
     container.innerHTML = '';
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     let workoutsCount = 0;
+    const profile = store.getActiveProfile();
 
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
@@ -672,7 +537,7 @@
       d.setDate(today.getDate() - i);
       const k = d.toISOString().split('T')[0];
       const isToday = i === 0;
-      const done = Boolean(store.state.workoutLogs[k]);
+      const done = Boolean(profile.workoutLogs && profile.workoutLogs[k]);
       if (done) workoutsCount++;
 
       const col = document.createElement('div');
@@ -685,29 +550,28 @@
       `;
       container.appendChild(col);
     }
-
     document.getElementById('home-week-workouts-count').textContent = `${workoutsCount}/7`;
   }
 
-  // ==================== ABA 2: CONSTRUTOR DE TREINOS ====================
+  // 2. Treinos
   function renderWorkoutsTab() {
+    const profile = store.getActiveProfile();
     const bar = document.getElementById('workout-tabs-bar');
     bar.innerHTML = '';
 
-    const routines = store.state.routines;
-    let activeRoutine = routines.find(r => r.id === store.state.activeRoutineId);
+    const routines = profile.routines;
+    let activeRoutine = routines.find(r => r.id === profile.activeRoutineId);
     if (!activeRoutine && routines.length > 0) {
       activeRoutine = routines[0];
-      store.state.activeRoutineId = activeRoutine.id;
+      profile.activeRoutineId = activeRoutine.id;
     }
 
-    // Pílulas das Fichas
     routines.forEach(r => {
       const pill = document.createElement('button');
-      pill.className = `routine-tab-pill ${r.id === store.state.activeRoutineId ? 'active' : ''}`;
+      pill.className = `routine-tab-pill ${r.id === profile.activeRoutineId ? 'active' : ''}`;
       pill.textContent = r.name;
       pill.onclick = () => {
-        store.state.activeRoutineId = r.id;
+        profile.activeRoutineId = r.id;
         store.save();
         renderWorkoutsTab();
         renderHomeTab();
@@ -715,7 +579,6 @@
       bar.appendChild(pill);
     });
 
-    // Botão Criar Nova Ficha
     const addPill = document.createElement('button');
     addPill.className = 'routine-tab-pill btn-add-routine';
     addPill.innerHTML = '+ Criar Ficha';
@@ -724,37 +587,23 @@
 
     if (!activeRoutine) return;
 
-    // Header da Ficha
     document.getElementById('active-routine-name').textContent = activeRoutine.name;
     document.getElementById('active-routine-focus').textContent = activeRoutine.focus;
 
     document.getElementById('btn-edit-routine').onclick = () => openEditRoutineModal(activeRoutine);
     document.getElementById('btn-delete-routine').onclick = () => confirmDeleteRoutine(activeRoutine);
 
-    // Pilha de Exercícios com Séries
     const stack = document.getElementById('exercises-stack');
     stack.innerHTML = '';
 
-    const emptyHint = document.getElementById('empty-routine-hint');
     if (activeRoutine.exercises.length === 0) {
-      emptyHint.style.display = 'block';
+      stack.innerHTML = '<p class="text-muted text-center" style="padding: 24px;">Ficha sem exercícios. Toque em "+ Adicionar Exercício" abaixo.</p>';
       return;
-    } else {
-      emptyHint.style.display = 'none';
     }
 
     activeRoutine.exercises.forEach((ex, exIndex) => {
       const card = document.createElement('div');
       card.className = 'exercise-block';
-
-      // Header do Exercício com Ferramentas de Reordenação
-      let toolsHtml = `
-        <button class="btn-tool btn-move-up" title="Mover para cima" ${exIndex === 0 ? 'disabled style="opacity:0.3"' : ''}>▲</button>
-        <button class="btn-tool btn-move-down" title="Mover para baixo" ${exIndex === activeRoutine.exercises.length - 1 ? 'disabled style="opacity:0.3"' : ''}>▼</button>
-        <button class="btn-tool btn-history-ex" title="Ver evolução">📈</button>
-        <button class="btn-tool btn-edit-notes" title="Editar anotações">✏️</button>
-        <button class="btn-tool text-danger btn-del-ex" title="Excluir exercício">🗑️</button>
-      `;
 
       card.innerHTML = `
         <div class="exercise-block-header">
@@ -763,7 +612,11 @@
             <h3 class="exercise-block-title">${escapeHtml(ex.name)}</h3>
           </div>
           <div class="exercise-tools">
-            ${toolsHtml}
+            <button class="btn-tool btn-move-up" title="Mover para cima" ${exIndex === 0 ? 'disabled style="opacity:0.3"' : ''}>▲</button>
+            <button class="btn-tool btn-move-down" title="Mover para baixo" ${exIndex === activeRoutine.exercises.length - 1 ? 'disabled style="opacity:0.3"' : ''}>▼</button>
+            <button class="btn-tool btn-history-ex" title="Ver evolução">📈</button>
+            <button class="btn-tool btn-edit-notes" title="Editar anotações">✏️</button>
+            <button class="btn-tool text-danger btn-del-ex" title="Excluir exercício">🗑️</button>
           </div>
         </div>
         ${ex.notes ? `<div class="exercise-notes-text">💡 ${escapeHtml(ex.notes)}</div>` : ''}
@@ -782,7 +635,6 @@
         <button class="btn-add-set" id="btn-add-set-${ex.id}">+ Adicionar Série</button>
       `;
 
-      // Renderizar Linhas de Séries
       const setsBody = card.querySelector(`#sets-body-${ex.id}`);
       ex.sets.forEach((set, sIdx) => {
         const row = document.createElement('div');
@@ -798,11 +650,10 @@
             <input type="number" inputmode="numeric" class="input-set input-reps" value="${set.reps || ''}" placeholder="reps">
           </div>
           <div>
-            <button class="btn-check-set ${set.completed ? 'checked' : ''}" title="Concluir série">✓</button>
+            <button class="btn-check-set ${set.completed ? 'checked' : ''}">✓</button>
           </div>
         `;
 
-        // Inputs automáticos salvam ao digitar
         const weightInput = row.querySelector('.input-weight');
         const repsInput = row.querySelector('.input-reps');
         const checkBtn = row.querySelector('.btn-check-set');
@@ -825,7 +676,6 @@
           renderWorkoutsTab();
           renderHomeTab();
 
-          // Se acabou de marcar feito, inicia descanso automaticamente
           if (set.completed && !restTimer) {
             startRestTimer(60);
           }
@@ -834,23 +684,20 @@
         setsBody.appendChild(row);
       });
 
-      // Eventos das Ferramentas
       card.querySelector('.btn-move-up').onclick = () => moveExercise(activeRoutine, exIndex, -1);
       card.querySelector('.btn-move-down').onclick = () => moveExercise(activeRoutine, exIndex, 1);
       card.querySelector('.btn-history-ex').onclick = () => openHistoryModal(ex);
       card.querySelector('.btn-edit-notes').onclick = () => openEditExNotes(ex);
       card.querySelector('.btn-del-ex').onclick = () => confirmDeleteExercise(activeRoutine, ex);
 
-      // Botão + Adicionar Série
       card.querySelector(`#btn-add-set-${ex.id}`).onclick = () => {
         const lastSet = ex.sets[ex.sets.length - 1];
-        const newSet = {
+        ex.sets.push({
           weight: lastSet ? lastSet.weight : 20,
           reps: lastSet ? lastSet.reps : 10,
           completed: false,
           prev: lastSet ? `${lastSet.weight}kg × ${lastSet.reps}` : '--'
-        };
-        ex.sets.push(newSet);
+        });
         store.save();
         renderWorkoutsTab();
         renderHomeTab();
@@ -860,7 +707,6 @@
     });
   }
 
-  // Reordenar Exercícios
   function moveExercise(routine, index, direction) {
     const targetIdx = index + direction;
     if (targetIdx < 0 || targetIdx >= routine.exercises.length) return;
@@ -881,266 +727,51 @@
     }
   }
 
-  // ==================== CATÁLOGO DE EXERCÍCIOS ====================
-  let selectedFilterMuscle = 'all';
-
-  function initCatalog() {
-    document.querySelectorAll('.catalog-filters .filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.catalog-filters .filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        selectedFilterMuscle = chip.getAttribute('data-muscle');
-        filterCatalog();
-      });
-    });
-
-    const searchInput = document.getElementById('catalog-search-input');
-    searchInput.addEventListener('input', () => {
-      filterCatalog();
-    });
-
-    document.getElementById('btn-open-catalog').onclick = () => {
-      searchInput.value = '';
-      selectedFilterMuscle = 'all';
-      document.querySelectorAll('.catalog-filters .filter-chip').forEach((c, i) => c.classList.toggle('active', i === 0));
-      filterCatalog();
-      document.getElementById('modal-catalog').classList.add('open');
-    };
-
-    document.getElementById('btn-create-custom-ex').onclick = () => {
-      const customName = searchInput.value.trim();
-      if (customName) {
-        addExerciseToActiveRoutine(customName, 'Personalizado');
-        document.getElementById('modal-catalog').classList.remove('open');
-      }
-    };
-  }
-
-  function filterCatalog() {
-    const searchVal = document.getElementById('catalog-search-input').value.trim().toLowerCase();
-    const list = document.getElementById('catalog-list');
-    list.innerHTML = '';
-
-    const customPrompt = document.getElementById('custom-ex-prompt');
-
-    const filtered = EXERCISE_CATALOG.filter(ex => {
-      const matchesMuscle = selectedFilterMuscle === 'all' || ex.muscle === selectedFilterMuscle;
-      const matchesQuery = !searchVal || ex.name.toLowerCase().includes(searchVal);
-      return matchesMuscle && matchesQuery;
-    });
-
-    if (searchVal && !filtered.some(e => e.name.toLowerCase() === searchVal)) {
-      customPrompt.style.display = 'flex';
-    } else {
-      customPrompt.style.display = 'none';
-    }
-
-    if (filtered.length === 0 && !searchVal) {
-      list.innerHTML = '<p class="text-muted text-center" style="padding: 20px;">Nenhum exercício encontrado nesta categoria.</p>';
-      return;
-    }
-
-    filtered.forEach(ex => {
-      const item = document.createElement('div');
-      item.className = 'catalog-item';
-      item.innerHTML = `
-        <div class="catalog-item-info">
-          <h4>${escapeHtml(ex.name)}</h4>
-          <span class="tag tag-muscle">${escapeHtml(ex.muscle)}</span>
-        </div>
-        <button class="btn btn-sm btn-primary">+ Adicionar</button>
-      `;
-
-      item.onclick = () => {
-        addExerciseToActiveRoutine(ex.name, ex.muscle);
-        document.getElementById('modal-catalog').classList.remove('open');
-      };
-
-      list.appendChild(item);
-    });
-  }
-
-  function addExerciseToActiveRoutine(name, muscle) {
-    const routine = store.state.routines.find(r => r.id === store.state.activeRoutineId);
-    if (!routine) return;
-
-    const newEx = {
-      id: 'ex-' + Date.now(),
-      name: name,
-      muscle: muscle,
-      notes: '',
-      sets: [
-        { weight: 20, reps: 10, completed: false, prev: '--' },
-        { weight: 20, reps: 10, completed: false, prev: '--' },
-        { weight: 20, reps: 10, completed: false, prev: '--' }
-      ],
-      history: [{ date: getTodayKey(), weight: 20 }]
-    };
-
-    routine.exercises.push(newEx);
-    store.save();
-    renderWorkoutsTab();
-    renderHomeTab();
-    showToast(`"${name}" adicionado à sua ficha! 💪`, 'success');
-  }
-
-  // ==================== MODAL DE FICHA (CRIAR / EDITAR) ====================
-  function openNewRoutineModal() {
-    document.getElementById('modal-routine-title').textContent = 'Montar Nova Ficha';
-    document.getElementById('input-routine-id').value = '';
-    document.getElementById('input-routine-name').value = '';
-    document.getElementById('input-routine-focus').value = '';
-    document.getElementById('modal-routine').classList.add('open');
-  }
-
-  function openEditRoutineModal(routine) {
-    document.getElementById('modal-routine-title').textContent = 'Editar Ficha';
-    document.getElementById('input-routine-id').value = routine.id;
-    document.getElementById('input-routine-name').value = routine.name;
-    document.getElementById('input-routine-focus').value = routine.focus;
-    document.getElementById('modal-routine').classList.add('open');
-  }
-
-  document.getElementById('form-routine').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const id = document.getElementById('input-routine-id').value;
-    const name = document.getElementById('input-routine-name').value.trim();
-    const focus = document.getElementById('input-routine-focus').value.trim();
-
-    if (id) {
-      const routine = store.state.routines.find(r => r.id === id);
-      if (routine) {
-        routine.name = name;
-        routine.focus = focus;
-        showToast('Ficha atualizada!', 'success');
-      }
-    } else {
-      const newR = {
-        id: 'routine-' + Date.now(),
-        name,
-        focus,
-        exercises: []
-      };
-      store.state.routines.push(newR);
-      store.state.activeRoutineId = newR.id;
-      showToast('Nova ficha criada! Agora adicione seus exercícios. 🏋️', 'success');
-    }
-
-    store.save();
-    document.getElementById('modal-routine').classList.remove('open');
-    renderWorkoutsTab();
-    renderHomeTab();
-  });
-
-  function confirmDeleteRoutine(routine) {
-    if (store.state.routines.length <= 1) {
-      showToast('Você precisa manter pelo menos 1 ficha criada.', 'error');
-      return;
-    }
-    if (confirm(`Deseja excluir a ficha "${routine.name}"?`)) {
-      store.state.routines = store.state.routines.filter(r => r.id !== routine.id);
-      store.state.activeRoutineId = store.state.routines[0].id;
-      store.save();
-      renderWorkoutsTab();
-      renderHomeTab();
-      showToast('Ficha excluída.', 'success');
-    }
-  }
-
-  // ==================== EDITAR NOTAS DO EXERCÍCIO ====================
-  let currentEditingEx = null;
-  function openEditExNotes(ex) {
-    currentEditingEx = ex;
-    document.getElementById('input-edit-ex-id').value = ex.id;
-    document.getElementById('input-edit-ex-name').value = ex.name;
-    document.getElementById('input-edit-ex-notes').value = ex.notes || '';
-    document.getElementById('modal-edit-ex').classList.add('open');
-  }
-
-  document.getElementById('form-edit-ex').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!currentEditingEx) return;
-    currentEditingEx.name = document.getElementById('input-edit-ex-name').value.trim();
-    currentEditingEx.notes = document.getElementById('input-edit-ex-notes').value.trim();
-    store.save();
-    document.getElementById('modal-edit-ex').classList.remove('open');
-    renderWorkoutsTab();
-    showToast('Configurações salvas!', 'success');
-  });
-
-  // ==================== MODAL DE HISTÓRICO & GRÁFICO ====================
-  function openHistoryModal(ex) {
-    document.getElementById('history-modal-title').textContent = ex.name;
-    document.getElementById('history-modal-sub').textContent = `Músculo: ${ex.muscle || 'Geral'}`;
-
-    const chartBox = document.getElementById('history-modal-chart');
-    renderInteractiveSVGChart(chartBox, ex);
-
-    const table = document.getElementById('history-table-records');
-    table.innerHTML = '';
-
-    const history = ex.history || [];
-    const sorted = [...history].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-    if (sorted.length === 0) {
-      table.innerHTML = '<p class="text-muted text-sm text-center">Nenhuma carga registrada ainda.</p>';
-    } else {
-      sorted.forEach(rec => {
-        const row = document.createElement('div');
-        row.className = 'history-item-row';
-        row.innerHTML = `
-          <span>📅 ${rec.date}</span>
-          <strong style="color: var(--accent);">${rec.weight} kg</strong>
-        `;
-        table.appendChild(row);
-      });
-    }
-
-    document.getElementById('modal-history').classList.add('open');
-  }
-
-  // ==================== ABA 3: DIETA ====================
+  // 3. Dieta com Tabela TACO
   function renderDietTab() {
+    renderHeader();
+    const profile = store.getActiveProfile();
+
     let sumKcal = 0, sumP = 0, sumC = 0, sumF = 0;
-    store.state.meals.forEach(m => {
+    profile.meals.forEach(m => {
       if (m.done) {
-        sumKcal += Number(m.kcal) || 0;
-        sumP += Number(m.protein) || 0;
-        sumC += Number(m.carbs) || 0;
-        sumF += Number(m.fat) || 0;
+        const t = getMealTotals(m);
+        sumKcal += t.kcal;
+        sumP += t.protein;
+        sumC += t.carbs;
+        sumF += t.fat;
       }
     });
 
-    const targetKcal = store.state.profile.targetKcal || 2400;
-    const targetP = store.state.profile.targetProtein || 160;
-    const targetC = store.state.profile.targetCarbs || 260;
-    const targetF = store.state.profile.targetFat || 65;
+    const targetKcal = profile.targetKcal || 2400;
+    const targetP = profile.targetProtein || 160;
+    const targetC = profile.targetCarbs || 260;
+    const targetF = profile.targetFat || 65;
 
     document.getElementById('diet-consumed-kcal').textContent = sumKcal;
     document.getElementById('diet-goal-kcal').textContent = targetKcal;
     document.getElementById('diet-remaining-kcal').textContent = Math.max(0, targetKcal - sumKcal);
     document.getElementById('diet-kcal-progress').style.width = `${Math.min(100, Math.round((sumKcal / targetKcal) * 100))}%`;
 
-    document.getElementById('diet-consumed-p').textContent = sumP;
+    document.getElementById('diet-consumed-p').textContent = Math.round(sumP);
     document.getElementById('diet-goal-p').textContent = targetP;
     document.getElementById('diet-p-progress').style.width = `${Math.min(100, Math.round((sumP / targetP) * 100))}%`;
 
-    document.getElementById('diet-consumed-c').textContent = sumC;
+    document.getElementById('diet-consumed-c').textContent = Math.round(sumC);
     document.getElementById('diet-goal-c').textContent = targetC;
     document.getElementById('diet-c-progress').style.width = `${Math.min(100, Math.round((sumC / targetC) * 100))}%`;
 
-    document.getElementById('diet-consumed-f').textContent = sumF;
+    document.getElementById('diet-consumed-f').textContent = Math.round(sumF);
     document.getElementById('diet-goal-f').textContent = targetF;
     document.getElementById('diet-f-progress').style.width = `${Math.min(100, Math.round((sumF / targetF) * 100))}%`;
 
-    // Renderizar Refeições
     const stack = document.getElementById('meals-stack');
     stack.innerHTML = '';
 
-    if (store.state.meals.length === 0) {
+    if (profile.meals.length === 0) {
       stack.innerHTML = `
         <div class="card text-center" style="padding: 30px;">
-          <p class="text-muted mb-3">Nenhuma refeição cadastrada na sua dieta.</p>
+          <p class="text-muted mb-3">Nenhuma refeição cadastrada neste perfil.</p>
           <button class="btn btn-primary btn-sm" id="btn-empty-meal">+ Criar Primeira Refeição</button>
         </div>
       `;
@@ -1148,11 +779,31 @@
       return;
     }
 
-    const sortedMeals = [...store.state.meals].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    const sortedMeals = [...profile.meals].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
     sortedMeals.forEach(meal => {
+      const totals = getMealTotals(meal);
       const card = document.createElement('div');
       card.className = `meal-item-card ${meal.done ? 'done' : ''}`;
+
+      let itemsHtml = '';
+      if (meal.items && meal.items.length > 0) {
+        meal.items.forEach((item, itemIdx) => {
+          itemsHtml += `
+            <div class="taco-food-tag">
+              <div class="food-tag-left">
+                <span class="food-tag-name">${item.grams}g ${escapeHtml(item.name)}</span>
+                <span class="food-tag-macros">
+                  <strong>${item.kcal}</strong> kcal • <strong>${item.protein}g</strong> P • <strong>${item.carbs}g</strong> C • <strong>${item.fat}g</strong> G
+                </span>
+              </div>
+              <button class="btn-del-food-item" data-item-idx="${itemIdx}" title="Remover alimento">✕</button>
+            </div>
+          `;
+        });
+      } else {
+        itemsHtml = '<p class="text-xs text-muted" style="padding: 4px 0;">Nenhum alimento cadastrado. Adicione pela tabela TACO abaixo.</p>';
+      }
 
       card.innerHTML = `
         <div class="meal-row-header">
@@ -1162,16 +813,25 @@
           </div>
           <button class="btn-check-set ${meal.done ? 'checked' : ''}" title="Marcar refeição concluída">✓</button>
         </div>
-        <div class="meal-foods-box">${escapeHtml(meal.foods)}</div>
-        <div class="meal-macros-chips">
-          <span>🔥 <strong>${meal.kcal}</strong> kcal</span>
-          <span style="color: var(--macro-p);">🥩 <strong>${meal.protein}</strong>g P</span>
-          <span style="color: var(--macro-c);">🍚 <strong>${meal.carbs}</strong>g C</span>
-          <span style="color: var(--macro-f);">🥑 <strong>${meal.fat}</strong>g G</span>
+
+        <div class="meal-taco-items-list">
+          ${itemsHtml}
         </div>
+
+        <button class="btn-add-food-to-meal" data-meal-id="${meal.id}">
+          + Adicionar Alimento da Tabela TACO
+        </button>
+
+        <div class="meal-macros-chips">
+          <span>🔥 <strong>${totals.kcal}</strong> kcal</span>
+          <span style="color: var(--macro-p);">🥩 <strong>${totals.protein}</strong>g P</span>
+          <span style="color: var(--macro-c);">🍚 <strong>${totals.carbs}</strong>g C</span>
+          <span style="color: var(--macro-f);">🥑 <strong>${totals.fat}</strong>g G</span>
+        </div>
+
         <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px;">
-          <button class="btn-tool btn-edit-meal" title="Editar">✏️</button>
-          <button class="btn-tool text-danger btn-del-meal" title="Excluir">🗑️</button>
+          <button class="btn-tool btn-edit-meal" title="Editar Nome/Horário">✏️</button>
+          <button class="btn-tool text-danger btn-del-meal" title="Excluir Refeição">🗑️</button>
         </div>
       `;
 
@@ -1182,6 +842,22 @@
         renderHomeTab();
       };
 
+      // Remover item de alimento da refeição
+      card.querySelectorAll('.btn-del-food-item').forEach(delBtn => {
+        delBtn.onclick = () => {
+          const idx = parseInt(delBtn.getAttribute('data-item-idx'), 10);
+          meal.items.splice(idx, 1);
+          store.save();
+          renderDietTab();
+          renderHomeTab();
+        };
+      });
+
+      // Botão para abrir o seletor da Tabela TACO para esta refeição específica
+      card.querySelector('.btn-add-food-to-meal').onclick = () => {
+        openTacoPickerForMeal(meal);
+      };
+
       card.querySelector('.btn-edit-meal').onclick = () => openEditMealModal(meal);
       card.querySelector('.btn-del-meal').onclick = () => confirmDeleteMeal(meal);
 
@@ -1189,94 +865,396 @@
     });
   }
 
-  function openAddMealModal() {
-    document.getElementById('modal-meal-title').textContent = 'Nova Refeição';
-    document.getElementById('input-meal-id').value = '';
-    document.getElementById('form-meal').reset();
-    document.getElementById('modal-meal').classList.add('open');
-  }
+  // ==================== TABELA TACO: PICKER & CÁLCULO DE GRAMAS ====================
+  let currentTargetMeal = null;
+  let currentSelectedTacoFood = null;
 
-  function openEditMealModal(meal) {
-    document.getElementById('modal-meal-title').textContent = 'Editar Refeição';
-    document.getElementById('input-meal-id').value = meal.id;
-    document.getElementById('input-meal-name').value = meal.name;
-    document.getElementById('input-meal-time').value = meal.time;
-    document.getElementById('input-meal-foods').value = meal.foods;
-    document.getElementById('input-meal-kcal').value = meal.kcal;
-    document.getElementById('input-meal-p').value = meal.protein;
-    document.getElementById('input-meal-c').value = meal.carbs;
-    document.getElementById('input-meal-f').value = meal.fat;
-    document.getElementById('modal-meal').classList.add('open');
-  }
+  function initTacoPicker() {
+    const searchInput = document.getElementById('taco-search-input');
+    const gramInput = document.getElementById('taco-grams-input');
 
-  document.getElementById('form-meal').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const id = document.getElementById('input-meal-id').value;
-    const name = document.getElementById('input-meal-name').value.trim();
-    const time = document.getElementById('input-meal-time').value;
-    const foods = document.getElementById('input-meal-foods').value.trim();
-    const kcal = parseInt(document.getElementById('input-meal-kcal').value, 10);
-    const protein = parseInt(document.getElementById('input-meal-p').value, 10);
-    const carbs = parseInt(document.getElementById('input-meal-c').value, 10);
-    const fat = parseInt(document.getElementById('input-meal-f').value, 10);
+    searchInput.addEventListener('input', () => {
+      filterTacoList();
+    });
 
-    if (id) {
-      const meal = store.state.meals.find(m => m.id === id);
-      if (meal) {
-        meal.name = name;
-        meal.time = time;
-        meal.foods = foods;
-        meal.kcal = kcal;
-        meal.protein = protein;
-        meal.carbs = carbs;
-        meal.fat = fat;
-        showToast('Refeição salva!', 'success');
-      }
-    } else {
-      store.state.meals.push({
-        id: 'meal-' + Date.now(),
-        name,
-        time,
-        foods,
-        kcal,
-        protein,
-        carbs,
-        fat,
-        done: false
-      });
-      showToast('Refeição cadastrada!', 'success');
-    }
+    gramInput.addEventListener('input', () => {
+      calculateLiveTacoMacros();
+    });
 
-    store.save();
-    document.getElementById('modal-meal').classList.remove('open');
-    renderDietTab();
-    renderHomeTab();
-  });
+    document.getElementById('btn-confirm-add-taco').onclick = () => {
+      if (!currentTargetMeal || !currentSelectedTacoFood) return;
 
-  function confirmDeleteMeal(meal) {
-    if (confirm(`Excluir a refeição "${meal.name}"?`)) {
-      store.state.meals = store.state.meals.filter(m => m.id !== meal.id);
+      const grams = parseFloat(gramInput.value) || 100;
+      const factor = grams / 100;
+
+      const newItem = {
+        id: 'item-' + Date.now(),
+        name: currentSelectedTacoFood.name,
+        grams: grams,
+        kcal: Math.round(currentSelectedTacoFood.kcal * factor),
+        protein: Math.round((currentSelectedTacoFood.protein * factor) * 10) / 10,
+        carbs: Math.round((currentSelectedTacoFood.carbs * factor) * 10) / 10,
+        fat: Math.round((currentSelectedTacoFood.fat * factor) * 10) / 10
+      };
+
+      if (!currentTargetMeal.items) currentTargetMeal.items = [];
+      currentTargetMeal.items.push(newItem);
+
       store.save();
+      document.getElementById('modal-taco-picker').classList.remove('open');
       renderDietTab();
       renderHomeTab();
-      showToast('Refeição removida.', 'success');
+      showToast(`${grams}g de ${newItem.name} adicionados! 🥗`, 'success');
+    };
+  }
+
+  function openTacoPickerForMeal(meal) {
+    currentTargetMeal = meal;
+    currentSelectedTacoFood = null;
+    document.getElementById('taco-calc-box').style.display = 'none';
+    document.getElementById('taco-search-input').value = '';
+    filterTacoList();
+    document.getElementById('modal-taco-picker').classList.add('open');
+  }
+
+  function filterTacoList() {
+    const query = document.getElementById('taco-search-input').value.trim().toLowerCase();
+    const container = document.getElementById('taco-items-scroll');
+    container.innerHTML = '';
+
+    const list = window.TACO_DATABASE || [];
+    const filtered = list.filter(item => !query || item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p class="text-muted text-center" style="padding: 16px;">Nenhum alimento encontrado na Tabela TACO.</p>';
+      return;
+    }
+
+    filtered.forEach(food => {
+      const itemRow = document.createElement('div');
+      itemRow.className = 'taco-list-item';
+      itemRow.innerHTML = `
+        <div>
+          <strong style="font-size: 0.9rem;">${escapeHtml(food.name)}</strong>
+          <div class="taco-item-meta">
+            ${food.kcal} kcal • P: ${food.protein}g • C: ${food.carbs}g • G: ${food.fat}g (por 100g)
+          </div>
+        </div>
+        <span class="tag tag-accent">${escapeHtml(food.category)}</span>
+      `;
+
+      itemRow.onclick = () => {
+        selectTacoFood(food);
+      };
+
+      container.appendChild(itemRow);
+    });
+  }
+
+  function selectTacoFood(food) {
+    currentSelectedTacoFood = food;
+    document.getElementById('taco-calc-food-name').textContent = food.name;
+    document.getElementById('taco-calc-category').textContent = food.category;
+    document.getElementById('taco-calc-box').style.display = 'block';
+    calculateLiveTacoMacros();
+  }
+
+  function calculateLiveTacoMacros() {
+    if (!currentSelectedTacoFood) return;
+    const grams = parseFloat(document.getElementById('taco-grams-input').value) || 0;
+    const factor = grams / 100;
+
+    const kcal = Math.round(currentSelectedTacoFood.kcal * factor);
+    const p = Math.round((currentSelectedTacoFood.protein * factor) * 10) / 10;
+    const c = Math.round((currentSelectedTacoFood.carbs * factor) * 10) / 10;
+    const f = Math.round((currentSelectedTacoFood.fat * factor) * 10) / 10;
+
+    document.getElementById('taco-res-kcal').textContent = `${kcal} kcal`;
+    document.getElementById('taco-res-p').textContent = `${p}g`;
+    document.getElementById('taco-res-c').textContent = `${c}g`;
+    document.getElementById('taco-res-f').textContent = `${f}g`;
+  }
+
+  // ==================== GALERIA DE FOTOS & COMPARADOR ====================
+  let selectedPhotosToCompare = [];
+
+  async function renderPhotosGallery() {
+    const profile = store.getActiveProfile();
+    const grid = document.getElementById('photos-grid');
+    grid.innerHTML = '<p class="text-muted text-center" style="grid-column: 1/-1;">Carregando fotos...</p>';
+
+    try {
+      const photos = await window.IronDB.getPhotosByProfile(profile.id);
+      document.getElementById('photos-count-badge').textContent = `${photos.length} fotos`;
+      grid.innerHTML = '';
+
+      if (photos.length === 0) {
+        grid.innerHTML = `
+          <div class="card text-center" style="grid-column: 1/-1; padding: 30px;">
+            <p class="text-muted mb-2">Nenhuma foto registrada para este perfil.</p>
+            <p class="text-xs text-muted">Tire uma foto hoje para começar seu diário de evolução!</p>
+          </div>
+        `;
+        return;
+      }
+
+      photos.forEach(photo => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+
+        const isSelected = selectedPhotosToCompare.some(p => p.id === photo.id);
+
+        card.innerHTML = `
+          <div class="photo-thumb-wrap">
+            <img src="${photo.dataUrl}" alt="Evolução ${photo.date}" loading="lazy">
+            <span class="photo-badge-date">${photo.date}</span>
+            ${photo.weight ? `<span class="photo-badge-weight">${photo.weight}kg</span>` : ''}
+          </div>
+          <div class="photo-card-actions">
+            <button class="btn-compare-select" style="${isSelected ? 'background: var(--cyan); color: #000;' : ''}">
+              ${isSelected ? '✓ Selecionada' : 'Comparar'}
+            </button>
+            <button class="btn-del-photo" title="Excluir foto">🗑️</button>
+          </div>
+        `;
+
+        card.querySelector('.btn-compare-select').onclick = () => {
+          togglePhotoComparison(photo);
+        };
+
+        card.querySelector('.btn-del-photo').onclick = async () => {
+          if (confirm('Deseja excluir esta foto do histórico?')) {
+            await window.IronDB.deletePhoto(photo.id);
+            selectedPhotosToCompare = selectedPhotosToCompare.filter(p => p.id !== photo.id);
+            renderPhotosGallery();
+            showToast('Foto excluída.', 'success');
+          }
+        };
+
+        grid.appendChild(card);
+      });
+    } catch (e) {
+      console.error('Erro ao buscar fotos:', e);
+      grid.innerHTML = '<p class="text-danger text-center" style="grid-column: 1/-1;">Erro ao carregar fotos.</p>';
     }
   }
 
-  // ==================== ABA 4: PROGRESSO & CONFIGURAÇÕES ====================
-  function renderProgressTab() {
-    document.getElementById('input-goal-title').value = store.state.profile.goal || 'Hipertrofia';
-    document.getElementById('input-goal-kcal').value = store.state.profile.targetKcal || 2400;
-    document.getElementById('input-goal-p').value = store.state.profile.targetProtein || 160;
-    document.getElementById('input-goal-c').value = store.state.profile.targetCarbs || 260;
-    document.getElementById('input-goal-f').value = store.state.profile.targetFat || 65;
+  function togglePhotoComparison(photo) {
+    const idx = selectedPhotosToCompare.findIndex(p => p.id === photo.id);
+    if (idx >= 0) {
+      selectedPhotosToCompare.splice(idx, 1);
+    } else {
+      if (selectedPhotosToCompare.length >= 2) {
+        selectedPhotosToCompare.shift(); // Remove a mais antiga
+      }
+      selectedPhotosToCompare.push(photo);
+    }
 
-    // Preencher select de exercícios
+    updateComparatorCard();
+    renderPhotosGallery();
+  }
+
+  function updateComparatorCard() {
+    const card = document.getElementById('comparator-card');
+    if (selectedPhotosToCompare.length === 2) {
+      // Ordena por data (a mais antiga é o "Antes")
+      const sorted = [...selectedPhotosToCompare].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const before = sorted[0];
+      const after = sorted[1];
+
+      document.getElementById('comparator-before-img').src = before.dataUrl;
+      document.getElementById('comparator-before-meta').innerHTML = `<strong>${before.date}</strong> • ${before.weight ? `${before.weight}kg` : ''} (${before.pose || 'Frente'})`;
+
+      document.getElementById('comparator-after-img').src = after.dataUrl;
+      document.getElementById('comparator-after-meta').innerHTML = `<strong>${after.date}</strong> • ${after.weight ? `${after.weight}kg` : ''} (${after.pose || 'Frente'})`;
+
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      card.style.display = 'none';
+    }
+  }
+
+  document.getElementById('btn-close-comparator').onclick = () => {
+    selectedPhotosToCompare = [];
+    updateComparatorCard();
+    renderPhotosGallery();
+  };
+
+  // Upload e Compressão de Foto
+  let tempCompressedDataUrl = null;
+  document.getElementById('input-camera-photo').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      showToast('Otimizando imagem para alta velocidade...', 'success');
+      // Comprime para no máximo 1000px mantendo alta qualidade e peso ultra leve (< 120KB)
+      tempCompressedDataUrl = await window.IronDB.compressImage(file, 1000, 0.82);
+
+      const profile = store.getActiveProfile();
+      document.getElementById('preview-photo-img').src = tempCompressedDataUrl;
+      document.getElementById('input-photo-date').value = getTodayKey();
+      document.getElementById('input-photo-weight').value = profile.weight || '';
+
+      document.getElementById('modal-save-photo').classList.add('open');
+    } catch (err) {
+      console.error(err);
+      showToast('Erro ao processar imagem!', 'error');
+    }
+
+    e.target.value = '';
+  });
+
+  document.getElementById('form-save-photo').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!tempCompressedDataUrl) return;
+
+    const profile = store.getActiveProfile();
+    const date = document.getElementById('input-photo-date').value;
+    const weight = parseFloat(document.getElementById('input-photo-weight').value) || null;
+    const pose = document.getElementById('select-photo-pose').value;
+
+    const photoObj = {
+      id: 'photo-' + Date.now(),
+      profileId: profile.id,
+      date: date,
+      weight: weight,
+      pose: pose,
+      dataUrl: tempCompressedDataUrl
+    };
+
+    await window.IronDB.savePhoto(photoObj);
+    document.getElementById('modal-save-photo').classList.remove('open');
+    renderPhotosGallery();
+    showToast('Foto registrada com sucesso na sua evolução! 📸', 'success');
+  });
+
+  // ==================== GERENCIADOR DE MULTIPERFIL ====================
+  function initProfiles() {
+    document.getElementById('btn-open-profile-sheet').onclick = () => {
+      renderProfilesModal();
+      document.getElementById('modal-profiles').classList.add('open');
+    };
+
+    document.getElementById('btn-open-create-profile').onclick = () => {
+      document.getElementById('modal-profiles').classList.remove('open');
+      document.getElementById('form-create-profile').reset();
+      document.getElementById('modal-create-profile').classList.add('open');
+    };
+
+    document.getElementById('form-create-profile').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('input-new-profile-name').value.trim();
+      const weight = parseFloat(document.getElementById('input-new-profile-weight').value) || 75;
+      const height = parseInt(document.getElementById('input-new-profile-height').value, 10) || 175;
+      const goal = document.getElementById('input-new-profile-goal').value;
+
+      store.addProfile(name, weight, height, goal);
+      document.getElementById('modal-create-profile').classList.remove('open');
+      renderAll();
+      showToast(`Perfil de "${name}" criado e ativado! 🎉`, 'success');
+    });
+  }
+
+  function renderProfilesModal() {
+    const list = document.getElementById('profiles-list-box');
+    list.innerHTML = '';
+
+    store.state.profiles.forEach(p => {
+      const isCurrent = p.id === store.state.activeProfileId;
+      const item = document.createElement('div');
+      item.className = `profile-card-item ${isCurrent ? 'active' : ''}`;
+
+      const minW = Math.round((Number(p.weight) || 70) * 35);
+      const initials = (p.name || 'U').charAt(0).toUpperCase();
+
+      item.innerHTML = `
+        <div class="profile-item-left">
+          <div class="profile-avatar-circle" style="width: 36px; height: 36px; font-size: 0.95rem;">${initials}</div>
+          <div class="profile-item-info">
+            <h4>${escapeHtml(p.name)} ${isCurrent ? '<span class="tag tag-accent">Ativo</span>' : ''}</h4>
+            <span>${p.weight || '--'}kg • ${p.goal} • Mín água: ${minW}ml</span>
+          </div>
+        </div>
+        ${store.state.profiles.length > 1 ? `<button class="btn-del-profile" data-del-id="${p.id}" style="background:none;border:none;color:var(--danger);font-size:1.1rem;cursor:pointer;padding:8px;">🗑️</button>` : ''}
+      `;
+
+      item.onclick = (e) => {
+        if (e.target.closest('.btn-del-profile')) return;
+        store.state.activeProfileId = p.id;
+        store.save();
+        document.getElementById('modal-profiles').classList.remove('open');
+        renderAll();
+        showToast(`Perfil alternado para "${p.name}"!`, 'success');
+      };
+
+      const delBtn = item.querySelector('.btn-del-profile');
+      if (delBtn) {
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (confirm(`Excluir o perfil de "${p.name}" e todos os seus dados?`)) {
+            store.deleteProfile(p.id);
+            renderProfilesModal();
+            renderAll();
+            showToast('Perfil excluído.', 'success');
+          }
+        };
+      }
+
+      list.appendChild(item);
+    });
+  }
+
+  // ==================== ÁGUA RÁPIDA ====================
+  function initWater() {
+    document.querySelectorAll('.btn-water-add').forEach(btn => {
+      btn.onclick = () => {
+        const amt = parseInt(btn.getAttribute('data-add'), 10);
+        addWater(amt);
+      };
+    });
+
+    document.getElementById('btn-quick-water').onclick = () => {
+      addWater(250);
+    };
+
+    document.getElementById('btn-reset-water').onclick = () => {
+      if (confirm('Zerar contador de água de hoje?')) {
+        const p = store.getActiveProfile();
+        p.water = 0;
+        store.save();
+        renderHeader();
+        showToast('Água zerada.', 'success');
+      }
+    };
+  }
+
+  function addWater(amt) {
+    const profile = store.getActiveProfile();
+    profile.water = (profile.water || 0) + amt;
+    store.save();
+    renderHeader();
+    showToast(`+${amt}ml de água registrados! Total: ${profile.water}ml 💧`, 'success');
+  }
+
+  // ==================== PROGRESSO & METAS ====================
+  function renderProgressTab() {
+    const profile = store.getActiveProfile();
+
+    document.getElementById('input-profile-weight').value = profile.weight || 75;
+    document.getElementById('input-profile-height').value = profile.height || 175;
+    document.getElementById('input-goal-title').value = profile.goal || 'Hipertrofia';
+    document.getElementById('input-goal-kcal').value = profile.targetKcal || 2400;
+    document.getElementById('input-goal-p').value = profile.targetProtein || 160;
+    document.getElementById('input-goal-c').value = profile.targetCarbs || 260;
+    document.getElementById('input-goal-f').value = profile.targetFat || 65;
+
     const select = document.getElementById('select-chart-ex');
     select.innerHTML = '';
 
     const allExercises = [];
-    store.state.routines.forEach(r => {
+    profile.routines.forEach(r => {
       r.exercises.forEach(ex => allExercises.push(ex));
     });
 
@@ -1301,21 +1279,23 @@
     renderInteractiveSVGChart(document.getElementById('progress-chart-container'), allExercises[0]);
   }
 
-  // Formulário de Metas
   document.getElementById('form-user-goals').addEventListener('submit', (e) => {
     e.preventDefault();
-    store.state.profile.goal = document.getElementById('input-goal-title').value;
-    store.state.profile.targetKcal = parseInt(document.getElementById('input-goal-kcal').value, 10);
-    store.state.profile.targetProtein = parseInt(document.getElementById('input-goal-p').value, 10);
-    store.state.profile.targetCarbs = parseInt(document.getElementById('input-goal-c').value, 10);
-    store.state.profile.targetFat = parseInt(document.getElementById('input-goal-f').value, 10);
+    const profile = store.getActiveProfile();
+    profile.weight = parseFloat(document.getElementById('input-profile-weight').value) || profile.weight;
+    profile.height = parseInt(document.getElementById('input-profile-height').value, 10) || profile.height;
+    profile.goal = document.getElementById('input-goal-title').value;
+    profile.targetKcal = parseInt(document.getElementById('input-goal-kcal').value, 10);
+    profile.targetProtein = parseInt(document.getElementById('input-goal-p').value, 10);
+    profile.targetCarbs = parseInt(document.getElementById('input-goal-c').value, 10);
+    profile.targetFat = parseInt(document.getElementById('input-goal-f').value, 10);
+
     store.save();
-    renderHomeTab();
-    renderDietTab();
-    showToast('Metas diárias salvas com sucesso! 🎯', 'success');
+    renderAll();
+    showToast('Metas do perfil salvas com sucesso! 🎯', 'success');
   });
 
-  // Gráfico SVG Responsivo e Interativo
+  // Gráfico SVG Responsivo
   function renderInteractiveSVGChart(container, ex) {
     if (!container || !ex) return;
 
@@ -1332,13 +1312,9 @@
     const badge = document.getElementById('chart-max-weight');
     if (badge) badge.textContent = `${latest.weight} kg`;
 
-    const width = 360;
-    const height = 180;
-    const pad = { top: 20, right: 25, bottom: 35, left: 35 };
-
+    const width = 360, height = 180, pad = { top: 20, right: 25, bottom: 35, left: 35 };
     const weights = history.map(h => Number(h.weight) || 0);
-    let min = Math.min(...weights);
-    let max = Math.max(...weights);
+    let min = Math.min(...weights), max = Math.max(...weights);
 
     if (min === max) {
       min = Math.max(0, min - 10);
@@ -1353,9 +1329,7 @@
     const cH = height - pad.top - pad.bottom;
 
     const points = history.map((h, i) => {
-      const x = history.length > 1
-        ? pad.left + (i / (history.length - 1)) * cW
-        : pad.left + cW / 2;
+      const x = history.length > 1 ? pad.left + (i / (history.length - 1)) * cW : pad.left + cW / 2;
       const y = pad.top + cH - ((h.weight - min) / (max - min)) * cH;
       return { x, y, weight: h.weight, date: h.date };
     });
@@ -1403,6 +1377,294 @@
     return parts.length === 3 ? `${parts[2]}/${parts[1]}` : d;
   }
 
+  // ==================== CATÁLOGO DE EXERCÍCIOS ====================
+  const EXERCISE_CATALOG = [
+    { name: 'Supino Reto com Barra', muscle: 'Peito' },
+    { name: 'Supino Inclinado com Halteres', muscle: 'Peito' },
+    { name: 'Supino Inclinado com Barra', muscle: 'Peito' },
+    { name: 'Supino Reto com Halteres', muscle: 'Peito' },
+    { name: 'Crossover na Polia Média', muscle: 'Peito' },
+    { name: 'Voador / Peck Deck', muscle: 'Peito' },
+    { name: 'Paralelas (Foco Peitoral)', muscle: 'Peito' },
+    { name: 'Flexão de Braço', muscle: 'Peito' },
+    { name: 'Puxada Alta Frontal', muscle: 'Costas' },
+    { name: 'Remada Curvada com Barra', muscle: 'Costas' },
+    { name: 'Remada Baixa no Triângulo', muscle: 'Costas' },
+    { name: 'Pull-Down na Polia com Corda', muscle: 'Costas' },
+    { name: 'Levantamento Terra', muscle: 'Costas' },
+    { name: 'Agachamento Livre com Barra', muscle: 'Pernas' },
+    { name: 'Leg Press 45°', muscle: 'Pernas' },
+    { name: 'Cadeira Extensora', muscle: 'Pernas' },
+    { name: 'Mesa Flexora', muscle: 'Pernas' },
+    { name: 'Stiff com Halteres', muscle: 'Pernas' },
+    { name: 'Elevação Pélvica com Barra', muscle: 'Pernas' },
+    { name: 'Panturrilha em Pé na Máquina', muscle: 'Pernas' },
+    { name: 'Desenvolvimento com Halteres', muscle: 'Ombros' },
+    { name: 'Elevação Lateral com Halteres', muscle: 'Ombros' },
+    { name: 'Crucifixo Inverso com Halteres', muscle: 'Ombros' },
+    { name: 'Rosca Direta com Barra W', muscle: 'Bíceps' },
+    { name: 'Rosca Martelo com Halteres', muscle: 'Bíceps' },
+    { name: 'Tríceps Corda na Polia', muscle: 'Tríceps' },
+    { name: 'Tríceps Testa com Barra W', muscle: 'Tríceps' },
+    { name: 'Abdominal na Polia / Crunch', muscle: 'Abdômen' },
+    { name: 'Prancha Isométrica', muscle: 'Abdômen' }
+  ];
+
+  let selectedFilterMuscle = 'all';
+
+  function initCatalog() {
+    document.querySelectorAll('.catalog-filters .filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.catalog-filters .filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        selectedFilterMuscle = chip.getAttribute('data-muscle');
+        filterCatalog();
+      });
+    });
+
+    const searchInput = document.getElementById('catalog-search-input');
+    searchInput.addEventListener('input', () => filterCatalog());
+
+    document.getElementById('btn-open-catalog').onclick = () => {
+      searchInput.value = '';
+      selectedFilterMuscle = 'all';
+      document.querySelectorAll('.catalog-filters .filter-chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+      filterCatalog();
+      document.getElementById('modal-catalog').classList.add('open');
+    };
+
+    document.getElementById('btn-create-custom-ex').onclick = () => {
+      const customName = searchInput.value.trim();
+      if (customName) {
+        addExerciseToActiveRoutine(customName, 'Personalizado');
+        document.getElementById('modal-catalog').classList.remove('open');
+      }
+    };
+  }
+
+  function filterCatalog() {
+    const searchVal = document.getElementById('catalog-search-input').value.trim().toLowerCase();
+    const list = document.getElementById('catalog-list');
+    list.innerHTML = '';
+
+    const customPrompt = document.getElementById('custom-ex-prompt');
+    const filtered = EXERCISE_CATALOG.filter(ex => {
+      const matchesM = selectedFilterMuscle === 'all' || ex.muscle === selectedFilterMuscle;
+      const matchesQ = !searchVal || ex.name.toLowerCase().includes(searchVal);
+      return matchesM && matchesQ;
+    });
+
+    if (searchVal && !filtered.some(e => e.name.toLowerCase() === searchVal)) {
+      customPrompt.style.display = 'flex';
+    } else {
+      customPrompt.style.display = 'none';
+    }
+
+    filtered.forEach(ex => {
+      const item = document.createElement('div');
+      item.className = 'catalog-item';
+      item.innerHTML = `
+        <div>
+          <h4 style="font-size:0.95rem; font-weight:700;">${escapeHtml(ex.name)}</h4>
+          <span class="tag tag-muscle">${escapeHtml(ex.muscle)}</span>
+        </div>
+        <button class="btn btn-sm btn-primary">+ Adicionar</button>
+      `;
+
+      item.onclick = () => {
+        addExerciseToActiveRoutine(ex.name, ex.muscle);
+        document.getElementById('modal-catalog').classList.remove('open');
+      };
+      list.appendChild(item);
+    });
+  }
+
+  function addExerciseToActiveRoutine(name, muscle) {
+    const profile = store.getActiveProfile();
+    const routine = profile.routines.find(r => r.id === profile.activeRoutineId);
+    if (!routine) return;
+
+    routine.exercises.push({
+      id: 'ex-' + Date.now(),
+      name: name,
+      muscle: muscle,
+      notes: '',
+      sets: [
+        { weight: 20, reps: 10, completed: false, prev: '--' },
+        { weight: 20, reps: 10, completed: false, prev: '--' },
+        { weight: 20, reps: 10, completed: false, prev: '--' }
+      ],
+      history: [{ date: getTodayKey(), weight: 20 }]
+    });
+
+    store.save();
+    renderWorkoutsTab();
+    renderHomeTab();
+    showToast(`"${name}" adicionado à ficha! 💪`, 'success');
+  }
+
+  // Modais de Fichas
+  function openNewRoutineModal() {
+    document.getElementById('modal-routine-title').textContent = 'Montar Nova Ficha';
+    document.getElementById('input-routine-id').value = '';
+    document.getElementById('input-routine-name').value = '';
+    document.getElementById('input-routine-focus').value = '';
+    document.getElementById('modal-routine').classList.add('open');
+  }
+
+  function openEditRoutineModal(routine) {
+    document.getElementById('modal-routine-title').textContent = 'Editar Ficha';
+    document.getElementById('input-routine-id').value = routine.id;
+    document.getElementById('input-routine-name').value = routine.name;
+    document.getElementById('input-routine-focus').value = routine.focus;
+    document.getElementById('modal-routine').classList.add('open');
+  }
+
+  document.getElementById('form-routine').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const profile = store.getActiveProfile();
+    const id = document.getElementById('input-routine-id').value;
+    const name = document.getElementById('input-routine-name').value.trim();
+    const focus = document.getElementById('input-routine-focus').value.trim();
+
+    if (id) {
+      const routine = profile.routines.find(r => r.id === id);
+      if (routine) {
+        routine.name = name;
+        routine.focus = focus;
+        showToast('Ficha atualizada!', 'success');
+      }
+    } else {
+      const newR = { id: 'routine-' + Date.now(), name, focus, exercises: [] };
+      profile.routines.push(newR);
+      profile.activeRoutineId = newR.id;
+      showToast('Nova ficha criada! 🏋️', 'success');
+    }
+
+    store.save();
+    document.getElementById('modal-routine').classList.remove('open');
+    renderWorkoutsTab();
+    renderHomeTab();
+  });
+
+  function confirmDeleteRoutine(routine) {
+    const profile = store.getActiveProfile();
+    if (profile.routines.length <= 1) {
+      showToast('Você precisa manter pelo menos 1 ficha criada.', 'error');
+      return;
+    }
+    if (confirm(`Deseja excluir a ficha "${routine.name}"?`)) {
+      profile.routines = profile.routines.filter(r => r.id !== routine.id);
+      profile.activeRoutineId = profile.routines[0].id;
+      store.save();
+      renderWorkoutsTab();
+      renderHomeTab();
+      showToast('Ficha excluída.', 'success');
+    }
+  }
+
+  // Modais de Exercício
+  let currentEditingEx = null;
+  function openEditExNotes(ex) {
+    currentEditingEx = ex;
+    document.getElementById('input-edit-ex-id').value = ex.id;
+    document.getElementById('input-edit-ex-name').value = ex.name;
+    document.getElementById('input-edit-ex-notes').value = ex.notes || '';
+    document.getElementById('modal-edit-ex').classList.add('open');
+  }
+
+  document.getElementById('form-edit-ex').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!currentEditingEx) return;
+    currentEditingEx.name = document.getElementById('input-edit-ex-name').value.trim();
+    currentEditingEx.notes = document.getElementById('input-edit-ex-notes').value.trim();
+    store.save();
+    document.getElementById('modal-edit-ex').classList.remove('open');
+    renderWorkoutsTab();
+    showToast('Exercício salvo!', 'success');
+  });
+
+  function openHistoryModal(ex) {
+    document.getElementById('history-modal-title').textContent = ex.name;
+    document.getElementById('history-modal-sub').textContent = `Músculo: ${ex.muscle || 'Geral'}`;
+    renderInteractiveSVGChart(document.getElementById('history-modal-chart'), ex);
+
+    const table = document.getElementById('history-table-records');
+    table.innerHTML = '';
+    const sorted = [...(ex.history || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+    if (sorted.length === 0) {
+      table.innerHTML = '<p class="text-muted text-sm text-center">Nenhuma carga registrada ainda.</p>';
+    } else {
+      sorted.forEach(rec => {
+        const row = document.createElement('div');
+        row.className = 'history-item-row';
+        row.innerHTML = `<span>📅 ${rec.date}</span><strong style="color:var(--accent);">${rec.weight} kg</strong>`;
+        table.appendChild(row);
+      });
+    }
+
+    document.getElementById('modal-history').classList.add('open');
+  }
+
+  // Modais de Refeição
+  function openAddMealModal() {
+    document.getElementById('modal-meal-title').textContent = 'Nova Refeição';
+    document.getElementById('input-meal-id').value = '';
+    document.getElementById('form-meal').reset();
+    document.getElementById('modal-meal').classList.add('open');
+  }
+
+  function openEditMealModal(meal) {
+    document.getElementById('modal-meal-title').textContent = 'Editar Refeição';
+    document.getElementById('input-meal-id').value = meal.id;
+    document.getElementById('input-meal-name').value = meal.name;
+    document.getElementById('input-meal-time').value = meal.time;
+    document.getElementById('modal-meal').classList.add('open');
+  }
+
+  document.getElementById('form-meal').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const profile = store.getActiveProfile();
+    const id = document.getElementById('input-meal-id').value;
+    const name = document.getElementById('input-meal-name').value.trim();
+    const time = document.getElementById('input-meal-time').value;
+
+    if (id) {
+      const meal = profile.meals.find(m => m.id === id);
+      if (meal) {
+        meal.name = name;
+        meal.time = time;
+        showToast('Refeição salva!', 'success');
+      }
+    } else {
+      profile.meals.push({
+        id: 'meal-' + Date.now(),
+        name,
+        time,
+        done: false,
+        items: []
+      });
+      showToast('Refeição cadastrada! Agora adicione alimentos da Tabela TACO.', 'success');
+    }
+
+    store.save();
+    document.getElementById('modal-meal').classList.remove('open');
+    renderDietTab();
+    renderHomeTab();
+  });
+
+  function confirmDeleteMeal(meal) {
+    const profile = store.getActiveProfile();
+    if (confirm(`Excluir a refeição "${meal.name}"?`)) {
+      profile.meals = profile.meals.filter(m => m.id !== meal.id);
+      store.save();
+      renderDietTab();
+      renderHomeTab();
+      showToast('Refeição removida.', 'success');
+    }
+  }
+
   // ==================== BACKUP & RESTAURAÇÃO ====================
   document.getElementById('btn-export-backup').onclick = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(store.state, null, 2));
@@ -1412,7 +1674,7 @@
     document.body.appendChild(a);
     a.click();
     a.remove();
-    showToast('Backup exportado com sucesso! 📥', 'success');
+    showToast('Backup dos perfis exportado com sucesso! 📥', 'success');
   };
 
   document.getElementById('input-backup-file').onchange = (e) => {
@@ -1422,11 +1684,18 @@
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target.result);
-        if (parsed && parsed.routines) {
-          store.state = parsed;
+        if (parsed && (parsed.profiles || parsed.routines)) {
+          if (parsed.profiles) {
+            store.state = parsed;
+          } else {
+            store.state = {
+              activeProfileId: 'p-1',
+              profiles: [Object.assign(createDefaultProfile('p-1', 'Principal'), parsed)]
+            };
+          }
           store.save();
           renderAll();
-          showToast('Backup restaurado! Suas fichas foram carregadas. 🎉', 'success');
+          showToast('Backup restaurado com sucesso! 🎉', 'success');
         } else {
           showToast('Arquivo de backup inválido.', 'error');
         }
@@ -1438,24 +1707,19 @@
     e.target.value = '';
   };
 
-  // Limpar Tudo e Montar do Zero
   document.getElementById('btn-clear-all-data').onclick = () => {
-    if (confirm('Tem certeza de que deseja apagar tudo e montar seus treinos do zero?')) {
-      store.clearToBlank();
+    if (confirm('Tem certeza de que deseja apagar os treinos deste perfil e começar do zero?')) {
+      const profile = store.getActiveProfile();
+      profile.routines = [{ id: 'routine-new', name: 'Meu Treino A', focus: 'Personalizado', exercises: [] }];
+      profile.activeRoutineId = 'routine-new';
+      profile.meals = [];
+      store.save();
       renderAll();
-      showToast('Fichas limpas! Agora monte seu treino do seu jeito. 🚀', 'success');
+      showToast('Dados limpos! Monte do seu jeito. 🚀', 'success');
     }
   };
 
-  // Água rápida
-  document.getElementById('btn-quick-water').onclick = () => {
-    store.state.profile.water = (store.state.profile.water || 0) + 250;
-    store.save();
-    document.getElementById('water-display').textContent = store.state.profile.water;
-    showToast(`+250ml registrados! Total: ${store.state.profile.water}ml 💧`, 'success');
-  };
-
-  // Fechamento de Modais
+  // Modais Fechar
   document.querySelectorAll('[data-dismiss]').forEach(btn => {
     btn.onclick = () => {
       const id = btn.getAttribute('data-dismiss');
@@ -1482,7 +1746,7 @@
       t.style.transform = 'translateY(10px)';
       t.style.transition = 'all 0.25s ease';
       setTimeout(() => t.remove(), 250);
-    }, 3000);
+    }, 2800);
   }
 
   function escapeHtml(str) {
@@ -1496,15 +1760,18 @@
   }
 
   function renderAll() {
+    renderHeader();
     renderHomeTab();
     renderWorkoutsTab();
     renderDietTab();
   }
 
-  // Inicialização
   function init() {
     initNav();
     initCatalog();
+    initTacoPicker();
+    initProfiles();
+    initWater();
 
     document.getElementById('btn-start-session').onclick = toggleSession;
     document.getElementById('btn-add-meal').onclick = openAddMealModal;
@@ -1516,7 +1783,6 @@
 
     renderAll();
 
-    // Service Worker PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});

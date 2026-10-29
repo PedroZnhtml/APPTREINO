@@ -7,51 +7,57 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IronPulse">
-  <meta name="description" content="Construtor e rastreador de treinos e dieta no celular">
+  <meta name="description" content="App de Treinos, Dieta TACO, Multiperfil e Comparador de Fotos">
   
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon.svg">
   
-  <title>IronPulse • Seus Treinos & Dieta</title>
+  <title>IronPulse • Treinos & Dieta TACO</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-  <!-- Top App Bar -->
+  <!-- Top App Bar com Seletor de Perfis -->
   <header class="app-header">
     <div class="header-content">
-      <div class="brand">
-        <div class="brand-badge">⚡</div>
-        <div class="brand-info">
-          <h1>IronPulse</h1>
-          <span class="header-subtitle" id="header-date-text">Hoje</span>
+      <!-- Seletor de Perfil do Usuário -->
+      <div class="profile-header-trigger" id="btn-open-profile-sheet" title="Trocar ou Criar Perfil">
+        <div class="profile-avatar-circle" id="header-avatar-circle">P</div>
+        <div class="profile-name-meta">
+          <div class="profile-name-row">
+            <strong id="header-profile-name">Pedro</strong>
+            <span class="dropdown-arrow">▼</span>
+          </div>
+          <span class="header-subtitle" id="header-profile-goal">Hipertrofia</span>
         </div>
       </div>
+
+      <!-- Ações do Header (Água Rápida) -->
       <div class="header-actions">
-        <button id="btn-quick-water" class="btn-pill" title="Registrar Água">
-          💧 <span id="water-display">0</span>ml
+        <button id="btn-quick-water" class="btn-pill" title="Adicionar Água">
+          💧 <span id="water-display">0</span> / <span id="water-min-goal-display">2500</span>ml
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Container Principal -->
   <main class="app-content">
 
     <!-- ==================== ABA 1: INÍCIO ==================== -->
     <section id="tab-home" class="tab-panel active">
-      <!-- Status Card Superior -->
+      <!-- Hero Card Superior -->
       <div class="hero-card">
         <div class="hero-top">
           <div>
             <span class="tag tag-accent" id="home-goal-badge">Hipertrofia</span>
-            <h2 id="home-greeting">Pronto pro treino de hoje?</h2>
+            <h2 id="home-greeting">Bora evoluir hoje? 💪</h2>
           </div>
         </div>
         <div class="hero-stats-row">
           <div class="hero-stat-item">
-            <span class="stat-label">Treinos na Semana</span>
+            <span class="stat-label">Treinos / Semana</span>
             <strong class="stat-val" id="home-week-workouts-count">0/7</strong>
           </div>
           <div class="hero-divider"></div>
@@ -59,16 +65,21 @@
             <span class="stat-label">Kcal de Hoje</span>
             <strong class="stat-val"><span id="home-kcal-val">0</span> / <span id="home-target-kcal-val">2400</span></strong>
           </div>
+          <div class="hero-divider"></div>
+          <div class="hero-stat-item">
+            <span class="stat-label">Água Mínima</span>
+            <strong class="stat-val" id="home-water-ratio">0%</strong>
+          </div>
         </div>
       </div>
 
-      <!-- Treino Ativo / Recomendado -->
+      <!-- Treino Recomendado -->
       <div class="section-header">
-        <h3>Treino Atual</h3>
-        <button class="link-btn" id="btn-home-manage-workouts">Gerenciar Fichas →</button>
+        <h3>Treino do Dia</h3>
+        <button class="link-btn" id="btn-home-manage-workouts">Abrir Fichas →</button>
       </div>
       <div class="card card-glow" id="home-workout-box">
-        <!-- Renderizado dinamicamente via app.js -->
+        <!-- Renderizado dinamicamente -->
       </div>
 
       <!-- Próxima Refeição -->
@@ -77,12 +88,12 @@
         <button class="link-btn" id="btn-home-go-diet">Ver Dieta →</button>
       </div>
       <div class="card" id="home-meal-box">
-        <!-- Renderizado dinamicamente via app.js -->
+        <!-- Renderizado dinamicamente -->
       </div>
 
-      <!-- Consistência dos Últimos 7 Dias -->
+      <!-- Rastreador de Consistência -->
       <div class="section-header">
-        <h3>Sua Consistência (7 Dias)</h3>
+        <h3>Sua Consistência Semanal</h3>
       </div>
       <div class="card">
         <div class="week-strip" id="home-week-strip">
@@ -91,16 +102,16 @@
       </div>
     </section>
 
-    <!-- ==================== ABA 2: TREINOS (CONSTRUTOR & LOG REAL SÉRIE A SÉRIE) ==================== -->
+    <!-- ==================== ABA 2: TREINOS (CONSTRUTOR LIVRE) ==================== -->
     <section id="tab-workouts" class="tab-panel">
-      <!-- Seletor de Fichas Customizadas -->
+      <!-- Seletor de Fichas do Usuário -->
       <div class="workouts-nav-bar">
         <div class="workouts-scroll-pills" id="workout-tabs-bar">
-          <!-- Fichas do Usuário + Botão "+ Nova Ficha" -->
+          <!-- Gerado dinamicamente -->
         </div>
       </div>
 
-      <!-- Barra de Controle da Sessão Ativa -->
+      <!-- HUD de Treino em Andamento & Wake Lock -->
       <div class="session-hud" id="session-hud">
         <div class="hud-left">
           <button class="btn btn-primary btn-sm" id="btn-start-session">
@@ -114,7 +125,7 @@
         <div class="hud-timer" id="session-stopwatch">00:00</div>
       </div>
 
-      <!-- Barra Rápida de Descanso entre Séries -->
+      <!-- Descanso entre Séries -->
       <div class="rest-timer-bar">
         <div class="rest-info">
           <span class="rest-tag">⏱️ DESCANSO:</span>
@@ -129,40 +140,35 @@
         </div>
       </div>
 
-      <!-- Header da Ficha Ativa com Ações -->
+      <!-- Header da Ficha Selecionada -->
       <div class="workout-header-card">
         <div class="workout-title-group">
           <h2 id="active-routine-name">Meu Treino</h2>
-          <span class="workout-subtitle" id="active-routine-focus">Monte sua divisão como preferir</span>
+          <span class="workout-subtitle" id="active-routine-focus">Monte sua ficha livremente</span>
         </div>
         <div class="workout-action-buttons">
-          <button class="btn-icon" id="btn-edit-routine" title="Renomear ou mudar foco">✏️</button>
-          <button class="btn-icon text-danger" id="btn-delete-routine" title="Excluir esta ficha">🗑️</button>
+          <button class="btn-icon" id="btn-edit-routine" title="Renomear ficha">✏️</button>
+          <button class="btn-icon text-danger" id="btn-delete-routine" title="Excluir ficha">🗑️</button>
         </div>
       </div>
 
-      <!-- Lista de Exercícios com Séries Individuais (Estilo Hevy / Strong) -->
+      <!-- Lista de Exercícios com Tabela de Séries (Hevy / Strong) -->
       <div class="exercises-stack" id="exercises-stack">
         <!-- Renderizado dinamicamente -->
       </div>
 
-      <!-- Ações do Treino: Adicionar Exercício do Catálogo ou Criar do Zero -->
       <div class="workout-bottom-actions">
         <button class="btn btn-outline btn-block" id="btn-open-catalog">
           + Adicionar Exercício (Biblioteca ou Personalizado)
         </button>
-        
-        <div class="empty-state-help" id="empty-routine-hint" style="display: none;">
-          <p>Sua ficha está vazia! Toque no botão acima para montar seu treino exercício por exercício.</p>
-        </div>
       </div>
 
       <div class="spacer-bottom"></div>
     </section>
 
-    <!-- ==================== ABA 3: DIETA ==================== -->
+    <!-- ==================== ABA 3: DIETA (INTEGRAÇÃO TABELA TACO) ==================== -->
     <section id="tab-diet" class="tab-panel">
-      <!-- Painel de Metas e Calorias do Dia -->
+      <!-- Painel Superior de Calorias e Macros -->
       <div class="card diet-summary-box">
         <div class="diet-summary-top">
           <div>
@@ -218,9 +224,34 @@
         </div>
       </div>
 
-      <!-- Refeições Cadastradas -->
+      <!-- Card da Meta Mínima de Água -->
+      <div class="card water-target-card">
+        <div class="water-card-header">
+          <div class="water-left-title">
+            <span class="water-icon">💧</span>
+            <div>
+              <h4>Consumo Mínimo de Água</h4>
+              <span class="text-xs text-muted" id="water-calc-desc">Calculado: 35ml × seu peso corporal</span>
+            </div>
+          </div>
+          <div class="water-quick-buttons">
+            <button class="btn-water-add" data-add="250">+250ml</button>
+            <button class="btn-water-add" data-add="500">+500ml</button>
+            <button class="btn-water-reset" id="btn-reset-water" title="Zerar água do dia">↺</button>
+          </div>
+        </div>
+        <div class="progress-track mt-2">
+          <div class="progress-fill fill-water" id="water-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="water-numbers-footer">
+          <span class="text-sm"><strong id="water-current-total">0</strong> de <strong id="water-target-total">2800</strong> ml</span>
+          <span class="text-sm text-cyan" id="water-percent-badge">0%</span>
+        </div>
+      </div>
+
+      <!-- Refeições Cadastradas com Calculadora TACO -->
       <div class="section-header">
-        <h3>Suas Refeições</h3>
+        <h3>Suas Refeições (Tabela TACO)</h3>
         <button class="btn btn-sm btn-outline" id="btn-add-meal">+ Nova Refeição</button>
       </div>
 
@@ -231,91 +262,147 @@
       <div class="spacer-bottom"></div>
     </section>
 
-    <!-- ==================== ABA 4: PROGRESSO & CONFIGURAÇÕES ==================== -->
+    <!-- ==================== ABA 4: PROGRESSO, FOTOS & PERFIL ==================== -->
     <section id="tab-progress" class="tab-panel">
-      <!-- Gráfico de Evolução de Carga -->
-      <div class="section-header">
-        <h3>Evolução de Cargas</h3>
+      <!-- Seletor de Sub-abas (Fotos de Evolução / Cargas & Metas) -->
+      <div class="progress-sub-tabs mb-3">
+        <button class="sub-tab-btn active" data-subtab="sub-photos">📸 Fotos & Comparador</button>
+        <button class="sub-tab-btn" data-subtab="sub-charts">📈 Cargas & Metas</button>
       </div>
-      <div class="card">
-        <label for="select-chart-ex" class="form-label">Exercício para Análise:</label>
-        <select id="select-chart-ex" class="form-control mb-3">
-          <!-- Populado via app.js -->
-        </select>
 
-        <div class="chart-box">
-          <div class="chart-headline">
-            <span class="text-sm text-muted">Histórico de Carga Máxima</span>
-            <span class="badge badge-accent" id="chart-max-weight">-- kg</span>
+      <!-- SUB-ABA 1: GALERIA DE FOTOS E COMPARADOR ANTES & DEPOIS -->
+      <div class="sub-tab-content active" id="sub-photos">
+        <!-- Barra de Ação de Upload -->
+        <div class="card photo-upload-card">
+          <div class="photo-upload-header">
+            <div>
+              <h4>Comparador de Físico (Antes & Depois)</h4>
+              <p class="text-xs text-muted">Tire fotos periódicas e compare sua evolução lado a lado.</p>
+            </div>
+            <label class="btn btn-primary btn-sm btn-camera" for="input-camera-photo">
+              📷 + Nova Foto
+              <input type="file" id="input-camera-photo" accept="image/*" style="display:none;">
+            </label>
           </div>
-          <div class="svg-chart-wrapper" id="progress-chart-container">
-            <!-- Gráfico SVG interativo -->
+        </div>
+
+        <!-- Seção do Comparador Lado a Lado -->
+        <div class="card" id="comparator-card" style="display: none;">
+          <div class="section-header" style="margin-top: 0;">
+            <h3>Comparando Evolução</h3>
+            <button class="link-btn" id="btn-close-comparator">Fechar ✕</button>
           </div>
+          <div class="comparator-grid">
+            <div class="comparator-side">
+              <span class="badge badge-accent mb-2">ANTES</span>
+              <div class="comparator-img-wrap" id="comparator-before-wrap">
+                <img id="comparator-before-img" src="" alt="Antes">
+              </div>
+              <div class="comparator-meta" id="comparator-before-meta"></div>
+            </div>
+            <div class="comparator-side">
+              <span class="badge badge-cyan mb-2">DEPOIS</span>
+              <div class="comparator-img-wrap" id="comparator-after-wrap">
+                <img id="comparator-after-img" src="" alt="Depois">
+              </div>
+              <div class="comparator-meta" id="comparator-after-meta"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Galeria de Fotos do Usuário -->
+        <div class="section-header">
+          <h3>Suas Fotos Registradas</h3>
+          <span class="text-xs text-muted" id="photos-count-badge">0 fotos</span>
+        </div>
+        <div class="photos-grid" id="photos-grid">
+          <!-- Renderizado dinamicamente -->
         </div>
       </div>
 
-      <!-- Configuração de Metas do Usuário -->
-      <div class="section-header">
-        <h3>Minhas Metas & Objetivo</h3>
-      </div>
-      <div class="card">
-        <form id="form-user-goals">
-          <div class="form-group">
-            <label class="form-label" for="input-goal-title">Objetivo Atual</label>
-            <select id="input-goal-title" class="form-control">
-              <option value="Hipertrofia">Hipertrofia (Ganho de Massa Muscular)</option>
-              <option value="Emagrecimento">Emagrecimento / Cutting (Definição)</option>
-              <option value="Manutenção">Manutenção / Performance</option>
-              <option value="Força Pura">Powerlifting / Força</option>
-            </select>
-          </div>
+      <!-- SUB-ABA 2: CARGAS, METAS E DADOS -->
+      <div class="sub-tab-content" id="sub-charts">
+        <!-- Gráfico de Cargas -->
+        <div class="section-header">
+          <h3>Evolução de Cargas</h3>
+        </div>
+        <div class="card">
+          <label for="select-chart-ex" class="form-label">Exercício para Análise:</label>
+          <select id="select-chart-ex" class="form-control mb-3"></select>
 
-          <div class="form-group">
-            <label class="form-label" for="input-goal-kcal">Calorias Diárias (kcal)</label>
-            <input type="number" inputmode="numeric" id="input-goal-kcal" class="form-control" min="500" max="8000" required>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col">
-              <label class="form-label" for="input-goal-p">Proteína (g)</label>
-              <input type="number" inputmode="numeric" id="input-goal-p" class="form-control" min="0" max="600" required>
+          <div class="chart-box">
+            <div class="chart-headline">
+              <span class="text-sm text-muted">Histórico de Carga Máxima</span>
+              <span class="badge badge-accent" id="chart-max-weight">-- kg</span>
             </div>
-            <div class="form-group col">
-              <label class="form-label" for="input-goal-c">Carbo (g)</label>
-              <input type="number" inputmode="numeric" id="input-goal-c" class="form-control" min="0" max="1000" required>
-            </div>
-            <div class="form-group col">
-              <label class="form-label" for="input-goal-f">Gordura (g)</label>
-              <input type="number" inputmode="numeric" id="input-goal-f" class="form-control" min="0" max="300" required>
-            </div>
+            <div class="svg-chart-wrapper" id="progress-chart-container"></div>
           </div>
+        </div>
 
-          <button type="submit" class="btn btn-primary btn-block">Salvar Novas Metas</button>
-        </form>
-      </div>
+        <!-- Metas do Perfil Ativo -->
+        <div class="section-header">
+          <h3>Metas do Perfil Atual</h3>
+        </div>
+        <div class="card">
+          <form id="form-user-goals">
+            <div class="form-row">
+              <div class="form-group col">
+                <label class="form-label" for="input-profile-weight">Peso Atual (kg)</label>
+                <input type="number" inputmode="decimal" step="0.1" id="input-profile-weight" class="form-control" placeholder="Ex: 75.5" required>
+              </div>
+              <div class="form-group col">
+                <label class="form-label" for="input-profile-height">Altura (cm)</label>
+                <input type="number" inputmode="numeric" id="input-profile-height" class="form-control" placeholder="Ex: 178">
+              </div>
+            </div>
 
-      <!-- Backup e Gerenciamento -->
-      <div class="section-header">
-        <h3>Seus Dados & Backup</h3>
-      </div>
-      <div class="card">
-        <p class="text-sm text-muted mb-3">
-          Todos os seus treinos e refeições ficam salvos no seu próprio celular. Você pode exportar e importar a qualquer hora.
-        </p>
+            <div class="form-group">
+              <label class="form-label" for="input-goal-title">Objetivo Atual</label>
+              <select id="input-goal-title" class="form-control">
+                <option value="Hipertrofia">Hipertrofia (Ganho de Massa Muscular)</option>
+                <option value="Emagrecimento">Emagrecimento / Cutting (Definição)</option>
+                <option value="Manutenção">Manutenção / Performance</option>
+                <option value="Força Pura">Powerlifting / Força</option>
+              </select>
+            </div>
 
-        <div class="backup-grid">
-          <button class="btn btn-outline btn-block" id="btn-export-backup">
-            📥 Exportar Backup (.JSON)
-          </button>
-          
-          <label class="btn btn-outline btn-block btn-file-upload" for="input-backup-file">
-            📤 Importar Backup (.JSON)
-            <input type="file" id="input-backup-file" accept=".json" style="display:none;">
-          </label>
+            <div class="form-group">
+              <label class="form-label" for="input-goal-kcal">Calorias Diárias (kcal)</label>
+              <input type="number" inputmode="numeric" id="input-goal-kcal" class="form-control" min="500" max="8000" required>
+            </div>
 
-          <button class="btn btn-outline btn-block text-danger mt-2" id="btn-clear-all-data">
-            🗑️ Limpar Tudo e Começar do Zero
-          </button>
+            <div class="form-row">
+              <div class="form-group col">
+                <label class="form-label" for="input-goal-p">Proteína (g)</label>
+                <input type="number" inputmode="numeric" id="input-goal-p" class="form-control" min="0" max="600" required>
+              </div>
+              <div class="form-group col">
+                <label class="form-label" for="input-goal-c">Carbo (g)</label>
+                <input type="number" inputmode="numeric" id="input-goal-c" class="form-control" min="0" max="1000" required>
+              </div>
+              <div class="form-group col">
+                <label class="form-label" for="input-goal-f">Gordura (g)</label>
+                <input type="number" inputmode="numeric" id="input-goal-f" class="form-control" min="0" max="300" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Salvar Metas do Perfil</button>
+          </form>
+        </div>
+
+        <!-- Backup Geral -->
+        <div class="section-header">
+          <h3>Backup dos Perfis</h3>
+        </div>
+        <div class="card">
+          <div class="backup-grid">
+            <button class="btn btn-outline btn-block" id="btn-export-backup">📥 Exportar Backup (.JSON)</button>
+            <label class="btn btn-outline btn-block btn-file-upload" for="input-backup-file">
+              📤 Importar Backup (.JSON)
+              <input type="file" id="input-backup-file" accept=".json" style="display:none;">
+            </label>
+            <button class="btn btn-outline btn-block text-danger mt-2" id="btn-clear-all-data">🗑️ Limpar e Começar do Zero</button>
+          </div>
         </div>
       </div>
 
@@ -344,7 +431,150 @@
     </button>
   </nav>
 
-  <!-- ==================== MODAL: BIBLIOTECA DE EXERCÍCIOS & CRIADOR ==================== -->
+  <!-- ==================== MODAL: GERENCIADOR DE PERFIS ==================== -->
+  <div class="modal-backdrop" id="modal-profiles">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div>
+          <h3>Perfis de Usuários</h3>
+          <span class="text-xs text-muted">Cada perfil tem seus próprios treinos e dieta</span>
+        </div>
+        <button class="btn-modal-close" data-dismiss="modal-profiles">✕</button>
+      </div>
+
+      <!-- Lista de Perfis Cadastrados -->
+      <div class="profiles-list-box mb-3" id="profiles-list-box">
+        <!-- Renderizado dinamicamente -->
+      </div>
+
+      <button class="btn btn-primary btn-block" id="btn-open-create-profile">
+        + Criar Novo Perfil de Usuário
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CRIAR / EDITAR PERFIL ==================== -->
+  <div class="modal-backdrop" id="modal-create-profile">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <h3 id="modal-profile-title">Novo Perfil</h3>
+        <button class="btn-modal-close" data-dismiss="modal-create-profile">✕</button>
+      </div>
+      <form id="form-create-profile">
+        <input type="hidden" id="input-edit-profile-id">
+        <div class="form-group">
+          <label class="form-label" for="input-new-profile-name">Nome do Usuário</label>
+          <input type="text" id="input-new-profile-name" class="form-control" placeholder="Ex: Pedro, Evelyn, Atleta" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label" for="input-new-profile-weight">Peso Corporal (kg)</label>
+            <input type="number" inputmode="decimal" step="0.1" id="input-new-profile-weight" class="form-control" placeholder="75" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label" for="input-new-profile-height">Altura (cm)</label>
+            <input type="number" inputmode="numeric" id="input-new-profile-height" class="form-control" placeholder="175">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-new-profile-goal">Objetivo</label>
+          <select id="input-new-profile-goal" class="form-control">
+            <option value="Hipertrofia">Hipertrofia</option>
+            <option value="Emagrecimento">Emagrecimento</option>
+            <option value="Manutenção">Manutenção</option>
+          </select>
+        </div>
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" data-dismiss="modal-create-profile">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Perfil</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADICIONAR ALIMENTO DA TABELA TACO ==================== -->
+  <div class="modal-backdrop" id="modal-taco-picker">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div>
+          <h3>Tabela TACO • Alimentos</h3>
+          <span class="text-xs text-muted">Composição nutricional oficial</span>
+        </div>
+        <button class="btn-modal-close" data-dismiss="modal-taco-picker">✕</button>
+      </div>
+
+      <div class="search-box-wrap mb-3">
+        <input type="text" id="taco-search-input" class="form-control" placeholder="🔍 Buscar alimento (arroz, frango, aveia, ovo...)">
+      </div>
+
+      <!-- Alimento Selecionado e Calculadora de Gramas -->
+      <div class="taco-calc-box mb-3" id="taco-calc-box" style="display: none;">
+        <div class="taco-calc-header">
+          <strong id="taco-calc-food-name">Peito de frango grelhado</strong>
+          <span class="tag tag-accent" id="taco-calc-category">Aves</span>
+        </div>
+        <div class="taco-input-row">
+          <label for="taco-grams-input">Quantidade (g ou ml):</label>
+          <input type="number" inputmode="numeric" id="taco-grams-input" class="form-control taco-gram-field" value="100" min="1" max="2000">
+        </div>
+        <!-- Macros calculados ao vivo -->
+        <div class="taco-live-macros">
+          <div class="live-macro"><span class="text-xs">Kcal:</span> <strong id="taco-res-kcal">159</strong></div>
+          <div class="live-macro"><span class="text-xs">Prot:</span> <strong id="taco-res-p" style="color:var(--macro-p);">32g</strong></div>
+          <div class="live-macro"><span class="text-xs">Carb:</span> <strong id="taco-res-c" style="color:var(--macro-c);">0g</strong></div>
+          <div class="live-macro"><span class="text-xs">Gord:</span> <strong id="taco-res-f" style="color:var(--macro-f);">2.5g</strong></div>
+        </div>
+        <button class="btn btn-primary btn-block btn-sm mt-2" id="btn-confirm-add-taco">
+          + Adicionar à Refeição
+        </button>
+      </div>
+
+      <!-- Lista de Alimentos da Tabela TACO -->
+      <div class="taco-items-scroll" id="taco-items-scroll">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SALVAR NOVA FOTO DE FÍSICO ==================== -->
+  <div class="modal-backdrop" id="modal-save-photo">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <h3>Registrar Foto de Evolução</h3>
+        <button class="btn-modal-close" data-dismiss="modal-save-photo">✕</button>
+      </div>
+      <form id="form-save-photo">
+        <div class="preview-photo-box mb-3">
+          <img id="preview-photo-img" src="" alt="Foto">
+        </div>
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label" for="input-photo-date">Data</label>
+            <input type="date" id="input-photo-date" class="form-control" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label" for="input-photo-weight">Peso Atual (kg)</label>
+            <input type="number" inputmode="decimal" step="0.1" id="input-photo-weight" class="form-control" placeholder="Ex: 75.0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="select-photo-pose">Posição / Pose</label>
+          <select id="select-photo-pose" class="form-control">
+            <option value="Frente">Frente</option>
+            <option value="Costas">Costas</option>
+            <option value="Lado / Perfil">Lado / Perfil</option>
+            <option value="Duplo Bíceps">Duplo Bíceps</option>
+          </select>
+        </div>
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" data-dismiss="modal-save-photo">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar no Histórico</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: BIBLIOTECA DE EXERCÍCIOS ==================== -->
   <div class="modal-backdrop" id="modal-catalog">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -354,8 +584,6 @@
         </div>
         <button class="btn-modal-close" data-dismiss="modal-catalog">✕</button>
       </div>
-
-      <!-- Filtro por Grupo Muscular -->
       <div class="catalog-filters" id="catalog-filters">
         <button class="filter-chip active" data-muscle="all">Todos</button>
         <button class="filter-chip" data-muscle="Peito">Peito</button>
@@ -366,22 +594,14 @@
         <button class="filter-chip" data-muscle="Tríceps">Tríceps</button>
         <button class="filter-chip" data-muscle="Abdômen">Abdômen</button>
       </div>
-
-      <!-- Barra de Busca Rápida -->
       <div class="search-box-wrap mb-3">
         <input type="text" id="catalog-search-input" class="form-control" placeholder="🔍 Buscar exercício ou digitar novo...">
       </div>
-
-      <!-- Criar Personalizado Rápido se não achar -->
       <div class="custom-ex-prompt" id="custom-ex-prompt" style="display: none;">
         <span>Não encontrou?</span>
         <button class="btn btn-sm btn-primary" id="btn-create-custom-ex">+ Criar com este nome</button>
       </div>
-
-      <!-- Lista Rolável da Biblioteca -->
-      <div class="catalog-list" id="catalog-list">
-        <!-- Preenchido via app.js -->
-      </div>
+      <div class="catalog-list" id="catalog-list"></div>
     </div>
   </div>
 
@@ -396,11 +616,11 @@
         <input type="hidden" id="input-routine-id">
         <div class="form-group">
           <label class="form-label" for="input-routine-name">Nome da Ficha</label>
-          <input type="text" id="input-routine-name" class="form-control" placeholder="Ex: Treino A (Push), Perna Pesado, etc." required>
+          <input type="text" id="input-routine-name" class="form-control" placeholder="Ex: Treino A • Peito e Tríceps" required>
         </div>
         <div class="form-group">
           <label class="form-label" for="input-routine-focus">Músculos / Divisão</label>
-          <input type="text" id="input-routine-focus" class="form-control" placeholder="Ex: Peito, Tríceps e Deltóides" required>
+          <input type="text" id="input-routine-focus" class="form-control" placeholder="Ex: Foco Peitoral Superior e Deltóides" required>
         </div>
         <div class="modal-sheet-footer">
           <button type="button" class="btn btn-outline" data-dismiss="modal-routine">Cancelar</button>
@@ -410,7 +630,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: EDITAR EXERCÍCIO (NOTAS / OPÇÕES) ==================== -->
+  <!-- ==================== MODAL: EDITAR EXERCÍCIO ==================== -->
   <div class="modal-backdrop" id="modal-edit-ex">
     <div class="modal-sheet">
       <div class="modal-sheet-header">
@@ -448,9 +668,7 @@
       <div class="chart-box mb-3">
         <div class="svg-chart-wrapper" id="history-modal-chart"></div>
       </div>
-      <div class="history-table-box" id="history-table-records">
-        <!-- Registros históricos -->
-      </div>
+      <div class="history-table-box" id="history-table-records"></div>
       <div class="modal-sheet-footer">
         <button type="button" class="btn btn-outline btn-block" data-dismiss="modal-history">Fechar</button>
       </div>
@@ -469,38 +687,13 @@
         <div class="form-row">
           <div class="form-group col-8">
             <label class="form-label" for="input-meal-name">Nome da Refeição</label>
-            <input type="text" id="input-meal-name" class="form-control" placeholder="Ex: Café da Manhã" required>
+            <input type="text" id="input-meal-name" class="form-control" placeholder="Ex: Almoço" required>
           </div>
           <div class="form-group col-4">
             <label class="form-label" for="input-meal-time">Horário</label>
             <input type="time" id="input-meal-time" class="form-control" required>
           </div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="input-meal-foods">Alimentos / Descrição</label>
-          <textarea id="input-meal-foods" class="form-control" rows="2" placeholder="Ex: 3 ovos, 2 fatias pão integral, 1 banana, café" required></textarea>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group col">
-            <label class="form-label" for="input-meal-kcal">Kcal</label>
-            <input type="number" inputmode="numeric" id="input-meal-kcal" class="form-control" placeholder="480" required>
-          </div>
-          <div class="form-group col">
-            <label class="form-label" for="input-meal-p">Prot (g)</label>
-            <input type="number" inputmode="numeric" id="input-meal-p" class="form-control" placeholder="30" required>
-          </div>
-          <div class="form-group col">
-            <label class="form-label" for="input-meal-c">Carb (g)</label>
-            <input type="number" inputmode="numeric" id="input-meal-c" class="form-control" placeholder="50" required>
-          </div>
-          <div class="form-group col">
-            <label class="form-label" for="input-meal-f">Gord (g)</label>
-            <input type="number" inputmode="numeric" id="input-meal-f" class="form-control" placeholder="12" required>
-          </div>
-        </div>
-
         <div class="modal-sheet-footer">
           <button type="button" class="btn btn-outline" data-dismiss="modal-meal">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar Refeição</button>
@@ -509,9 +702,12 @@
     </div>
   </div>
 
-  <!-- Toast Container -->
+  <!-- Toast Hub -->
   <div class="toast-hub" id="toast-hub"></div>
 
+  <!-- Scripts: TACO Database, IndexedDB e App -->
+  <script src="./taco.js"></script>
+  <script src="./db.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

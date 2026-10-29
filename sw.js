@@ -4,18 +4,20 @@
  * Totalmente compatível com subpastas (ex: GitHub Pages)
  */
 
-const CACHE_NAME = 'ironpulse-cache-v1';
+const CACHE_NAME = 'ironpulse-cache-v2';
 
 const STATIC_ASSETS = [
   './',
   './index.html',
   './style.css',
+  './taco.js',
+  './db.js',
   './app.js',
   './manifest.json',
   './icon.svg'
 ];
 
-// Instalação resiliente: armazena os arquivos sem quebrar se algum ícone opcional faltar
+// Instalação resiliente: armazena os arquivos essenciais
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
