@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IronPulse">
-  <meta name="description" content="App de Treinos e Dieta TACO com Banco de Dados em Nuvem">
+  <meta name="description" content="App de Treinos, Nutrição e Evolução com Banco de Dados em Nuvem">
   
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
@@ -23,9 +23,13 @@
     <div class="auth-container">
       <!-- Logo & Apresentação -->
       <div class="auth-header">
-        <div class="auth-logo-glow">⚡</div>
+        <div class="auth-logo-glow">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
         <h1 class="auth-title">IronPulse</h1>
-        <p class="auth-desc">Treinos de Alta Performance & Dieta Tabela TACO</p>
+        <p class="auth-desc">Treinos de Alta Performance & Nutrição Inteligente</p>
       </div>
 
       <!-- Card de Status do Banco de Dados em Nuvem -->
@@ -51,7 +55,9 @@
         <div class="form-group">
           <label class="form-label" for="login-email">E-mail ou Usuário</label>
           <div class="input-with-icon">
-            <span class="input-icon">👤</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
             <input type="text" id="login-email" class="form-control" placeholder="Seu e-mail ou nome" required autocomplete="username">
           </div>
         </div>
@@ -59,7 +65,9 @@
         <div class="form-group">
           <label class="form-label" for="login-password">Senha de Acesso</label>
           <div class="input-with-icon">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
             <input type="password" id="login-password" class="form-control" placeholder="Sua senha secreta" required autocomplete="current-password">
           </div>
         </div>
@@ -74,7 +82,9 @@
         <div class="form-group">
           <label class="form-label" for="reg-name">Seu Nome / Apelido</label>
           <div class="input-with-icon">
-            <span class="input-icon">🏷️</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
             <input type="text" id="reg-name" class="form-control" placeholder="Ex: Pedro Manso" required>
           </div>
         </div>
@@ -82,7 +92,9 @@
         <div class="form-group">
           <label class="form-label" for="reg-email">E-mail ou Usuário Único</label>
           <div class="input-with-icon">
-            <span class="input-icon">📧</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
             <input type="text" id="reg-email" class="form-control" placeholder="usuario@email.com" required>
           </div>
         </div>
@@ -90,7 +102,9 @@
         <div class="form-group">
           <label class="form-label" for="reg-password">Crie uma Senha</label>
           <div class="input-with-icon">
-            <span class="input-icon">🔑</span>
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
             <input type="password" id="reg-password" class="form-control" placeholder="Mínimo 4 caracteres" minlength="4" required>
           </div>
         </div>
@@ -134,7 +148,7 @@
     <!-- Top App Bar -->
     <header class="app-header">
       <div class="header-content">
-        <div class="user-chip-header" id="btn-header-user">
+        <div class="user-chip-header" id="btn-header-user" title="Toque para ver e editar seu perfil">
           <div class="user-avatar-badge" id="header-avatar-circle">P</div>
           <div class="user-text-meta">
             <div class="user-name-line">
@@ -143,21 +157,21 @@
             </div>
             <div class="header-sync-status">
               <span class="sync-dot" id="header-sync-dot"></span>
-              <span class="header-small-email" id="header-sync-text">Nuvem</span>
+              <span class="header-small-email" id="header-sync-text">Perfil & Metas</span>
               <span class="text-xs text-muted" id="header-user-email" style="display: none;"></span>
             </div>
           </div>
         </div>
 
         <div class="header-actions">
-          <button id="btn-quick-water" class="btn-pill" title="Registrar Água">
-            💧 <span id="water-display">0</span>ml
+          <button id="btn-quick-water" class="btn-pill" title="Registrar Água (+250ml)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 2px;"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            <span id="water-display">0</span>ml
           </button>
-          <button id="btn-header-cloud" class="btn-icon-tiny text-cyan" title="Status da Nuvem">
-            ☁️
-          </button>
-          <button id="btn-header-logout" class="btn-icon-tiny text-muted" title="Sair da Conta">
-            🚪
+          <button id="btn-toggle-theme" class="btn-icon-tiny" title="Alternar tema claro / escuro">
+            <span id="theme-toggle-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
           </button>
         </div>
       </div>
@@ -198,7 +212,7 @@
             <span class="text-xs text-muted" id="home-routine-label">Sua divisão ativa</span>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn btn-sm btn-primary" id="btn-home-add-routine">➕ Novo Treino</button>
+            <button class="btn btn-sm btn-primary" id="btn-home-add-routine">+ Novo Treino</button>
             <button class="link-btn" id="btn-home-manage-workouts">Ver Fichas →</button>
           </div>
         </div>
@@ -213,7 +227,7 @@
 
         <!-- Consistência Semanal -->
         <div class="section-header">
-          <h3>Sua Consistência Semanal</h3>
+          <h3>Consistência Semanal</h3>
         </div>
         <div class="card">
           <div class="week-strip" id="home-week-strip"></div>
@@ -226,10 +240,10 @@
         <div class="workouts-top-bar">
           <div class="workouts-title-col">
             <h2 class="section-title">Minhas Fichas</h2>
-            <span class="text-xs text-muted" id="workouts-count-label">Monte seus treinos personalizados</span>
+            <span class="text-xs text-muted" id="workouts-count-label">Divisões de treino</span>
           </div>
-          <button class="btn btn-primary" id="btn-add-routine-top" style="gap: 6px;">
-            <span>➕</span> <strong>Adicionar Treino</strong>
+          <button class="btn btn-primary btn-sm" id="btn-add-routine-top">
+            + Nova Ficha
           </button>
         </div>
 
@@ -254,7 +268,7 @@
         <!-- Cronômetro de Descanso -->
         <div class="rest-timer-bar" id="rest-timer-bar">
           <div class="rest-info">
-            <span class="rest-tag">⏱️ DESCANSO:</span>
+            <span class="rest-tag">Descanso:</span>
             <span class="rest-display" id="rest-timer-text">Parado</span>
           </div>
           <div class="rest-chips">
@@ -276,8 +290,12 @@
             <button class="btn btn-sm btn-outline" id="btn-add-exercise-top" title="Adicionar exercício a esta ficha">
               + Exercício
             </button>
-            <button class="btn-icon" id="btn-edit-routine" title="Renomear ficha">✏️</button>
-            <button class="btn-icon text-danger" id="btn-delete-routine" title="Excluir ficha">🗑️</button>
+            <button class="btn-icon" id="btn-edit-routine" title="Renomear ficha">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon text-danger" id="btn-delete-routine" title="Excluir ficha">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
           </div>
         </div>
 
@@ -353,7 +371,9 @@
         <div class="card water-target-card">
           <div class="water-card-header">
             <div class="water-left-title">
-              <span class="water-icon">💧</span>
+              <span class="water-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              </span>
               <div>
                 <h4>Consumo Mínimo de Água</h4>
                 <span class="text-xs text-muted" id="water-calc-desc">Calculado: 35ml × seu peso</span>
@@ -378,14 +398,14 @@
         <div class="section-header" style="flex-wrap: wrap; gap: 8px;">
           <div>
             <h3>Refeições do Dia</h3>
-            <span class="text-xs text-muted" id="meals-count-label">Planeje seus horários e alimentos com a Tabela TACO</span>
+            <span class="text-xs text-muted" id="meals-count-label">Planeje seus horários e alimentos</span>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn btn-sm btn-outline text-cyan" id="btn-open-taco-catalog" title="Consultar Tabela TACO Completa">
-              🥗 Tabela TACO
+            <button class="btn btn-sm btn-outline text-cyan" id="btn-open-taco-catalog" title="Consultar Tabela Nutricional de Alimentos">
+              Tabela de Alimentos
             </button>
             <button class="btn btn-sm btn-primary" id="btn-add-meal">
-              ➕ Nova Refeição
+              + Nova Refeição
             </button>
           </div>
         </div>
@@ -395,11 +415,11 @@
         <div class="spacer-bottom"></div>
       </section>
 
-      <!-- ==================== ABA 4: PROGRESSO, FOTOS E CONFIGURAÇÕES ==================== -->
+      <!-- ==================== ABA 4: PROGRESSO & COMPARAÇÃO ==================== -->
       <section id="tab-progress" class="tab-panel">
         <div class="progress-sub-tabs mb-3">
-          <button class="sub-tab-btn active" data-subtab="sub-photos">📸 Fotos & Comparador</button>
-          <button class="sub-tab-btn" data-subtab="sub-charts">📈 Cargas & Metas</button>
+          <button class="sub-tab-btn active" data-subtab="sub-photos">Fotos & Comparador</button>
+          <button class="sub-tab-btn" data-subtab="sub-charts">Evolução de Cargas</button>
         </div>
 
         <!-- Sub-aba 1: Fotos e Comparador Antes e Depois -->
@@ -410,10 +430,18 @@
                 <h4>Diário de Evolução Física</h4>
                 <p class="text-xs text-muted">Tire fotos periódicas e veja a transformação do seu corpo.</p>
               </div>
-              <label class="btn btn-primary btn-sm btn-camera" for="input-camera-photo">
-                📷 + Nova Foto
-                <input type="file" id="input-camera-photo" accept="image/*" style="display:none;">
-              </label>
+              <div class="photo-btn-group" style="display: flex; gap: 8px;">
+                <label class="btn btn-primary btn-sm btn-camera" for="input-camera-photo" title="Tirar foto agora com a câmera">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  Câmera
+                  <input type="file" id="input-camera-photo" accept="image/*" capture="environment" style="display:none;">
+                </label>
+                <label class="btn btn-outline btn-sm" for="input-gallery-photo" title="Escolher foto da galeria">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  Galeria
+                  <input type="file" id="input-gallery-photo" accept="image/*" style="display:none;">
+                </label>
+              </div>
             </div>
           </div>
 
@@ -465,74 +493,6 @@
               <div class="svg-chart-wrapper" id="progress-chart-container"></div>
             </div>
           </div>
-
-          <div class="section-header">
-            <h3>Minhas Metas Corporais</h3>
-          </div>
-          <div class="card">
-            <form id="form-user-goals">
-              <div class="form-row">
-                <div class="form-group col">
-                  <label class="form-label" for="input-profile-weight">Peso Atual (kg)</label>
-                  <input type="number" inputmode="decimal" step="0.1" id="input-profile-weight" class="form-control" required>
-                </div>
-                <div class="form-group col">
-                  <label class="form-label" for="input-profile-height">Altura (cm)</label>
-                  <input type="number" inputmode="numeric" id="input-profile-height" class="form-control">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="input-goal-title">Objetivo Atual</label>
-                <select id="input-goal-title" class="form-control">
-                  <option value="Hipertrofia">Hipertrofia (Ganho de Massa Muscular)</option>
-                  <option value="Emagrecimento">Emagrecimento / Cutting</option>
-                  <option value="Manutenção">Manutenção / Força</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="input-goal-kcal">Calorias Diárias (kcal)</label>
-                <input type="number" inputmode="numeric" id="input-goal-kcal" class="form-control" min="500" max="8000" required>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group col">
-                  <label class="form-label" for="input-goal-p">Proteína (g)</label>
-                  <input type="number" inputmode="numeric" id="input-goal-p" class="form-control" min="0" max="600" required>
-                </div>
-                <div class="form-group col">
-                  <label class="form-label" for="input-goal-c">Carbo (g)</label>
-                  <input type="number" inputmode="numeric" id="input-goal-c" class="form-control" min="0" max="1000" required>
-                </div>
-                <div class="form-group col">
-                  <label class="form-label" for="input-goal-f">Gordura (g)</label>
-                  <input type="number" inputmode="numeric" id="input-goal-f" class="form-control" min="0" max="300" required>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary btn-block">Salvar Metas</button>
-            </form>
-          </div>
-
-          <div class="section-header">
-            <h3>Banco de Dados & Nuvem</h3>
-          </div>
-          <div class="card">
-            <button class="btn btn-outline btn-block mb-3" id="btn-open-cloud-settings">
-              ☁️ Configurar Banco de Dados em Nuvem
-            </button>
-            <button class="btn btn-danger-soft btn-block mb-3" id="btn-account-logout">
-              🚪 Sair desta Conta / Trocar Usuário
-            </button>
-            <div class="backup-grid">
-              <button class="btn btn-outline btn-block" id="btn-export-backup">📥 Exportar Backup (.JSON)</button>
-              <label class="btn btn-outline btn-block btn-file-upload" for="input-backup-file">
-                📤 Importar Backup (.JSON)
-                <input type="file" id="input-backup-file" accept=".json" style="display:none;">
-              </label>
-            </div>
-          </div>
         </div>
 
         <div class="spacer-bottom"></div>
@@ -543,23 +503,114 @@
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-bar">
       <button class="bar-item active" data-tab="tab-home">
-        <span class="bar-icon">🏠</span>
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </span>
         <span class="bar-label">Início</span>
       </button>
       <button class="bar-item" data-tab="tab-workouts">
-        <span class="bar-icon">🏋️</span>
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 5v14M18 5v14M3 8v8M21 8v8M6 12h12"></path></svg>
+        </span>
         <span class="bar-label">Treinos</span>
       </button>
       <button class="bar-item" data-tab="tab-diet">
-        <span class="bar-icon">🥗</span>
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"></path></svg>
+        </span>
         <span class="bar-label">Dieta</span>
       </button>
       <button class="bar-item" data-tab="tab-progress">
-        <span class="bar-icon">📈</span>
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </span>
         <span class="bar-label">Progresso</span>
       </button>
     </nav>
 
+  </div>
+
+  <!-- ==================== MODAL: PERFIL DO ATLETA & METAS ==================== -->
+  <div class="modal-backdrop" id="modal-profile">
+    <div class="modal-sheet">
+      <div class="modal-sheet-header">
+        <div>
+          <h3>Perfil do Atleta</h3>
+          <span class="text-xs text-muted">Suas informações e metas corporais</span>
+        </div>
+        <button class="btn-modal-close" data-dismiss="modal-profile">✕</button>
+      </div>
+
+      <div class="profile-hero-card mb-3">
+        <div class="profile-avatar-big" id="profile-big-avatar">P</div>
+        <div class="profile-meta">
+          <strong id="profile-display-name">Pedro</strong>
+          <span class="text-xs text-muted" id="profile-display-email">usuario</span>
+          <span class="tag tag-accent mt-1" id="profile-display-goal">Hipertrofia</span>
+        </div>
+      </div>
+
+      <form id="form-athlete-profile">
+        <div class="form-group">
+          <label class="form-label" for="input-profile-name">Nome de Atleta</label>
+          <input type="text" id="input-profile-name" class="form-control" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label" for="input-profile-weight">Peso Atual (kg)</label>
+            <input type="number" inputmode="decimal" step="0.1" id="input-profile-weight" class="form-control" placeholder="70.0" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label" for="input-profile-height">Altura (cm)</label>
+            <input type="number" inputmode="numeric" id="input-profile-height" class="form-control" placeholder="175">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-profile-goal">Objetivo Atual</label>
+          <select id="input-profile-goal" class="form-control">
+            <option value="Hipertrofia">Hipertrofia (Ganho de Massa Muscular)</option>
+            <option value="Emagrecimento">Emagrecimento (Definição / Cutting)</option>
+            <option value="Manutenção">Manutenção / Força</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label class="form-label" for="input-profile-kcal" style="margin-bottom: 0;">Meta Calórica Diária (kcal)</label>
+            <button type="button" class="link-btn text-xs" id="btn-recalc-profile-macros">Recalcular pelo peso</button>
+          </div>
+          <input type="number" inputmode="numeric" id="input-profile-kcal" class="form-control" min="500" max="8000" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label text-xs" for="input-profile-p">Proteína (g)</label>
+            <input type="number" inputmode="numeric" id="input-profile-p" class="form-control" min="0" max="500" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label text-xs" for="input-profile-c">Carbo (g)</label>
+            <input type="number" inputmode="numeric" id="input-profile-c" class="form-control" min="0" max="800" required>
+          </div>
+          <div class="form-group col">
+            <label class="form-label text-xs" for="input-profile-f">Gordura (g)</label>
+            <input type="number" inputmode="numeric" id="input-profile-f" class="form-control" min="0" max="300" required>
+          </div>
+        </div>
+
+        <div class="modal-sheet-footer">
+          <button type="button" class="btn btn-outline" data-dismiss="modal-profile">Fechar</button>
+          <button type="submit" class="btn btn-primary">Salvar Perfil</button>
+        </div>
+      </form>
+
+      <div class="profile-account-footer mt-3" style="border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+        <button type="button" class="btn btn-danger-soft btn-block" id="btn-profile-logout">
+          Sair desta Conta / Trocar Usuário
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ==================== MODAL: CONFIGURAÇÃO DO BANCO EM NUVEM ==================== -->
@@ -604,14 +655,14 @@
     <div class="modal-sheet">
       <div class="modal-sheet-header">
         <div>
-          <h3>Tabela TACO • Alimentos</h3>
-          <span class="text-xs text-muted">Composição nutricional por 100g</span>
+          <h3>Tabela Nutricional</h3>
+          <span class="text-xs text-muted">Calorias e macronutrientes por 100g</span>
         </div>
         <button class="btn-modal-close" data-dismiss="modal-taco-picker">✕</button>
       </div>
 
       <div class="search-box-wrap mb-3">
-        <input type="text" id="taco-search-input" class="form-control" placeholder="🔍 Buscar alimento (arroz, frango, ovo, aveia...)">
+        <input type="text" id="taco-search-input" class="form-control" placeholder="Buscar alimento (arroz, frango, ovos, aveia...)">
       </div>
 
       <div class="taco-calc-box mb-3" id="taco-calc-box" style="display: none;">
@@ -701,7 +752,7 @@
         <button class="filter-chip" data-muscle="Abdômen">Abdômen</button>
       </div>
       <div class="search-box-wrap mb-3">
-        <input type="text" id="catalog-search-input" class="form-control" placeholder="🔍 Buscar exercício ou digitar novo...">
+        <input type="text" id="catalog-search-input" class="form-control" placeholder="Buscar exercício ou digitar novo...">
       </div>
       <div class="custom-ex-prompt" id="custom-ex-prompt" style="display: none;">
         <span>Não encontrou?</span>
@@ -768,13 +819,13 @@
         <div class="preset-suggestions mb-3">
           <label class="form-label" style="margin-bottom: 6px;">Sugestões Rápidas (Toque para usar):</label>
           <div class="preset-chips-wrap">
-            <button type="button" class="preset-chip-meal" data-name="Café da Manhã" data-time="07:30">☕ Café da Manhã (07:30)</button>
-            <button type="button" class="preset-chip-meal" data-name="Lanche da Manhã" data-time="10:00">🥪 Lanche Manhã (10:00)</button>
-            <button type="button" class="preset-chip-meal" data-name="Almoço" data-time="12:30">🍲 Almoço (12:30)</button>
-            <button type="button" class="preset-chip-meal" data-name="Lanche da Tarde" data-time="16:00">🍌 Lanche Tarde (16:00)</button>
-            <button type="button" class="preset-chip-meal" data-name="Pré-Treino" data-time="17:30">⚡ Pré-Treino (17:30)</button>
-            <button type="button" class="preset-chip-meal" data-name="Jantar" data-time="20:00">🍗 Jantar (20:00)</button>
-            <button type="button" class="preset-chip-meal" data-name="Ceia" data-time="22:30">🥛 Ceia (22:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Café da Manhã" data-time="07:30">Café da Manhã (07:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Lanche da Manhã" data-time="10:00">Lanche Manhã (10:00)</button>
+            <button type="button" class="preset-chip-meal" data-name="Almoço" data-time="12:30">Almoço (12:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Lanche da Tarde" data-time="16:00">Lanche Tarde (16:00)</button>
+            <button type="button" class="preset-chip-meal" data-name="Pré-Treino" data-time="17:30">Pré-Treino (17:30)</button>
+            <button type="button" class="preset-chip-meal" data-name="Jantar" data-time="20:00">Jantar (20:00)</button>
+            <button type="button" class="preset-chip-meal" data-name="Ceia" data-time="22:30">Ceia (22:30)</button>
           </div>
         </div>
 
@@ -844,7 +895,9 @@
   <!-- Modal Confirmação Customizado (Substitui confirm do navegador) -->
   <div class="modal-backdrop" id="modal-confirm-action">
     <div class="modal-sheet modal-confirm-sheet" style="text-align: center; max-width: 380px; margin: auto;">
-      <div style="font-size: 2.5rem; margin-bottom: 8px;" id="confirm-modal-icon">🚪</div>
+      <div style="margin-bottom: 12px; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); color: var(--danger);" id="confirm-modal-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
       <h3 id="confirm-modal-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Você deseja sair?</h3>
       <p id="confirm-modal-message" class="text-sm text-muted" style="margin-bottom: 20px;">
         Seus dados estão sincronizados em tempo real no banco de dados em nuvem.

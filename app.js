@@ -104,7 +104,7 @@
   }
 
   // Modal Customizado de Confirmação (Substitui confirm do navegador sem mensagens como "github.io diz")
-  function showConfirmModal({ title = 'Você deseja sair?', message = 'Seus dados permanecem seguros na nuvem.', okText = 'Sim, Sair', okClass = 'btn-danger', icon = '🚪' } = {}) {
+  function showConfirmModal({ title = 'Você deseja sair?', message = 'Seus dados permanecem seguros na nuvem.', okText = 'Sim, Sair', okClass = 'btn-danger', icon = null } = {}) {
     return new Promise((resolve) => {
       const modal = document.getElementById('modal-confirm-action');
       const titleEl = document.getElementById('confirm-modal-title');
@@ -115,7 +115,13 @@
 
       if (titleEl) titleEl.textContent = title;
       if (msgEl) msgEl.textContent = message;
-      if (iconEl) iconEl.textContent = icon;
+      if (iconEl) {
+        if (icon) {
+          iconEl.innerHTML = icon;
+        } else {
+          iconEl.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+        }
+      }
       if (okBtn) {
         okBtn.textContent = okText;
         okBtn.className = `btn ${okClass}`;
@@ -206,9 +212,9 @@
     document.getElementById('btn-header-logout').onclick = async () => {
       const ok = await showConfirmModal({
         title: 'Você deseja sair?',
-        message: 'Seus dados permanecem 100% seguros e sincronizados no Firebase.',
+        message: 'Seus dados permanecem seguros e sincronizados em tempo real.',
         okText: 'Sim, Sair',
-        icon: '🚪'
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
       });
       if (ok) {
         window.IronAuth.logout();
@@ -222,7 +228,7 @@
         title: 'Trocar de Usuário?',
         message: 'Deseja sair desta conta para entrar com outro perfil?',
         okText: 'Sair e Trocar',
-        icon: '👥'
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
       });
       if (ok) {
         window.IronAuth.logout();
@@ -399,7 +405,7 @@
         document.getElementById('session-stopwatch').textContent = `${m}:${s}`;
       }, 1000);
 
-      showToast('Sessão iniciada! Tela mantida acesa. 💪', 'success');
+      showToast('Sessão iniciada! Tela mantida acesa.', 'success');
     } else {
       isSessionRunning = false;
       icon.textContent = '▶';
@@ -428,7 +434,7 @@
 
       saveCurrentUser();
       renderAll();
-      showToast(`Treino concluído! Duração: ${Math.floor(sessionSeconds / 60)} min. 🔥`, 'success');
+      showToast(`Treino concluído! Duração: ${Math.floor(sessionSeconds / 60)} min.`, 'success');
 
       sessionSeconds = 0;
       document.getElementById('session-stopwatch').textContent = '00:00';
@@ -471,9 +477,9 @@
       if (restSecondsLeft <= 0) {
         clearInterval(restTimer);
         restTimer = null;
-        display.textContent = 'Pronto! 🔔';
+        display.textContent = 'Descanso Finalizado';
         playAlertBeep();
-        showToast('Hora da próxima série! Bora! 💪', 'success');
+        showToast('Hora da próxima série! Prepare-se.', 'success');
       } else {
         restSecondsLeft--;
       }
@@ -621,9 +627,11 @@
     if (!user.routines || user.routines.length === 0) {
       homeWorkoutBox.innerHTML = `
         <div class="empty-state-luxury">
-          <span class="empty-state-icon">🏋️</span>
+          <div class="empty-state-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M3 8v8M21 8v8M6 12h12"/></svg>
+          </div>
           <h4>Nenhum treino criado</h4>
-          <p>Monte suas próprias divisões personalizadas (Treino A, B, C...).</p>
+          <p>Monte suas divisões de treino personalizadas (Treino A, B, C...).</p>
           <button class="btn btn-primary btn-sm" id="btn-home-create-workout">+ Adicionar Treino Agora</button>
         </div>
       `;
@@ -666,9 +674,11 @@
     if (!user.meals || user.meals.length === 0) {
       mealBox.innerHTML = `
         <div class="empty-state-luxury">
-          <span class="empty-state-icon">🥗</span>
+          <div class="empty-state-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+          </div>
           <h4>Nenhuma refeição cadastrada</h4>
-          <p>Adicione refeições e use a Tabela TACO para calcular seus macros.</p>
+          <p>Adicione refeições e use a tabela de alimentos para calcular seus macros.</p>
           <button class="btn btn-primary btn-sm" id="btn-home-create-meal">+ Cadastrar Refeição</button>
         </div>
       `;
@@ -693,10 +703,10 @@
         </div>
         <div class="meal-foods-box">${escapeHtml(foodsPreview)}</div>
         <div class="meal-macros-chips">
-          <span>🔥 <strong>${totals.kcal}</strong> kcal</span>
-          <span style="color: var(--macro-p);">🥩 <strong>${totals.protein}</strong>g P</span>
-          <span style="color: var(--macro-c);">🍚 <strong>${totals.carbs}</strong>g C</span>
-          <span style="color: var(--macro-f);">🥑 <strong>${totals.fat}</strong>g G</span>
+          <span><strong>${totals.kcal}</strong> kcal</span>
+          <span style="color: var(--macro-p);"><strong>${totals.protein}g</strong> P</span>
+          <span style="color: var(--macro-c);"><strong>${totals.carbs}g</strong> C</span>
+          <span style="color: var(--macro-f);"><strong>${totals.fat}g</strong> G</span>
         </div>
       `;
 
@@ -768,29 +778,28 @@
     const sessionHud = document.getElementById('session-hud');
     const restTimerBar = document.getElementById('rest-timer-bar');
     const btnAddExTop = document.getElementById('btn-add-exercise-top');
+    const btnAddRoutineTop = document.getElementById('btn-add-routine-top');
+    const navBar = document.querySelector('.workouts-nav-bar');
 
-    // Se ZERADO
+    // Se ZERADO: Exibe apenas 1 opção clara de criação no centro
     if (!user.routines || user.routines.length === 0) {
       if (countLabel) countLabel.textContent = 'Nenhuma ficha criada ainda';
+      if (btnAddRoutineTop) btnAddRoutineTop.style.display = 'none';
+      if (navBar) navBar.style.display = 'none';
       if (sessionHud) sessionHud.style.display = 'none';
       if (restTimerBar) restTimerBar.style.display = 'none';
       headerCard.style.display = 'none';
       bottomActions.style.display = 'none';
-
-      bar.innerHTML = `
-        <button class="routine-tab-pill btn-add-routine" id="pill-add-routine-empty">
-          ➕ Adicionar Treino
-        </button>
-      `;
-      document.getElementById('pill-add-routine-empty').onclick = openNewRoutineModal;
+      bar.innerHTML = '';
 
       stack.innerHTML = `
-        <div class="empty-state-luxury" style="margin-top: 10px;">
-          <span class="empty-state-icon">🏋️</span>
-          <h4>Nenhum Treino Cadastrado</h4>
-          <p>Você tem total liberdade para montar suas divisões (Treino A, Treino B, etc.) e adicionar seus exercícios favoritos com cargas e séries personalizadas.</p>
+        <div class="empty-state-luxury" style="margin-top: 14px; padding: 32px 20px;">
+          <h4 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">Nenhum Treino Cadastrado</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+            Monte suas divisões de treino (Treino A, B, C...) e adicione seus exercícios com cargas e séries personalizadas.
+          </p>
           <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-routine">
-            ➕ Adicionar Meu Primeiro Treino
+            + Criar Ficha de Treino
           </button>
         </div>
       `;
@@ -800,6 +809,8 @@
     }
 
     // Se tem fichas
+    if (btnAddRoutineTop) btnAddRoutineTop.style.display = 'inline-flex';
+    if (navBar) navBar.style.display = 'block';
     if (countLabel) {
       countLabel.textContent = `${user.routines.length} ${user.routines.length === 1 ? 'ficha cadastrada' : 'fichas cadastradas'}`;
     }
@@ -830,12 +841,6 @@
       };
       bar.appendChild(pill);
     });
-
-    const addPill = document.createElement('button');
-    addPill.className = 'routine-tab-pill btn-add-routine';
-    addPill.innerHTML = '➕ Adicionar Treino';
-    addPill.onclick = openNewRoutineModal;
-    bar.appendChild(addPill);
 
     if (!activeRoutine) return;
 
@@ -873,12 +878,18 @@
           <div class="exercise-tools">
             <button class="btn-tool btn-move-up" title="Mover para cima" ${exIndex === 0 ? 'disabled style="opacity:0.3"' : ''}>▲</button>
             <button class="btn-tool btn-move-down" title="Mover para baixo" ${exIndex === activeRoutine.exercises.length - 1 ? 'disabled style="opacity:0.3"' : ''}>▼</button>
-            <button class="btn-tool btn-history-ex" title="Ver evolução">📈</button>
-            <button class="btn-tool btn-edit-notes" title="Editar anotações">✏️</button>
-            <button class="btn-tool text-danger btn-del-ex" title="Excluir exercício">🗑️</button>
+            <button class="btn-tool btn-history-ex" title="Ver evolução">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </button>
+            <button class="btn-tool btn-edit-notes" title="Editar anotações">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-tool text-danger btn-del-ex" title="Excluir exercício">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
           </div>
         </div>
-        ${ex.notes ? `<div class="exercise-notes-text">💡 ${escapeHtml(ex.notes)}</div>` : ''}
+        ${ex.notes ? `<div class="exercise-notes-text"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px; margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>${escapeHtml(ex.notes)}</div>` : ''}
 
         <div class="sets-table-wrap">
           <div class="sets-table-header">
@@ -981,7 +992,7 @@
       title: 'Remover Exercício?',
       message: `Deseja remover "${ex.name}" da ficha "${routine.name}"?`,
       okText: 'Remover',
-      icon: '🗑️'
+      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
     });
     if (!ok) return;
     routine.exercises = routine.exercises.filter(item => item.id !== ex.id);
@@ -1038,10 +1049,11 @@
     // Se ZERADA
     if (!user.meals || user.meals.length === 0) {
       stack.innerHTML = `
-        <div class="empty-state-luxury">
-          <span class="empty-state-icon">🥗</span>
-          <h4>Sua Dieta Está Zerada</h4>
-          <p>Cadastre suas refeições diárias e adicione alimentos com macros calculados em gramas pela Tabela TACO.</p>
+        <div class="empty-state-luxury" style="padding: 32px 20px;">
+          <h4 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">Sua Dieta Está Zerada</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+            Cadastre suas refeições diárias e adicione alimentos com cálculo automático de gramas e macros.
+          </p>
           <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-meal">
             + Cadastrar Primeira Refeição
           </button>
@@ -1091,19 +1103,23 @@
         </div>
 
         <button class="btn-add-food-to-meal" data-meal-id="${meal.id}">
-          + Adicionar Alimento da Tabela TACO
+          + Adicionar Alimento
         </button>
 
         <div class="meal-macros-chips">
-          <span>🔥 <strong>${totals.kcal}</strong> kcal</span>
-          <span style="color: var(--macro-p);">🥩 <strong>${totals.protein}</strong>g P</span>
-          <span style="color: var(--macro-c);">🍚 <strong>${totals.carbs}</strong>g C</span>
-          <span style="color: var(--macro-f);">🥑 <strong>${totals.fat}</strong>g G</span>
+          <span><strong>${totals.kcal}</strong> kcal</span>
+          <span style="color: var(--macro-p);"><strong>${totals.protein}g</strong> P</span>
+          <span style="color: var(--macro-c);"><strong>${totals.carbs}g</strong> C</span>
+          <span style="color: var(--macro-f);"><strong>${totals.fat}g</strong> G</span>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
-          <button class="btn-tool btn-edit-meal" title="Editar Nome/Horário">✏️</button>
-          <button class="btn-tool text-danger btn-del-meal" title="Excluir Refeição">🗑️</button>
+          <button class="btn-tool btn-edit-meal" title="Editar Nome/Horário">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-tool text-danger btn-del-meal" title="Excluir Refeição">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
         </div>
       `;
 
@@ -1187,7 +1203,7 @@
       document.getElementById('modal-taco-picker').classList.remove('open');
       renderDietTab();
       renderHomeTab();
-      showToast(`${grams}g de ${newItem.name} adicionados à "${targetMeal.name}"! 🥗`, 'success');
+      showToast(`${grams}g de ${newItem.name} adicionados à "${targetMeal.name}".`, 'success');
     };
   }
 
@@ -1220,7 +1236,7 @@
         if (confirmBtn) confirmBtn.textContent = '+ Adicionar à Refeição Selecionada';
       } else {
         if (selectGroup) selectGroup.style.display = 'none';
-        if (confirmBtn) confirmBtn.textContent = '➕ Criar Refeição com este Alimento';
+        if (confirmBtn) confirmBtn.textContent = '+ Criar Refeição com este Alimento';
       }
     }
 
@@ -1237,7 +1253,7 @@
     const filtered = list.filter(item => !query || item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query));
 
     if (filtered.length === 0) {
-      container.innerHTML = '<p class="text-muted text-center" style="padding: 16px;">Nenhum alimento encontrado na Tabela TACO.</p>';
+      container.innerHTML = '<p class="text-muted text-center" style="padding: 16px;">Nenhum alimento encontrado na tabela de alimentos.</p>';
       return;
     }
 
@@ -1301,7 +1317,9 @@
       if (photos.length === 0) {
         grid.innerHTML = `
           <div class="empty-state-luxury" style="grid-column: 1/-1;">
-            <span class="empty-state-icon">📸</span>
+            <div class="empty-state-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
             <h4>Nenhuma foto registrada</h4>
             <p>Tire fotos de frente, lado ou costas para ver sua evolução corporal ao longo dos meses.</p>
           </div>
@@ -1325,7 +1343,9 @@
             <button class="btn-compare-select" style="${isSelected ? 'background: var(--cyan); color: #000;' : ''}">
               ${isSelected ? '✓ Selecionada' : 'Comparar'}
             </button>
-            <button class="btn-del-photo" title="Excluir foto">🗑️</button>
+            <button class="btn-del-photo" title="Excluir foto">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
           </div>
         `;
 
@@ -1336,7 +1356,7 @@
             title: 'Excluir Foto?',
             message: 'Esta foto de evolução será apagada permanentemente.',
             okText: 'Excluir Foto',
-            icon: '📸'
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
           });
           if (ok) {
             await window.IronDB.deletePhoto(photo.id);
@@ -1395,29 +1415,42 @@
     renderPhotosGallery();
   };
 
-  // Upload e Compressão
+  // Upload e Compressão de Foto (Câmera ou Galeria)
   let tempCompressedDataUrl = null;
-  document.getElementById('input-camera-photo').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
 
+  async function handlePhotoSelected(file) {
+    if (!file) return;
     try {
-      showToast('Otimizando imagem...', 'success');
+      showToast('Otimizando foto...', 'info');
       tempCompressedDataUrl = await window.IronDB.compressImage(file, 1000, 0.82);
 
       const user = getCurrentUser();
       document.getElementById('preview-photo-img').src = tempCompressedDataUrl;
       document.getElementById('input-photo-date').value = getTodayKey();
-      document.getElementById('input-photo-weight').value = user.weight || '';
+      document.getElementById('input-photo-weight').value = (user && user.weight) || '';
 
       document.getElementById('modal-save-photo').classList.add('open');
     } catch (err) {
       console.error(err);
       showToast('Erro ao processar imagem!', 'error');
     }
+  }
 
-    e.target.value = '';
-  });
+  const inputCam = document.getElementById('input-camera-photo');
+  if (inputCam) {
+    inputCam.addEventListener('change', (e) => {
+      handlePhotoSelected(e.target.files[0]);
+      e.target.value = '';
+    });
+  }
+
+  const inputGal = document.getElementById('input-gallery-photo');
+  if (inputGal) {
+    inputGal.addEventListener('change', (e) => {
+      handlePhotoSelected(e.target.files[0]);
+      e.target.value = '';
+    });
+  }
 
   document.getElementById('form-save-photo').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1440,7 +1473,7 @@
     await window.IronDB.savePhoto(photoObj);
     document.getElementById('modal-save-photo').classList.remove('open');
     renderPhotosGallery();
-    showToast('Foto registrada na sua evolução! 📸', 'success');
+    showToast('Foto registrada com sucesso!', 'success');
   });
 
   // ==================== ÁGUA RÁPIDA ====================
@@ -1459,7 +1492,7 @@
         title: 'Zerar Contador de Água?',
         message: 'Deseja reiniciar a contagem de água consumida hoje?',
         okText: 'Zerar Água',
-        icon: '💧'
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>'
       });
       if (ok) {
         const u = getCurrentUser();
@@ -1477,23 +1510,126 @@
     user.water = (user.water || 0) + amt;
     saveCurrentUser();
     renderHeader();
-    showToast(`+${amt}ml de água registrados! Total: ${user.water}ml 💧`, 'success');
+    showToast(`+${amt}ml de água registrados! Total: ${user.water}ml`, 'success');
   }
 
-  // ==================== PROGRESSO & METAS ====================
+  // ==================== PERFIL DO ATLETA (MODAL) ====================
+  function openAthleteProfileModal() {
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const initials = (user.name || 'U').charAt(0).toUpperCase();
+    const avatarBig = document.getElementById('profile-big-avatar');
+    if (avatarBig) avatarBig.textContent = initials;
+
+    const dispName = document.getElementById('profile-display-name');
+    if (dispName) dispName.textContent = user.name || 'Atleta';
+
+    const dispEmail = document.getElementById('profile-display-email');
+    if (dispEmail) dispEmail.textContent = user.email || '';
+
+    const dispGoal = document.getElementById('profile-display-goal');
+    if (dispGoal) dispGoal.textContent = user.goal || 'Hipertrofia';
+
+    const inpName = document.getElementById('input-profile-name');
+    if (inpName) inpName.value = user.name || '';
+
+    const inpWeight = document.getElementById('input-profile-weight');
+    if (inpWeight) inpWeight.value = user.weight || '';
+
+    const inpHeight = document.getElementById('input-profile-height');
+    if (inpHeight) inpHeight.value = user.height || '';
+
+    const inpGoal = document.getElementById('input-profile-goal');
+    if (inpGoal) inpGoal.value = user.goal || 'Hipertrofia';
+
+    const inpKcal = document.getElementById('input-profile-kcal');
+    if (inpKcal) inpKcal.value = user.targetKcal || 2400;
+
+    const inpP = document.getElementById('input-profile-p');
+    if (inpP) inpP.value = user.targetProtein || 160;
+
+    const inpC = document.getElementById('input-profile-c');
+    if (inpC) inpC.value = user.targetCarbs || 260;
+
+    const inpF = document.getElementById('input-profile-f');
+    if (inpF) inpF.value = user.targetFat || 65;
+
+    document.getElementById('modal-profile').classList.add('open');
+  }
+
+  function initProfileEvents() {
+    const btnUser = document.getElementById('btn-header-user');
+    if (btnUser) {
+      btnUser.onclick = openAthleteProfileModal;
+    }
+
+    const btnRecalc = document.getElementById('btn-recalc-profile-macros');
+    if (btnRecalc) {
+      btnRecalc.onclick = () => {
+        const w = parseFloat(document.getElementById('input-profile-weight').value) || 70;
+        const p = Math.round(w * 2.0);
+        const f = Math.round(w * 0.8);
+        const c = Math.round(w * 3.5);
+        const kcal = Math.round((p * 4) + (c * 4) + (f * 9));
+
+        document.getElementById('input-profile-p').value = p;
+        document.getElementById('input-profile-f').value = f;
+        document.getElementById('input-profile-c').value = c;
+        document.getElementById('input-profile-kcal').value = kcal;
+        showToast('Metas recalculadas pelo peso.', 'info');
+      };
+    }
+
+    const formProfile = document.getElementById('form-athlete-profile');
+    if (formProfile) {
+      formProfile.onsubmit = (e) => {
+        e.preventDefault();
+        const user = getCurrentUser();
+        if (!user) return;
+
+        user.name = document.getElementById('input-profile-name').value.trim() || user.name;
+        user.weight = parseFloat(document.getElementById('input-profile-weight').value) || user.weight;
+        user.height = parseInt(document.getElementById('input-profile-height').value, 10) || user.height;
+        user.goal = document.getElementById('input-profile-goal').value;
+        user.targetKcal = parseInt(document.getElementById('input-profile-kcal').value, 10) || user.targetKcal;
+        user.targetProtein = parseInt(document.getElementById('input-profile-p').value, 10) || user.targetProtein;
+        user.targetCarbs = parseInt(document.getElementById('input-profile-c').value, 10) || user.targetCarbs;
+        user.targetFat = parseInt(document.getElementById('input-profile-f').value, 10) || user.targetFat;
+
+        saveCurrentUser();
+        document.getElementById('modal-profile').classList.remove('open');
+        renderAll();
+        showToast('Perfil atualizado com sucesso!', 'success');
+      };
+    }
+
+    const btnProfileLogout = document.getElementById('btn-profile-logout');
+    if (btnProfileLogout) {
+      btnProfileLogout.onclick = async () => {
+        const ok = await showConfirmModal({
+          title: 'Você deseja sair?',
+          message: 'Seus dados permanecem seguros na nuvem.',
+          okText: 'Sim, Sair',
+          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+        });
+        if (ok) {
+          document.getElementById('modal-profile').classList.remove('open');
+          window.IronAuth.logout();
+          checkAuth();
+          showToast('Você saiu da conta.', 'success');
+        }
+      };
+    }
+  }
+
+  // ==================== EVOLUÇÃO DE CARGAS ====================
   function renderProgressTab() {
     const user = getCurrentUser();
     if (!user) return;
 
-    document.getElementById('input-profile-weight').value = user.weight || 75;
-    document.getElementById('input-profile-height').value = user.height || 175;
-    document.getElementById('input-goal-title').value = user.goal || 'Hipertrofia';
-    document.getElementById('input-goal-kcal').value = user.targetKcal || 2400;
-    document.getElementById('input-goal-p').value = user.targetProtein || 160;
-    document.getElementById('input-goal-c').value = user.targetCarbs || 260;
-    document.getElementById('input-goal-f').value = user.targetFat || 65;
-
     const select = document.getElementById('select-chart-ex');
+    if (!select) return;
     select.innerHTML = '';
 
     const allExercises = [];
@@ -1505,7 +1641,10 @@
 
     if (allExercises.length === 0) {
       select.innerHTML = '<option value="">Nenhum exercício nas suas fichas</option>';
-      document.getElementById('progress-chart-container').innerHTML = '<p class="text-muted text-sm text-center">Adicione exercícios nas suas fichas para ver o gráfico de evolução.</p>';
+      const chartContainer = document.getElementById('progress-chart-container');
+      if (chartContainer) {
+        chartContainer.innerHTML = '<p class="text-muted text-sm text-center" style="padding: 20px 0;">Adicione exercícios nas suas fichas para ver o gráfico de evolução.</p>';
+      }
       return;
     }
 
@@ -1523,22 +1662,6 @@
 
     renderInteractiveSVGChart(document.getElementById('progress-chart-container'), allExercises[0]);
   }
-
-  document.getElementById('form-user-goals').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const user = getCurrentUser();
-    user.weight = parseFloat(document.getElementById('input-profile-weight').value) || user.weight;
-    user.height = parseInt(document.getElementById('input-profile-height').value, 10) || user.height;
-    user.goal = document.getElementById('input-goal-title').value;
-    user.targetKcal = parseInt(document.getElementById('input-goal-kcal').value, 10);
-    user.targetProtein = parseInt(document.getElementById('input-goal-p').value, 10);
-    user.targetCarbs = parseInt(document.getElementById('input-goal-c').value, 10);
-    user.targetFat = parseInt(document.getElementById('input-goal-f').value, 10);
-
-    saveCurrentUser();
-    renderAll();
-    showToast('Metas salvas com sucesso! 🎯', 'success');
-  });
 
   function renderInteractiveSVGChart(container, ex) {
     if (!container || !ex) return;
@@ -1745,7 +1868,7 @@
     saveCurrentUser();
     renderWorkoutsTab();
     renderHomeTab();
-    showToast(`"${name}" adicionado à ficha! 💪`, 'success');
+    showToast(`"${name}" adicionado à ficha.`, 'success');
   }
 
   // Modais de Fichas
@@ -1787,7 +1910,7 @@
       if (!user.routines) user.routines = [];
       user.routines.push(newR);
       user.activeRoutineId = newR.id;
-      showToast(`Ficha "${name}" criada! Escolha seus exercícios 🏋️`, 'success');
+      showToast(`Ficha "${name}" criada com sucesso.`, 'success');
     }
 
     saveCurrentUser();
@@ -1808,7 +1931,7 @@
       title: 'Excluir Ficha?',
       message: `Deseja excluir a ficha "${routine.name}" e todos os seus exercícios?`,
       okText: 'Excluir Ficha',
-      icon: '🗑️'
+      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
     });
     if (!ok) return;
     user.routines = user.routines.filter(r => r.id !== routine.id);
@@ -1855,7 +1978,7 @@
       sorted.forEach(rec => {
         const row = document.createElement('div');
         row.className = 'history-item-row';
-        row.innerHTML = `<span>📅 ${rec.date}</span><strong style="color:var(--accent);">${rec.weight} kg</strong>`;
+        row.innerHTML = `<span>${rec.date}</span><strong style="color:var(--accent);">${rec.weight} kg</strong>`;
         table.appendChild(row);
       });
     }
@@ -1905,7 +2028,7 @@
         items: []
       };
       user.meals.push(newMealRef);
-      showToast(`Refeição "${name}" criada! Escolha os alimentos da Tabela TACO 🥗`, 'success');
+      showToast(`Refeição "${name}" criada com sucesso.`, 'success');
     }
 
     saveCurrentUser();
@@ -1926,7 +2049,7 @@
       title: 'Excluir Refeição?',
       message: `Deseja remover "${meal.name}" da sua dieta?`,
       okText: 'Excluir',
-      icon: '🗑️'
+      icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
     });
     if (!ok) return;
     user.meals = user.meals.filter(m => m.id !== meal.id);
@@ -1946,32 +2069,35 @@
     document.body.appendChild(a);
     a.click();
     a.remove();
-    showToast('Backup do seu usuário exportado com sucesso! 📥', 'success');
+    showToast('Backup exportado com sucesso.', 'success');
   };
 
-  document.getElementById('input-backup-file').onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const parsed = JSON.parse(event.target.result);
-        if (parsed && (parsed.routines || parsed.email)) {
-          const user = getCurrentUser();
-          Object.assign(user, parsed);
-          saveCurrentUser();
-          renderAll();
-          showToast('Backup restaurado com sucesso! 🎉', 'success');
-        } else {
-          showToast('Arquivo de backup inválido.', 'error');
+  const backupInput = document.getElementById('input-backup-file');
+  if (backupInput) {
+    backupInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed && (parsed.routines || parsed.email)) {
+            const user = getCurrentUser();
+            Object.assign(user, parsed);
+            saveCurrentUser();
+            renderAll();
+            showToast('Backup restaurado com sucesso!', 'success');
+          } else {
+            showToast('Arquivo de backup inválido.', 'error');
+          }
+        } catch (err) {
+          showToast('Erro ao ler arquivo JSON.', 'error');
         }
-      } catch (err) {
-        showToast('Erro ao ler arquivo JSON.', 'error');
-      }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
     };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
+  }
 
   // Modais Fechar
   document.querySelectorAll('[data-dismiss]').forEach(btn => {
@@ -1993,7 +2119,7 @@
     const hub = document.getElementById('toast-hub');
     const t = document.createElement('div');
     t.className = `toast-msg ${type}`;
-    t.innerHTML = `<span>${type === 'success' ? '⚡' : '⚠️'}</span><span>${escapeHtml(msg)}</span>`;
+    t.innerHTML = `<span>${type === 'success' ? '✓' : '•'}</span><span>${escapeHtml(msg)}</span>`;
     hub.appendChild(t);
     setTimeout(() => {
       t.style.opacity = '0';
@@ -2020,7 +2146,42 @@
     renderDietTab();
   }
 
+  // ==================== CONTROLE DE TEMA CLARO / ESCURO ====================
+  const THEME_KEY = 'ironpulse_theme_pref';
+
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY) || 'dark';
+    applyTheme(saved);
+
+    const btn = document.getElementById('btn-toggle-theme');
+    if (btn) {
+      btn.onclick = () => {
+        const isLight = document.body.classList.contains('theme-light');
+        applyTheme(isLight ? 'dark' : 'light');
+      };
+    }
+  }
+
+  function applyTheme(theme) {
+    const icon = document.getElementById('theme-toggle-icon');
+    if (theme === 'light') {
+      document.body.classList.add('theme-light');
+      if (icon) {
+        icon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+      }
+      localStorage.setItem(THEME_KEY, 'light');
+    } else {
+      document.body.classList.remove('theme-light');
+      if (icon) {
+        icon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+      }
+      localStorage.setItem(THEME_KEY, 'dark');
+    }
+  }
+
   function init() {
+    initTheme();
+    initProfileEvents();
     initCloudDbEvents();
     initAuthEvents();
     initNav();

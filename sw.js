@@ -4,7 +4,7 @@
  * Totalmente compatível com subpastas (ex: GitHub Pages)
  */
 
-const CACHE_NAME = 'ironpulse-cache-v6';
+const CACHE_NAME = 'ironpulse-cache-v7';
 
 const STATIC_ASSETS = [
   './',
