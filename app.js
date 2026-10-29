@@ -209,33 +209,39 @@
     };
 
     // Logout Customizado (Sem pop-up do navegador)
-    document.getElementById('btn-header-logout').onclick = async () => {
-      const ok = await showConfirmModal({
-        title: 'Você deseja sair?',
-        message: 'Seus dados permanecem seguros e sincronizados em tempo real.',
-        okText: 'Sim, Sair',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
-      });
-      if (ok) {
-        window.IronAuth.logout();
-        checkAuth();
-        showToast('Você saiu da conta.', 'success');
-      }
-    };
+    const btnHeaderLogout = document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) {
+      btnHeaderLogout.onclick = async () => {
+        const ok = await showConfirmModal({
+          title: 'Você deseja sair?',
+          message: 'Seus dados permanecem seguros e sincronizados em tempo real.',
+          okText: 'Sim, Sair',
+          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+        });
+        if (ok) {
+          window.IronAuth.logout();
+          checkAuth();
+          showToast('Você saiu da conta.', 'success');
+        }
+      };
+    }
 
-    document.getElementById('btn-account-logout').onclick = async () => {
-      const ok = await showConfirmModal({
-        title: 'Trocar de Usuário?',
-        message: 'Deseja sair desta conta para entrar com outro perfil?',
-        okText: 'Sair e Trocar',
-        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
-      });
-      if (ok) {
-        window.IronAuth.logout();
-        checkAuth();
-        showToast('Você saiu da conta.', 'success');
-      }
-    };
+    const btnAccountLogout = document.getElementById('btn-account-logout');
+    if (btnAccountLogout) {
+      btnAccountLogout.onclick = async () => {
+        const ok = await showConfirmModal({
+          title: 'Trocar de Usuário?',
+          message: 'Deseja sair desta conta para entrar com outro perfil?',
+          okText: 'Sair e Trocar',
+          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+        });
+        if (ok) {
+          window.IronAuth.logout();
+          checkAuth();
+          showToast('Você saiu da conta.', 'success');
+        }
+      };
+    }
   }
 
   // ==================== CONFIGURAÇÃO DO BANCO EM NUVEM ====================
@@ -1409,11 +1415,14 @@
     }
   }
 
-  document.getElementById('btn-close-comparator').onclick = () => {
-    selectedPhotosToCompare = [];
-    updateComparatorCard();
-    renderPhotosGallery();
-  };
+  const btnCloseComparator = document.getElementById('btn-close-comparator');
+  if (btnCloseComparator) {
+    btnCloseComparator.onclick = () => {
+      selectedPhotosToCompare = [];
+      updateComparatorCard();
+      renderPhotosGallery();
+    };
+  }
 
   // Upload e Compressão de Foto (Câmera ou Galeria)
   let tempCompressedDataUrl = null;
@@ -2060,17 +2069,20 @@
   }
 
   // Backup Export & Import
-  document.getElementById('btn-export-backup').onclick = () => {
-    const user = getCurrentUser();
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(user, null, 2));
-    const a = document.createElement('a');
-    a.href = dataStr;
-    a.download = `ironpulse_${user.name.toLowerCase()}_backup_${getTodayKey()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    showToast('Backup exportado com sucesso.', 'success');
-  };
+  const btnExportBackup = document.getElementById('btn-export-backup');
+  if (btnExportBackup) {
+    btnExportBackup.onclick = () => {
+      const user = getCurrentUser();
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(user, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `ironpulse_${user.name.toLowerCase()}_backup_${getTodayKey()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('Backup exportado com sucesso.', 'success');
+    };
+  }
 
   const backupInput = document.getElementById('input-backup-file');
   if (backupInput) {
@@ -2218,13 +2230,18 @@
       btnOpenTacoCatalog.onclick = () => openTacoPickerForMeal(null);
     }
 
-    document.getElementById('btn-start-session').onclick = toggleSession;
-    document.getElementById('btn-add-meal').onclick = openAddMealModal;
+    const btnStartSession = document.getElementById('btn-start-session');
+    if (btnStartSession) btnStartSession.onclick = toggleSession;
+
+    const btnAddMeal = document.getElementById('btn-add-meal');
+    if (btnAddMeal) btnAddMeal.onclick = openAddMealModal;
 
     document.querySelectorAll('.chip-timer[data-sec]').forEach(chip => {
       chip.onclick = () => startRestTimer(parseInt(chip.getAttribute('data-sec'), 10));
     });
-    document.getElementById('btn-stop-rest').onclick = stopRestTimer;
+
+    const btnStopRest = document.getElementById('btn-stop-rest');
+    if (btnStopRest) btnStopRest.onclick = stopRestTimer;
 
     // Sincronização automática quando a rede voltar
     window.addEventListener('online', () => {
