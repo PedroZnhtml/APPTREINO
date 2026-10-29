@@ -1,12 +1,10 @@
 /**
- * IronPulse - Treinos, Dieta TACO, Multiperfil & Fotos
- * Alta Performance • IndexedDB + LocalStorage
+ * IronPulse - Core Application Engine
+ * Autenticação Multi-usuário, Tabela TACO, Treinos/Dieta Zerados e Comparador
  */
 
 (function () {
   'use strict';
-
-  const STORAGE_KEY = 'ironpulse_multi_profile_v1';
 
   function getTodayKey() {
     const d = new Date();
@@ -16,177 +14,17 @@
     return `${y}-${m}-${day}`;
   }
 
-  // Perfil Padrão Inicial
-  function createDefaultProfile(id, name, weight = 75, height = 175, goal = 'Hipertrofia') {
-    const minWater = Math.round(weight * 35);
-    return {
-      id: id,
-      name: name,
-      weight: weight,
-      height: height,
-      goal: goal,
-      targetKcal: 2400,
-      targetProtein: 160,
-      targetCarbs: 260,
-      targetFat: 65,
-      water: 0,
-      activeRoutineId: 'routine-1',
-      routines: [
-        {
-          id: 'routine-1',
-          name: 'Treino A • Push',
-          focus: 'Peito, Ombros e Tríceps',
-          exercises: [
-            {
-              id: 'ex-1',
-              name: 'Supino Reto com Barra',
-              muscle: 'Peito',
-              notes: 'Pausa de 1s embaixo, escápulas aduzidas',
-              sets: [
-                { weight: 60, reps: 10, completed: false, prev: '55kg × 10' },
-                { weight: 70, reps: 8, completed: false, prev: '65kg × 8' },
-                { weight: 70, reps: 8, completed: false, prev: '70kg × 7' }
-              ],
-              history: [
-                { date: '2026-10-05', weight: 60 },
-                { date: '2026-10-15', weight: 65 },
-                { date: '2026-10-26', weight: 70 }
-              ]
-            },
-            {
-              id: 'ex-2',
-              name: 'Desenvolvimento com Halteres',
-              muscle: 'Ombros',
-              notes: 'Coluna firme, sem bater os halteres',
-              sets: [
-                { weight: 20, reps: 10, completed: false, prev: '18kg × 10' },
-                { weight: 22, reps: 8, completed: false, prev: '20kg × 8' }
-              ],
-              history: [
-                { date: '2026-10-10', weight: 18 },
-                { date: '2026-10-26', weight: 22 }
-              ]
-            }
-          ]
-        },
-        {
-          id: 'routine-2',
-          name: 'Treino B • Pull',
-          focus: 'Costas e Bíceps',
-          exercises: [
-            {
-              id: 'ex-3',
-              name: 'Puxada Alta Frontal',
-              muscle: 'Costas',
-              notes: 'Foco na contração da dorsal',
-              sets: [
-                { weight: 55, reps: 12, completed: false, prev: '50kg × 12' },
-                { weight: 60, reps: 10, completed: false, prev: '55kg × 10' }
-              ],
-              history: [
-                { date: '2026-10-08', weight: 55 },
-                { date: '2026-10-27', weight: 60 }
-              ]
-            }
-          ]
-        }
-      ],
-      meals: [
-        {
-          id: 'm-1',
-          name: 'Café da Manhã',
-          time: '07:30',
-          done: false,
-          items: [
-            { id: 'item-1', name: 'Ovo de galinha inteiro cozido', grams: 150, kcal: 219, protein: 20.0, carbs: 0.9, fat: 14.3 },
-            { id: 'item-2', name: 'Pão de forma integral', grams: 50, kcal: 127, protein: 4.7, carbs: 25.0, fat: 1.9 },
-            { id: 'item-3', name: 'Banana Prata', grams: 100, kcal: 98, protein: 1.3, carbs: 26.0, fat: 0.1 }
-          ]
-        },
-        {
-          id: 'm-2',
-          name: 'Almoço',
-          time: '12:30',
-          done: false,
-          items: [
-            { id: 'item-4', name: 'Peito de frango grelhado', grams: 180, kcal: 286, protein: 57.6, carbs: 0.0, fat: 4.5 },
-            { id: 'item-5', name: 'Arroz branco cozido', grams: 200, kcal: 256, protein: 5.0, carbs: 56.2, fat: 0.4 },
-            { id: 'item-6', name: 'Feijão carioca cozido (50% caldo)', grams: 100, kcal: 76, protein: 4.8, carbs: 13.6, fat: 0.5 },
-            { id: 'item-7', name: 'Azeite de oliva extravirgem', grams: 10, kcal: 88, protein: 0.0, carbs: 0.0, fat: 10.0 }
-          ]
-        }
-      ],
-      workoutLogs: {}
-    };
+  // Obter usuário logado atual
+  function getCurrentUser() {
+    return window.IronAuth.getCurrentUser();
   }
 
-  // Gerenciador de Perfis
-  class MultiProfileStore {
-    constructor() {
-      this.state = this.load();
-    }
-
-    load() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && parsed.profiles && parsed.profiles.length > 0) {
-            return parsed;
-          }
-        }
-      } catch (e) {
-        console.error('Erro ao ler perfis do localStorage:', e);
-      }
-
-      // Estado inicial com Pedro
-      const initialProfile = createDefaultProfile('p-1', 'Pedro', 76, 178, 'Hipertrofia');
-      return {
-        activeProfileId: 'p-1',
-        profiles: [initialProfile]
-      };
-    }
-
-    save() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
-      } catch (e) {
-        console.error('Erro ao salvar perfis:', e);
-        showToast('Erro ao salvar dados!', 'error');
-      }
-    }
-
-    getActiveProfile() {
-      let p = this.state.profiles.find(item => item.id === this.state.activeProfileId);
-      if (!p && this.state.profiles.length > 0) {
-        p = this.state.profiles[0];
-        this.state.activeProfileId = p.id;
-      }
-      return p;
-    }
-
-    addProfile(name, weight, height, goal) {
-      const id = 'p-' + Date.now();
-      const newP = createDefaultProfile(id, name, weight, height, goal);
-      this.state.profiles.push(newP);
-      this.state.activeProfileId = id;
-      this.save();
-      return newP;
-    }
-
-    deleteProfile(id) {
-      if (this.state.profiles.length <= 1) {
-        showToast('Você deve manter pelo menos um perfil cadastrado.', 'error');
-        return false;
-      }
-      this.state.profiles = this.state.profiles.filter(p => p.id !== id);
-      this.state.activeProfileId = this.state.profiles[0].id;
-      this.save();
-      return true;
+  function saveCurrentUser() {
+    const user = getCurrentUser();
+    if (user) {
+      window.IronAuth.saveCurrentUser(user);
     }
   }
-
-  const store = new MultiProfileStore();
 
   // Helper para somar calorias e macros de uma refeição baseada em seus itens TACO
   function getMealTotals(meal) {
@@ -204,6 +42,137 @@
       protein: Math.round(p * 10) / 10,
       carbs: Math.round(c * 10) / 10,
       fat: Math.round(f * 10) / 10
+    };
+  }
+
+  // ==================== CONTROLE DE SESSÃO & AUTH GATE ====================
+  function checkAuth() {
+    const user = getCurrentUser();
+    const authView = document.getElementById('auth-view');
+    const mainAppView = document.getElementById('main-app-view');
+
+    if (!user) {
+      authView.style.display = 'flex';
+      mainAppView.style.display = 'none';
+      renderSavedAccountsList();
+    } else {
+      authView.style.display = 'none';
+      mainAppView.style.display = 'block';
+      renderAll();
+    }
+  }
+
+  function renderSavedAccountsList() {
+    const container = document.getElementById('saved-accounts-list');
+    const section = document.getElementById('saved-accounts-section');
+    const accounts = window.IronAuth.getExistingAccountsList();
+
+    if (accounts.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    container.innerHTML = '';
+
+    accounts.forEach(acc => {
+      const chip = document.createElement('div');
+      chip.className = 'saved-account-chip';
+      chip.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="user-avatar-badge" style="width: 32px; height: 32px; font-size: 0.85rem;">
+            ${(acc.name || 'U').charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <strong style="font-size: 0.9rem;">${escapeHtml(acc.name)}</strong>
+            <span style="display: block; font-size: 0.72rem; color: var(--text-muted);">${escapeHtml(acc.email)}</span>
+          </div>
+        </div>
+        <span class="tag tag-accent" style="font-size: 0.65rem;">Selecionar</span>
+      `;
+
+      chip.onclick = () => {
+        document.getElementById('login-email').value = acc.email;
+        document.getElementById('login-password').focus();
+        showToast(`Conta "${acc.name}" selecionada! Digite sua senha.`, 'success');
+      };
+
+      container.appendChild(chip);
+    });
+  }
+
+  function initAuthEvents() {
+    // Alternar abas de Login e Cadastro
+    const btnLogin = document.getElementById('tab-btn-login');
+    const btnReg = document.getElementById('tab-btn-register');
+    const formLogin = document.getElementById('form-auth-login');
+    const formReg = document.getElementById('form-auth-register');
+
+    btnLogin.onclick = () => {
+      btnLogin.classList.add('active');
+      btnReg.classList.remove('active');
+      formLogin.classList.add('active');
+      formReg.classList.remove('active');
+    };
+
+    btnReg.onclick = () => {
+      btnReg.classList.add('active');
+      btnLogin.classList.remove('active');
+      formReg.classList.add('active');
+      formLogin.classList.remove('active');
+    };
+
+    // Submissão Login
+    formLogin.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-password').value;
+
+      try {
+        await window.IronAuth.login(email, pass);
+        formLogin.reset();
+        showToast('Login realizado com sucesso! Bem-vindo(a). ⚡', 'success');
+        checkAuth();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+
+    // Submissão Registro
+    formReg.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const pass = document.getElementById('reg-password').value;
+      const weight = parseFloat(document.getElementById('reg-weight').value) || 70;
+      const height = parseInt(document.getElementById('reg-height').value, 10) || 175;
+      const goal = document.getElementById('reg-goal').value;
+
+      try {
+        await window.IronAuth.register(name, email, pass, weight, height, goal);
+        formReg.reset();
+        showToast('Conta criada com sucesso! Treinos e dieta zerados para você começar.', 'success');
+        checkAuth();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+
+    // Logout
+    document.getElementById('btn-header-logout').onclick = () => {
+      if (confirm('Deseja sair desta conta?')) {
+        window.IronAuth.logout();
+        checkAuth();
+        showToast('Você saiu da conta.', 'success');
+      }
+    };
+
+    document.getElementById('btn-account-logout').onclick = () => {
+      if (confirm('Deseja sair desta conta para trocar de usuário?')) {
+        window.IronAuth.logout();
+        checkAuth();
+        showToast('Você saiu da conta.', 'success');
+      }
     };
   }
 
@@ -242,6 +211,12 @@
   }
 
   function toggleSession() {
+    const user = getCurrentUser();
+    if (!user || user.routines.length === 0) {
+      showToast('Crie uma ficha de treino primeiro antes de iniciar o treino.', 'error');
+      return;
+    }
+
     const btn = document.getElementById('btn-start-session');
     const icon = document.getElementById('session-icon');
     const text = document.getElementById('session-text');
@@ -260,7 +235,7 @@
         document.getElementById('session-stopwatch').textContent = `${m}:${s}`;
       }, 1000);
 
-      showToast('Sessão iniciada! Tela do celular mantida ligada. 💪', 'success');
+      showToast('Sessão iniciada! Tela mantida acesa. 💪', 'success');
     } else {
       isSessionRunning = false;
       icon.textContent = '▶';
@@ -269,12 +244,11 @@
       clearInterval(sessionTimer);
       deactivateWakeLock();
 
-      const profile = store.getActiveProfile();
       const today = getTodayKey();
-      if (!profile.workoutLogs) profile.workoutLogs = {};
-      profile.workoutLogs[today] = true;
+      if (!user.workoutLogs) user.workoutLogs = {};
+      user.workoutLogs[today] = true;
 
-      const activeRoutine = profile.routines.find(r => r.id === profile.activeRoutineId);
+      const activeRoutine = user.routines.find(r => r.id === user.activeRoutineId);
       if (activeRoutine) {
         activeRoutine.exercises.forEach(ex => {
           const completedSets = ex.sets.filter(s => s.completed);
@@ -288,7 +262,7 @@
         });
       }
 
-      store.save();
+      saveCurrentUser();
       renderAll();
       showToast(`Treino concluído! Duração: ${Math.floor(sessionSeconds / 60)} min. 🔥`, 'success');
 
@@ -353,7 +327,7 @@
     document.getElementById('rest-timer-text').textContent = 'Parado';
   }
 
-  // ==================== NAVEGAÇÃO & SUB-ABAS ====================
+  // ==================== NAVEGAÇÃO ====================
   function initNav() {
     document.querySelectorAll('.bottom-bar .bar-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -365,7 +339,7 @@
     document.getElementById('btn-home-manage-workouts').onclick = () => switchTab('tab-workouts');
     document.getElementById('btn-home-go-diet').onclick = () => switchTab('tab-diet');
 
-    // Sub-abas de Progresso (Fotos vs Cargas)
+    // Sub-abas Progresso
     document.querySelectorAll('.sub-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
@@ -409,23 +383,23 @@
 
   // ==================== RENDERIZADORES ====================
 
-  // Header e Água
   function renderHeader() {
-    const profile = store.getActiveProfile();
-    const initials = (profile.name || 'U').charAt(0).toUpperCase();
+    const user = getCurrentUser();
+    if (!user) return;
 
+    const initials = (user.name || 'U').charAt(0).toUpperCase();
     document.getElementById('header-avatar-circle').textContent = initials;
-    document.getElementById('header-profile-name').textContent = profile.name;
-    document.getElementById('header-profile-goal').textContent = profile.goal;
+    document.getElementById('header-profile-name').textContent = user.name;
+    document.getElementById('header-profile-goal').textContent = user.goal;
+    document.getElementById('header-user-email').textContent = user.email;
 
-    const minWater = Math.round((Number(profile.weight) || 70) * 35);
-    document.getElementById('water-display').textContent = profile.water || 0;
-    document.getElementById('water-min-goal-display').textContent = minWater;
-    document.getElementById('water-calc-desc').textContent = `Mínimo recomendado: 35ml × ${profile.weight || 70}kg = ${minWater}ml`;
-    document.getElementById('water-current-total').textContent = profile.water || 0;
+    const minWater = Math.round((Number(user.weight) || 70) * 35);
+    document.getElementById('water-display').textContent = user.water || 0;
+    document.getElementById('water-calc-desc').textContent = `Mínimo recomendado: 35ml × ${user.weight || 70}kg = ${minWater}ml`;
+    document.getElementById('water-current-total').textContent = user.water || 0;
     document.getElementById('water-target-total').textContent = minWater;
 
-    const pct = minWater > 0 ? Math.min(100, Math.round(((profile.water || 0) / minWater) * 100)) : 0;
+    const pct = minWater > 0 ? Math.min(100, Math.round(((user.water || 0) / minWater) * 100)) : 0;
     document.getElementById('water-progress-fill').style.width = `${pct}%`;
     document.getElementById('water-percent-badge').textContent = `${pct}%`;
     document.getElementById('home-water-ratio').textContent = `${pct}%`;
@@ -434,14 +408,29 @@
   // 1. Início
   function renderHomeTab() {
     renderHeader();
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
+    if (!user) return;
 
-    document.getElementById('home-goal-badge').textContent = profile.goal;
+    document.getElementById('home-goal-badge').textContent = user.goal;
 
-    const routine = profile.routines.find(r => r.id === profile.activeRoutineId) || profile.routines[0];
     const homeWorkoutBox = document.getElementById('home-workout-box');
 
-    if (routine) {
+    // Se treinos estão zerados
+    if (!user.routines || user.routines.length === 0) {
+      homeWorkoutBox.innerHTML = `
+        <div class="empty-state-luxury">
+          <span class="empty-state-icon">🏋️</span>
+          <h4>Nenhum treino criado</h4>
+          <p>Monte suas próprias fichas personalizadas quando quiser.</p>
+          <button class="btn btn-primary btn-sm" id="btn-home-create-workout">+ Montar Meu Primeiro Treino</button>
+        </div>
+      `;
+      document.getElementById('btn-home-create-workout').onclick = () => {
+        switchTab('tab-workouts');
+        openNewRoutineModal();
+      };
+    } else {
+      const routine = user.routines.find(r => r.id === user.activeRoutineId) || user.routines[0];
       let totalSets = 0, completedSets = 0;
       routine.exercises.forEach(ex => {
         totalSets += ex.sets.length;
@@ -466,18 +455,27 @@
         </div>
       `;
       document.getElementById('btn-home-start-now').onclick = () => switchTab('tab-workouts');
-    } else {
-      homeWorkoutBox.innerHTML = `
-        <p class="text-muted text-sm">Nenhuma ficha criada para este perfil.</p>
-        <button class="btn btn-primary btn-sm mt-2" onclick="switchTab('tab-workouts')">Criar Treino</button>
-      `;
     }
 
     // Próxima Refeição
-    const nextMeal = profile.meals.find(m => !m.done) || profile.meals[0];
     const mealBox = document.getElementById('home-meal-box');
 
-    if (nextMeal) {
+    // Se dieta está zerada
+    if (!user.meals || user.meals.length === 0) {
+      mealBox.innerHTML = `
+        <div class="empty-state-luxury">
+          <span class="empty-state-icon">🥗</span>
+          <h4>Nenhuma refeição cadastrada</h4>
+          <p>Adicione refeições e use a Tabela TACO para calcular seus macros.</p>
+          <button class="btn btn-primary btn-sm" id="btn-home-create-meal">+ Cadastrar Refeição</button>
+        </div>
+      `;
+      document.getElementById('btn-home-create-meal').onclick = () => {
+        switchTab('tab-diet');
+        openAddMealModal();
+      };
+    } else {
+      const nextMeal = user.meals.find(m => !m.done) || user.meals[0];
       const totals = getMealTotals(nextMeal);
       const foodsPreview = nextMeal.items && nextMeal.items.length > 0
         ? nextMeal.items.map(it => `${it.grams}g ${it.name}`).join(', ')
@@ -502,24 +500,24 @@
 
       document.getElementById('btn-check-home-meal').onclick = () => {
         nextMeal.done = !nextMeal.done;
-        store.save();
+        saveCurrentUser();
         renderAll();
       };
-    } else {
-      mealBox.innerHTML = '<p class="text-muted text-sm">Nenhuma refeição cadastrada na sua dieta.</p>';
     }
 
     // Calorias de Hoje
     let eatenKcal = 0;
-    profile.meals.forEach(m => {
-      if (m.done) {
-        const t = getMealTotals(m);
-        eatenKcal += t.kcal;
-      }
-    });
+    if (user.meals) {
+      user.meals.forEach(m => {
+        if (m.done) {
+          const t = getMealTotals(m);
+          eatenKcal += t.kcal;
+        }
+      });
+    }
 
     document.getElementById('home-kcal-val').textContent = eatenKcal;
-    document.getElementById('home-target-kcal-val').textContent = profile.targetKcal || 2400;
+    document.getElementById('home-target-kcal-val').textContent = user.targetKcal || 2400;
 
     renderWeekStrip();
   }
@@ -529,7 +527,7 @@
     container.innerHTML = '';
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     let workoutsCount = 0;
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
 
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
@@ -537,7 +535,7 @@
       d.setDate(today.getDate() - i);
       const k = d.toISOString().split('T')[0];
       const isToday = i === 0;
-      const done = Boolean(profile.workoutLogs && profile.workoutLogs[k]);
+      const done = Boolean(user.workoutLogs && user.workoutLogs[k]);
       if (done) workoutsCount++;
 
       const col = document.createElement('div');
@@ -553,26 +551,56 @@
     document.getElementById('home-week-workouts-count').textContent = `${workoutsCount}/7`;
   }
 
-  // 2. Treinos
+  // 2. Treinos (ZERADOS POR PADRÃO)
   function renderWorkoutsTab() {
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
+    if (!user) return;
+
     const bar = document.getElementById('workout-tabs-bar');
     bar.innerHTML = '';
 
-    const routines = profile.routines;
-    let activeRoutine = routines.find(r => r.id === profile.activeRoutineId);
-    if (!activeRoutine && routines.length > 0) {
-      activeRoutine = routines[0];
-      profile.activeRoutineId = activeRoutine.id;
+    const headerCard = document.getElementById('workout-header-card');
+    const bottomActions = document.getElementById('workout-bottom-actions');
+    const stack = document.getElementById('exercises-stack');
+
+    // Se ZERADO
+    if (!user.routines || user.routines.length === 0) {
+      headerCard.style.display = 'none';
+      bottomActions.style.display = 'none';
+      bar.innerHTML = '';
+
+      stack.innerHTML = `
+        <div class="empty-state-luxury" style="margin-top: 10px;">
+          <span class="empty-state-icon">🏋️</span>
+          <h4>Seus Treinos Estão Zerados</h4>
+          <p>Você tem total liberdade para montar suas fichas do zero: adicione seus exercícios favoritos com cargas e séries individuais.</p>
+          <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-routine">
+            + Criar Minha Primeira Ficha de Treino
+          </button>
+        </div>
+      `;
+
+      document.getElementById('btn-create-first-routine').onclick = openNewRoutineModal;
+      return;
     }
 
-    routines.forEach(r => {
+    // Se tem fichas
+    headerCard.style.display = 'flex';
+    bottomActions.style.display = 'block';
+
+    let activeRoutine = user.routines.find(r => r.id === user.activeRoutineId);
+    if (!activeRoutine && user.routines.length > 0) {
+      activeRoutine = user.routines[0];
+      user.activeRoutineId = activeRoutine.id;
+    }
+
+    user.routines.forEach(r => {
       const pill = document.createElement('button');
-      pill.className = `routine-tab-pill ${r.id === profile.activeRoutineId ? 'active' : ''}`;
+      pill.className = `routine-tab-pill ${r.id === user.activeRoutineId ? 'active' : ''}`;
       pill.textContent = r.name;
       pill.onclick = () => {
-        profile.activeRoutineId = r.id;
-        store.save();
+        user.activeRoutineId = r.id;
+        saveCurrentUser();
         renderWorkoutsTab();
         renderHomeTab();
       };
@@ -593,11 +621,18 @@
     document.getElementById('btn-edit-routine').onclick = () => openEditRoutineModal(activeRoutine);
     document.getElementById('btn-delete-routine').onclick = () => confirmDeleteRoutine(activeRoutine);
 
-    const stack = document.getElementById('exercises-stack');
     stack.innerHTML = '';
 
-    if (activeRoutine.exercises.length === 0) {
-      stack.innerHTML = '<p class="text-muted text-center" style="padding: 24px;">Ficha sem exercícios. Toque em "+ Adicionar Exercício" abaixo.</p>';
+    if (!activeRoutine.exercises || activeRoutine.exercises.length === 0) {
+      stack.innerHTML = `
+        <div class="empty-state-luxury" style="padding: 24px 16px;">
+          <p class="text-muted mb-2">Esta ficha não tem exercícios cadastrados ainda.</p>
+          <button class="btn btn-primary btn-sm" id="btn-empty-add-ex">+ Adicionar Primeiro Exercício</button>
+        </div>
+      `;
+      document.getElementById('btn-empty-add-ex').onclick = () => {
+        document.getElementById('btn-open-catalog').click();
+      };
       return;
     }
 
@@ -660,19 +695,19 @@
 
         weightInput.onchange = () => {
           set.weight = parseFloat(weightInput.value) || 0;
-          store.save();
+          saveCurrentUser();
         };
 
         repsInput.onchange = () => {
           set.reps = parseInt(repsInput.value, 10) || 0;
-          store.save();
+          saveCurrentUser();
         };
 
         checkBtn.onclick = () => {
           set.completed = !set.completed;
           set.weight = parseFloat(weightInput.value) || set.weight || 0;
           set.reps = parseInt(repsInput.value, 10) || set.reps || 0;
-          store.save();
+          saveCurrentUser();
           renderWorkoutsTab();
           renderHomeTab();
 
@@ -698,7 +733,7 @@
           completed: false,
           prev: lastSet ? `${lastSet.weight}kg × ${lastSet.reps}` : '--'
         });
-        store.save();
+        saveCurrentUser();
         renderWorkoutsTab();
         renderHomeTab();
       };
@@ -713,40 +748,43 @@
     const temp = routine.exercises[index];
     routine.exercises[index] = routine.exercises[targetIdx];
     routine.exercises[targetIdx] = temp;
-    store.save();
+    saveCurrentUser();
     renderWorkoutsTab();
   }
 
   function confirmDeleteExercise(routine, ex) {
     if (confirm(`Remover "${ex.name}" da ficha?`)) {
       routine.exercises = routine.exercises.filter(item => item.id !== ex.id);
-      store.save();
+      saveCurrentUser();
       renderWorkoutsTab();
       renderHomeTab();
       showToast('Exercício removido.', 'success');
     }
   }
 
-  // 3. Dieta com Tabela TACO
+  // 3. Dieta (ZERADA POR PADRÃO)
   function renderDietTab() {
     renderHeader();
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
+    if (!user) return;
 
     let sumKcal = 0, sumP = 0, sumC = 0, sumF = 0;
-    profile.meals.forEach(m => {
-      if (m.done) {
-        const t = getMealTotals(m);
-        sumKcal += t.kcal;
-        sumP += t.protein;
-        sumC += t.carbs;
-        sumF += t.fat;
-      }
-    });
+    if (user.meals) {
+      user.meals.forEach(m => {
+        if (m.done) {
+          const t = getMealTotals(m);
+          sumKcal += t.kcal;
+          sumP += t.protein;
+          sumC += t.carbs;
+          sumF += t.fat;
+        }
+      });
+    }
 
-    const targetKcal = profile.targetKcal || 2400;
-    const targetP = profile.targetProtein || 160;
-    const targetC = profile.targetCarbs || 260;
-    const targetF = profile.targetFat || 65;
+    const targetKcal = user.targetKcal || 2400;
+    const targetP = user.targetProtein || 160;
+    const targetC = user.targetCarbs || 260;
+    const targetF = user.targetFat || 65;
 
     document.getElementById('diet-consumed-kcal').textContent = sumKcal;
     document.getElementById('diet-goal-kcal').textContent = targetKcal;
@@ -768,18 +806,23 @@
     const stack = document.getElementById('meals-stack');
     stack.innerHTML = '';
 
-    if (profile.meals.length === 0) {
+    // Se ZERADA
+    if (!user.meals || user.meals.length === 0) {
       stack.innerHTML = `
-        <div class="card text-center" style="padding: 30px;">
-          <p class="text-muted mb-3">Nenhuma refeição cadastrada neste perfil.</p>
-          <button class="btn btn-primary btn-sm" id="btn-empty-meal">+ Criar Primeira Refeição</button>
+        <div class="empty-state-luxury">
+          <span class="empty-state-icon">🥗</span>
+          <h4>Sua Dieta Está Zerada</h4>
+          <p>Cadastre suas refeições diárias e adicione alimentos com macros calculados em gramas pela Tabela TACO.</p>
+          <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-meal">
+            + Cadastrar Primeira Refeição
+          </button>
         </div>
       `;
-      document.getElementById('btn-empty-meal').onclick = openAddMealModal;
+      document.getElementById('btn-create-first-meal').onclick = openAddMealModal;
       return;
     }
 
-    const sortedMeals = [...profile.meals].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    const sortedMeals = [...user.meals].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
     sortedMeals.forEach(meal => {
       const totals = getMealTotals(meal);
@@ -802,7 +845,7 @@
           `;
         });
       } else {
-        itemsHtml = '<p class="text-xs text-muted" style="padding: 4px 0;">Nenhum alimento cadastrado. Adicione pela tabela TACO abaixo.</p>';
+        itemsHtml = '<p class="text-xs text-muted" style="padding: 4px 0;">Nenhum alimento adicionado. Use o botão abaixo.</p>';
       }
 
       card.innerHTML = `
@@ -829,7 +872,7 @@
           <span style="color: var(--macro-f);">🥑 <strong>${totals.fat}</strong>g G</span>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px;">
+        <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
           <button class="btn-tool btn-edit-meal" title="Editar Nome/Horário">✏️</button>
           <button class="btn-tool text-danger btn-del-meal" title="Excluir Refeição">🗑️</button>
         </div>
@@ -837,23 +880,21 @@
 
       card.querySelector('.btn-check-set').onclick = () => {
         meal.done = !meal.done;
-        store.save();
+        saveCurrentUser();
         renderDietTab();
         renderHomeTab();
       };
 
-      // Remover item de alimento da refeição
       card.querySelectorAll('.btn-del-food-item').forEach(delBtn => {
         delBtn.onclick = () => {
           const idx = parseInt(delBtn.getAttribute('data-item-idx'), 10);
           meal.items.splice(idx, 1);
-          store.save();
+          saveCurrentUser();
           renderDietTab();
           renderHomeTab();
         };
       });
 
-      // Botão para abrir o seletor da Tabela TACO para esta refeição específica
       card.querySelector('.btn-add-food-to-meal').onclick = () => {
         openTacoPickerForMeal(meal);
       };
@@ -865,7 +906,7 @@
     });
   }
 
-  // ==================== TABELA TACO: PICKER & CÁLCULO DE GRAMAS ====================
+  // ==================== TABELA TACO (PICKER & CÁLCULO) ====================
   let currentTargetMeal = null;
   let currentSelectedTacoFood = null;
 
@@ -873,13 +914,8 @@
     const searchInput = document.getElementById('taco-search-input');
     const gramInput = document.getElementById('taco-grams-input');
 
-    searchInput.addEventListener('input', () => {
-      filterTacoList();
-    });
-
-    gramInput.addEventListener('input', () => {
-      calculateLiveTacoMacros();
-    });
+    searchInput.addEventListener('input', () => filterTacoList());
+    gramInput.addEventListener('input', () => calculateLiveTacoMacros());
 
     document.getElementById('btn-confirm-add-taco').onclick = () => {
       if (!currentTargetMeal || !currentSelectedTacoFood) return;
@@ -900,7 +936,7 @@
       if (!currentTargetMeal.items) currentTargetMeal.items = [];
       currentTargetMeal.items.push(newItem);
 
-      store.save();
+      saveCurrentUser();
       document.getElementById('modal-taco-picker').classList.remove('open');
       renderDietTab();
       renderHomeTab();
@@ -943,10 +979,7 @@
         <span class="tag tag-accent">${escapeHtml(food.category)}</span>
       `;
 
-      itemRow.onclick = () => {
-        selectTacoFood(food);
-      };
-
+      itemRow.onclick = () => selectTacoFood(food);
       container.appendChild(itemRow);
     });
   }
@@ -979,20 +1012,23 @@
   let selectedPhotosToCompare = [];
 
   async function renderPhotosGallery() {
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
+    if (!user) return;
+
     const grid = document.getElementById('photos-grid');
     grid.innerHTML = '<p class="text-muted text-center" style="grid-column: 1/-1;">Carregando fotos...</p>';
 
     try {
-      const photos = await window.IronDB.getPhotosByProfile(profile.id);
+      const photos = await window.IronDB.getPhotosByProfile(user.id);
       document.getElementById('photos-count-badge').textContent = `${photos.length} fotos`;
       grid.innerHTML = '';
 
       if (photos.length === 0) {
         grid.innerHTML = `
-          <div class="card text-center" style="grid-column: 1/-1; padding: 30px;">
-            <p class="text-muted mb-2">Nenhuma foto registrada para este perfil.</p>
-            <p class="text-xs text-muted">Tire uma foto hoje para começar seu diário de evolução!</p>
+          <div class="empty-state-luxury" style="grid-column: 1/-1;">
+            <span class="empty-state-icon">📸</span>
+            <h4>Nenhuma foto registrada</h4>
+            <p>Tire fotos de frente, lado ou costas para ver sua evolução corporal ao longo dos meses.</p>
           </div>
         `;
         return;
@@ -1018,12 +1054,10 @@
           </div>
         `;
 
-        card.querySelector('.btn-compare-select').onclick = () => {
-          togglePhotoComparison(photo);
-        };
+        card.querySelector('.btn-compare-select').onclick = () => togglePhotoComparison(photo);
 
         card.querySelector('.btn-del-photo').onclick = async () => {
-          if (confirm('Deseja excluir esta foto do histórico?')) {
+          if (confirm('Deseja excluir esta foto?')) {
             await window.IronDB.deletePhoto(photo.id);
             selectedPhotosToCompare = selectedPhotosToCompare.filter(p => p.id !== photo.id);
             renderPhotosGallery();
@@ -1034,7 +1068,7 @@
         grid.appendChild(card);
       });
     } catch (e) {
-      console.error('Erro ao buscar fotos:', e);
+      console.error(e);
       grid.innerHTML = '<p class="text-danger text-center" style="grid-column: 1/-1;">Erro ao carregar fotos.</p>';
     }
   }
@@ -1045,7 +1079,7 @@
       selectedPhotosToCompare.splice(idx, 1);
     } else {
       if (selectedPhotosToCompare.length >= 2) {
-        selectedPhotosToCompare.shift(); // Remove a mais antiga
+        selectedPhotosToCompare.shift();
       }
       selectedPhotosToCompare.push(photo);
     }
@@ -1057,7 +1091,6 @@
   function updateComparatorCard() {
     const card = document.getElementById('comparator-card');
     if (selectedPhotosToCompare.length === 2) {
-      // Ordena por data (a mais antiga é o "Antes")
       const sorted = [...selectedPhotosToCompare].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
       const before = sorted[0];
       const after = sorted[1];
@@ -1081,21 +1114,20 @@
     renderPhotosGallery();
   };
 
-  // Upload e Compressão de Foto
+  // Upload e Compressão
   let tempCompressedDataUrl = null;
   document.getElementById('input-camera-photo').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     try {
-      showToast('Otimizando imagem para alta velocidade...', 'success');
-      // Comprime para no máximo 1000px mantendo alta qualidade e peso ultra leve (< 120KB)
+      showToast('Otimizando imagem...', 'success');
       tempCompressedDataUrl = await window.IronDB.compressImage(file, 1000, 0.82);
 
-      const profile = store.getActiveProfile();
+      const user = getCurrentUser();
       document.getElementById('preview-photo-img').src = tempCompressedDataUrl;
       document.getElementById('input-photo-date').value = getTodayKey();
-      document.getElementById('input-photo-weight').value = profile.weight || '';
+      document.getElementById('input-photo-weight').value = user.weight || '';
 
       document.getElementById('modal-save-photo').classList.add('open');
     } catch (err) {
@@ -1110,14 +1142,14 @@
     e.preventDefault();
     if (!tempCompressedDataUrl) return;
 
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
     const date = document.getElementById('input-photo-date').value;
     const weight = parseFloat(document.getElementById('input-photo-weight').value) || null;
     const pose = document.getElementById('select-photo-pose').value;
 
     const photoObj = {
       id: 'photo-' + Date.now(),
-      profileId: profile.id,
+      profileId: user.id,
       date: date,
       weight: weight,
       pose: pose,
@@ -1127,84 +1159,8 @@
     await window.IronDB.savePhoto(photoObj);
     document.getElementById('modal-save-photo').classList.remove('open');
     renderPhotosGallery();
-    showToast('Foto registrada com sucesso na sua evolução! 📸', 'success');
+    showToast('Foto registrada na sua evolução! 📸', 'success');
   });
-
-  // ==================== GERENCIADOR DE MULTIPERFIL ====================
-  function initProfiles() {
-    document.getElementById('btn-open-profile-sheet').onclick = () => {
-      renderProfilesModal();
-      document.getElementById('modal-profiles').classList.add('open');
-    };
-
-    document.getElementById('btn-open-create-profile').onclick = () => {
-      document.getElementById('modal-profiles').classList.remove('open');
-      document.getElementById('form-create-profile').reset();
-      document.getElementById('modal-create-profile').classList.add('open');
-    };
-
-    document.getElementById('form-create-profile').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('input-new-profile-name').value.trim();
-      const weight = parseFloat(document.getElementById('input-new-profile-weight').value) || 75;
-      const height = parseInt(document.getElementById('input-new-profile-height').value, 10) || 175;
-      const goal = document.getElementById('input-new-profile-goal').value;
-
-      store.addProfile(name, weight, height, goal);
-      document.getElementById('modal-create-profile').classList.remove('open');
-      renderAll();
-      showToast(`Perfil de "${name}" criado e ativado! 🎉`, 'success');
-    });
-  }
-
-  function renderProfilesModal() {
-    const list = document.getElementById('profiles-list-box');
-    list.innerHTML = '';
-
-    store.state.profiles.forEach(p => {
-      const isCurrent = p.id === store.state.activeProfileId;
-      const item = document.createElement('div');
-      item.className = `profile-card-item ${isCurrent ? 'active' : ''}`;
-
-      const minW = Math.round((Number(p.weight) || 70) * 35);
-      const initials = (p.name || 'U').charAt(0).toUpperCase();
-
-      item.innerHTML = `
-        <div class="profile-item-left">
-          <div class="profile-avatar-circle" style="width: 36px; height: 36px; font-size: 0.95rem;">${initials}</div>
-          <div class="profile-item-info">
-            <h4>${escapeHtml(p.name)} ${isCurrent ? '<span class="tag tag-accent">Ativo</span>' : ''}</h4>
-            <span>${p.weight || '--'}kg • ${p.goal} • Mín água: ${minW}ml</span>
-          </div>
-        </div>
-        ${store.state.profiles.length > 1 ? `<button class="btn-del-profile" data-del-id="${p.id}" style="background:none;border:none;color:var(--danger);font-size:1.1rem;cursor:pointer;padding:8px;">🗑️</button>` : ''}
-      `;
-
-      item.onclick = (e) => {
-        if (e.target.closest('.btn-del-profile')) return;
-        store.state.activeProfileId = p.id;
-        store.save();
-        document.getElementById('modal-profiles').classList.remove('open');
-        renderAll();
-        showToast(`Perfil alternado para "${p.name}"!`, 'success');
-      };
-
-      const delBtn = item.querySelector('.btn-del-profile');
-      if (delBtn) {
-        delBtn.onclick = (e) => {
-          e.stopPropagation();
-          if (confirm(`Excluir o perfil de "${p.name}" e todos os seus dados?`)) {
-            store.deleteProfile(p.id);
-            renderProfilesModal();
-            renderAll();
-            showToast('Perfil excluído.', 'success');
-          }
-        };
-      }
-
-      list.appendChild(item);
-    });
-  }
 
   // ==================== ÁGUA RÁPIDA ====================
   function initWater() {
@@ -1215,15 +1171,13 @@
       };
     });
 
-    document.getElementById('btn-quick-water').onclick = () => {
-      addWater(250);
-    };
+    document.getElementById('btn-quick-water').onclick = () => addWater(250);
 
     document.getElementById('btn-reset-water').onclick = () => {
       if (confirm('Zerar contador de água de hoje?')) {
-        const p = store.getActiveProfile();
-        p.water = 0;
-        store.save();
+        const u = getCurrentUser();
+        u.water = 0;
+        saveCurrentUser();
         renderHeader();
         showToast('Água zerada.', 'success');
       }
@@ -1231,36 +1185,40 @@
   }
 
   function addWater(amt) {
-    const profile = store.getActiveProfile();
-    profile.water = (profile.water || 0) + amt;
-    store.save();
+    const user = getCurrentUser();
+    if (!user) return;
+    user.water = (user.water || 0) + amt;
+    saveCurrentUser();
     renderHeader();
-    showToast(`+${amt}ml de água registrados! Total: ${profile.water}ml 💧`, 'success');
+    showToast(`+${amt}ml de água registrados! Total: ${user.water}ml 💧`, 'success');
   }
 
   // ==================== PROGRESSO & METAS ====================
   function renderProgressTab() {
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
+    if (!user) return;
 
-    document.getElementById('input-profile-weight').value = profile.weight || 75;
-    document.getElementById('input-profile-height').value = profile.height || 175;
-    document.getElementById('input-goal-title').value = profile.goal || 'Hipertrofia';
-    document.getElementById('input-goal-kcal').value = profile.targetKcal || 2400;
-    document.getElementById('input-goal-p').value = profile.targetProtein || 160;
-    document.getElementById('input-goal-c').value = profile.targetCarbs || 260;
-    document.getElementById('input-goal-f').value = profile.targetFat || 65;
+    document.getElementById('input-profile-weight').value = user.weight || 75;
+    document.getElementById('input-profile-height').value = user.height || 175;
+    document.getElementById('input-goal-title').value = user.goal || 'Hipertrofia';
+    document.getElementById('input-goal-kcal').value = user.targetKcal || 2400;
+    document.getElementById('input-goal-p').value = user.targetProtein || 160;
+    document.getElementById('input-goal-c').value = user.targetCarbs || 260;
+    document.getElementById('input-goal-f').value = user.targetFat || 65;
 
     const select = document.getElementById('select-chart-ex');
     select.innerHTML = '';
 
     const allExercises = [];
-    profile.routines.forEach(r => {
-      r.exercises.forEach(ex => allExercises.push(ex));
-    });
+    if (user.routines) {
+      user.routines.forEach(r => {
+        if (r.exercises) r.exercises.forEach(ex => allExercises.push(ex));
+      });
+    }
 
     if (allExercises.length === 0) {
       select.innerHTML = '<option value="">Nenhum exercício nas suas fichas</option>';
-      document.getElementById('progress-chart-container').innerHTML = '<p class="text-muted text-sm">Adicione exercícios nas suas fichas para ver o gráfico.</p>';
+      document.getElementById('progress-chart-container').innerHTML = '<p class="text-muted text-sm text-center">Adicione exercícios nas suas fichas para ver o gráfico de evolução.</p>';
       return;
     }
 
@@ -1281,21 +1239,20 @@
 
   document.getElementById('form-user-goals').addEventListener('submit', (e) => {
     e.preventDefault();
-    const profile = store.getActiveProfile();
-    profile.weight = parseFloat(document.getElementById('input-profile-weight').value) || profile.weight;
-    profile.height = parseInt(document.getElementById('input-profile-height').value, 10) || profile.height;
-    profile.goal = document.getElementById('input-goal-title').value;
-    profile.targetKcal = parseInt(document.getElementById('input-goal-kcal').value, 10);
-    profile.targetProtein = parseInt(document.getElementById('input-goal-p').value, 10);
-    profile.targetCarbs = parseInt(document.getElementById('input-goal-c').value, 10);
-    profile.targetFat = parseInt(document.getElementById('input-goal-f').value, 10);
+    const user = getCurrentUser();
+    user.weight = parseFloat(document.getElementById('input-profile-weight').value) || user.weight;
+    user.height = parseInt(document.getElementById('input-profile-height').value, 10) || user.height;
+    user.goal = document.getElementById('input-goal-title').value;
+    user.targetKcal = parseInt(document.getElementById('input-goal-kcal').value, 10);
+    user.targetProtein = parseInt(document.getElementById('input-goal-p').value, 10);
+    user.targetCarbs = parseInt(document.getElementById('input-goal-c').value, 10);
+    user.targetFat = parseInt(document.getElementById('input-goal-f').value, 10);
 
-    store.save();
+    saveCurrentUser();
     renderAll();
-    showToast('Metas do perfil salvas com sucesso! 🎯', 'success');
+    showToast('Metas salvas com sucesso! 🎯', 'success');
   });
 
-  // Gráfico SVG Responsivo
   function renderInteractiveSVGChart(container, ex) {
     if (!container || !ex) return;
 
@@ -1465,7 +1422,7 @@
       item.className = 'catalog-item';
       item.innerHTML = `
         <div>
-          <h4 style="font-size:0.95rem; font-weight:700;">${escapeHtml(ex.name)}</h4>
+          <h4 style="font-size:0.95rem; font-weight:800;">${escapeHtml(ex.name)}</h4>
           <span class="tag tag-muscle">${escapeHtml(ex.muscle)}</span>
         </div>
         <button class="btn btn-sm btn-primary">+ Adicionar</button>
@@ -1480,8 +1437,9 @@
   }
 
   function addExerciseToActiveRoutine(name, muscle) {
-    const profile = store.getActiveProfile();
-    const routine = profile.routines.find(r => r.id === profile.activeRoutineId);
+    const user = getCurrentUser();
+    if (!user) return;
+    const routine = user.routines.find(r => r.id === user.activeRoutineId);
     if (!routine) return;
 
     routine.exercises.push({
@@ -1497,7 +1455,7 @@
       history: [{ date: getTodayKey(), weight: 20 }]
     });
 
-    store.save();
+    saveCurrentUser();
     renderWorkoutsTab();
     renderHomeTab();
     showToast(`"${name}" adicionado à ficha! 💪`, 'success');
@@ -1522,13 +1480,13 @@
 
   document.getElementById('form-routine').addEventListener('submit', (e) => {
     e.preventDefault();
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
     const id = document.getElementById('input-routine-id').value;
     const name = document.getElementById('input-routine-name').value.trim();
     const focus = document.getElementById('input-routine-focus').value.trim();
 
     if (id) {
-      const routine = profile.routines.find(r => r.id === id);
+      const routine = user.routines.find(r => r.id === id);
       if (routine) {
         routine.name = name;
         routine.focus = focus;
@@ -1536,27 +1494,24 @@
       }
     } else {
       const newR = { id: 'routine-' + Date.now(), name, focus, exercises: [] };
-      profile.routines.push(newR);
-      profile.activeRoutineId = newR.id;
-      showToast('Nova ficha criada! 🏋️', 'success');
+      if (!user.routines) user.routines = [];
+      user.routines.push(newR);
+      user.activeRoutineId = newR.id;
+      showToast('Nova ficha criada! Agora adicione seus exercícios. 🏋️', 'success');
     }
 
-    store.save();
+    saveCurrentUser();
     document.getElementById('modal-routine').classList.remove('open');
     renderWorkoutsTab();
     renderHomeTab();
   });
 
   function confirmDeleteRoutine(routine) {
-    const profile = store.getActiveProfile();
-    if (profile.routines.length <= 1) {
-      showToast('Você precisa manter pelo menos 1 ficha criada.', 'error');
-      return;
-    }
+    const user = getCurrentUser();
     if (confirm(`Deseja excluir a ficha "${routine.name}"?`)) {
-      profile.routines = profile.routines.filter(r => r.id !== routine.id);
-      profile.activeRoutineId = profile.routines[0].id;
-      store.save();
+      user.routines = user.routines.filter(r => r.id !== routine.id);
+      user.activeRoutineId = user.routines.length > 0 ? user.routines[0].id : null;
+      saveCurrentUser();
       renderWorkoutsTab();
       renderHomeTab();
       showToast('Ficha excluída.', 'success');
@@ -1578,7 +1533,7 @@
     if (!currentEditingEx) return;
     currentEditingEx.name = document.getElementById('input-edit-ex-name').value.trim();
     currentEditingEx.notes = document.getElementById('input-edit-ex-notes').value.trim();
-    store.save();
+    saveCurrentUser();
     document.getElementById('modal-edit-ex').classList.remove('open');
     renderWorkoutsTab();
     showToast('Exercício salvo!', 'success');
@@ -1625,56 +1580,58 @@
 
   document.getElementById('form-meal').addEventListener('submit', (e) => {
     e.preventDefault();
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
     const id = document.getElementById('input-meal-id').value;
     const name = document.getElementById('input-meal-name').value.trim();
     const time = document.getElementById('input-meal-time').value;
 
     if (id) {
-      const meal = profile.meals.find(m => m.id === id);
+      const meal = user.meals.find(m => m.id === id);
       if (meal) {
         meal.name = name;
         meal.time = time;
         showToast('Refeição salva!', 'success');
       }
     } else {
-      profile.meals.push({
+      if (!user.meals) user.meals = [];
+      user.meals.push({
         id: 'meal-' + Date.now(),
         name,
         time,
         done: false,
         items: []
       });
-      showToast('Refeição cadastrada! Agora adicione alimentos da Tabela TACO.', 'success');
+      showToast('Refeição cadastrada! Agora adicione alimentos pela Tabela TACO.', 'success');
     }
 
-    store.save();
+    saveCurrentUser();
     document.getElementById('modal-meal').classList.remove('open');
     renderDietTab();
     renderHomeTab();
   });
 
   function confirmDeleteMeal(meal) {
-    const profile = store.getActiveProfile();
+    const user = getCurrentUser();
     if (confirm(`Excluir a refeição "${meal.name}"?`)) {
-      profile.meals = profile.meals.filter(m => m.id !== meal.id);
-      store.save();
+      user.meals = user.meals.filter(m => m.id !== meal.id);
+      saveCurrentUser();
       renderDietTab();
       renderHomeTab();
       showToast('Refeição removida.', 'success');
     }
   }
 
-  // ==================== BACKUP & RESTAURAÇÃO ====================
+  // Backup Export & Import
   document.getElementById('btn-export-backup').onclick = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(store.state, null, 2));
+    const user = getCurrentUser();
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(user, null, 2));
     const a = document.createElement('a');
     a.href = dataStr;
-    a.download = `ironpulse_backup_${getTodayKey()}.json`;
+    a.download = `ironpulse_${user.name.toLowerCase()}_backup_${getTodayKey()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    showToast('Backup dos perfis exportado com sucesso! 📥', 'success');
+    showToast('Backup do seu usuário exportado com sucesso! 📥', 'success');
   };
 
   document.getElementById('input-backup-file').onchange = (e) => {
@@ -1684,16 +1641,10 @@
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target.result);
-        if (parsed && (parsed.profiles || parsed.routines)) {
-          if (parsed.profiles) {
-            store.state = parsed;
-          } else {
-            store.state = {
-              activeProfileId: 'p-1',
-              profiles: [Object.assign(createDefaultProfile('p-1', 'Principal'), parsed)]
-            };
-          }
-          store.save();
+        if (parsed && (parsed.routines || parsed.email)) {
+          const user = getCurrentUser();
+          Object.assign(user, parsed);
+          saveCurrentUser();
           renderAll();
           showToast('Backup restaurado com sucesso! 🎉', 'success');
         } else {
@@ -1705,18 +1656,6 @@
     };
     reader.readAsText(file);
     e.target.value = '';
-  };
-
-  document.getElementById('btn-clear-all-data').onclick = () => {
-    if (confirm('Tem certeza de que deseja apagar os treinos deste perfil e começar do zero?')) {
-      const profile = store.getActiveProfile();
-      profile.routines = [{ id: 'routine-new', name: 'Meu Treino A', focus: 'Personalizado', exercises: [] }];
-      profile.activeRoutineId = 'routine-new';
-      profile.meals = [];
-      store.save();
-      renderAll();
-      showToast('Dados limpos! Monte do seu jeito. 🚀', 'success');
-    }
   };
 
   // Modais Fechar
@@ -1767,10 +1706,10 @@
   }
 
   function init() {
+    initAuthEvents();
     initNav();
     initCatalog();
     initTacoPicker();
-    initProfiles();
     initWater();
 
     document.getElementById('btn-start-session').onclick = toggleSession;
@@ -1781,7 +1720,8 @@
     });
     document.getElementById('btn-stop-rest').onclick = stopRestTimer;
 
-    renderAll();
+    // Checa autenticação inicial
+    checkAuth();
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

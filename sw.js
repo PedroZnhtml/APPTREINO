@@ -4,12 +4,13 @@
  * Totalmente compatível com subpastas (ex: GitHub Pages)
  */
 
-const CACHE_NAME = 'ironpulse-cache-v2';
+const CACHE_NAME = 'ironpulse-cache-v3';
 
 const STATIC_ASSETS = [
   './',
   './index.html',
   './style.css',
+  './auth.js',
   './taco.js',
   './db.js',
   './app.js',
