@@ -4,27 +4,39 @@
    ========================================================================== */
 
 :root {
-  /* Paleta Base Titanium */
-  --bg-void: #06080d;
-  --bg-surface: #0e131f;
-  --bg-card: #131926;
-  --bg-elevated: #1a2233;
-  --bg-input: #0b0f17;
+  /* Paleta Base Titanium & Slate */
+  --bg-void: #080c14;
+  --bg-surface: #0f172a;
+  --bg-card: #131c31;
+  --bg-elevated: #1e293b;
+  --bg-input: #0b1120;
 
   /* Bordas Iluminadas */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-focus: #00e676;
-  --border-active: rgba(0, 230, 118, 0.35);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: #3b82f6;
+  --border-active: rgba(59, 130, 246, 0.4);
 
-  /* Acentos Elétricos Neon */
-  --accent: #00e676;
-  --accent-glow: rgba(0, 230, 118, 0.22);
+  /* Acentos Esportivos: Azul Royal, Vermelho e Cinza */
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --accent-glow: rgba(37, 99, 235, 0.35);
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --accent-border: rgba(59, 130, 246, 0.35);
+
+  --red-accent: #ef4444;
+  --red-glow: rgba(239, 68, 68, 0.35);
+  --red-soft: rgba(239, 68, 68, 0.12);
+  --red-border: rgba(239, 68, 68, 0.35);
+
+  --slate-badge: #334155;
+  --slate-border: #475569;
+
   --cyan: #00d2ff;
   --cyan-glow: rgba(0, 210, 255, 0.22);
   --purple: #a855f7;
-  --danger: #ff4757;
-  --danger-soft: rgba(255, 71, 87, 0.15);
-  --warning: #ffa502;
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.15);
+  --warning: #f59e0b;
 
   /* Macros & Nutrição */
   --macro-p: #3b82f6;
@@ -34,8 +46,8 @@
 
   /* Tipografia */
   --text-main: #f8fafc;
-  --text-muted: #8892b0;
-  --text-dim: #4c566a;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
 
   /* Layout */
   --bottom-bar-height: 64px;
@@ -48,16 +60,23 @@
 
 /* ==================== TEMA CLARO (LIGHT THEME) ==================== */
 body.theme-light {
-  --bg-void: #f4f6fa;
+  --bg-void: #f1f5f9;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
   --bg-elevated: #f8fafc;
   --bg-input: #f1f5f9;
   --border-subtle: #e2e8f0;
-  --border-focus: #059669;
-  --border-active: rgba(5, 150, 105, 0.3);
-  --accent: #059669;
-  --accent-glow: rgba(5, 150, 105, 0.2);
+  --border-focus: #2563eb;
+  --border-active: rgba(37, 99, 235, 0.3);
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --accent-glow: rgba(37, 99, 235, 0.2);
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --accent-border: rgba(37, 99, 235, 0.25);
+  --red-accent: #dc2626;
+  --red-glow: rgba(220, 38, 38, 0.2);
+  --red-soft: rgba(220, 38, 38, 0.08);
+  --red-border: rgba(220, 38, 38, 0.25);
   --cyan: #0284c7;
   --cyan-glow: rgba(2, 132, 199, 0.2);
   --text-main: #0f172a;
@@ -89,7 +108,7 @@ body.theme-light .routine-tab-pill {
 }
 
 body.theme-light .routine-tab-pill.active {
-  background-color: #059669;
+  background-color: #2563eb;
   color: #ffffff;
 }
 
@@ -132,14 +151,15 @@ body.theme-light .preset-chip-meal {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--cyan));
-  color: #000;
+  background: linear-gradient(135deg, var(--accent), #38bdf8);
+  color: #ffffff;
   font-weight: 800;
   font-size: 1.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 14px var(--accent-glow);
 }
 
 .profile-meta strong {
@@ -175,15 +195,15 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
-  background: radial-gradient(circle at 50% 10%, rgba(0, 230, 118, 0.08), transparent 60%),
-              radial-gradient(circle at 80% 80%, rgba(0, 210, 255, 0.05), transparent 50%),
+  background: radial-gradient(circle at 50% 10%, rgba(37, 99, 235, 0.14), transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.08), transparent 50%),
               var(--bg-void);
 }
 
 .auth-container {
   width: 100%;
   max-width: 440px;
-  background-color: rgba(14, 19, 31, 0.85);
+  background-color: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
@@ -208,13 +228,13 @@ html, body {
   height: 58px;
   margin: 0 auto 12px auto;
   border-radius: 18px;
-  background: linear-gradient(135deg, #00e676, #00d2ff);
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.8rem;
-  color: #000;
-  box-shadow: 0 0 24px rgba(0, 230, 118, 0.45);
+  color: #ffffff;
+  box-shadow: 0 0 24px rgba(37, 99, 235, 0.45);
 }
 
 .auth-title {
@@ -352,14 +372,14 @@ html, body {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00e676, #00d2ff);
-  color: #000;
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  color: #ffffff;
   font-weight: 900;
   font-size: 1.15rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 14px rgba(0, 230, 118, 0.35);
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.35);
   flex-shrink: 0;
 }
 
@@ -390,9 +410,9 @@ html, body {
   text-transform: uppercase;
   padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(0, 230, 118, 0.12);
-  color: var(--accent);
-  border: 1px solid rgba(0, 230, 118, 0.3);
+  background: var(--accent-soft);
+  color: var(--accent-light);
+  border: 1px solid var(--accent-border);
 }
 
 .header-actions {
@@ -455,8 +475,8 @@ html, body {
 
 /* ==================== HERO & CARDS ==================== */
 .hero-card {
-  background: linear-gradient(135deg, #131b28 0%, #0d121c 100%);
-  border: 1px solid rgba(0, 230, 118, 0.25);
+  background: linear-gradient(135deg, #131c31 0%, #0d1424 100%);
+  border: 1px solid var(--accent-border);
   border-radius: var(--radius-md);
   padding: 20px 18px;
   margin-bottom: 20px;
@@ -472,7 +492,7 @@ html, body {
   right: -40px;
   width: 120px;
   height: 120px;
-  background: radial-gradient(circle, rgba(0, 230, 118, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -531,7 +551,8 @@ html, body {
 }
 
 .card-glow {
-  border-color: rgba(0, 230, 118, 0.3);
+  border-color: var(--accent-border);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.12);
 }
 
 /* Empty States Elegantes (Quando Zerado) */
@@ -597,9 +618,15 @@ html, body {
 }
 
 .tag-accent {
-  background: var(--accent-glow);
-  color: var(--accent);
-  border: 1px solid rgba(0, 230, 118, 0.3);
+  background: var(--accent-soft);
+  color: var(--accent-light);
+  border: 1px solid var(--accent-border);
+}
+
+.tag-red {
+  background: var(--red-soft);
+  color: var(--red-accent);
+  border: 1px solid var(--red-border);
 }
 
 .tag-muscle {
@@ -653,10 +680,10 @@ html, body {
 }
 
 .strip-bubble.done {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: #000;
-  box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.45);
 }
 
 .strip-bubble.today {
@@ -711,8 +738,8 @@ html, body {
 
 .modal-confirm-sheet {
   background: linear-gradient(180deg, #131722 0%, #080a0f 100%);
-  border: 1px solid rgba(0, 230, 118, 0.25);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 230, 118, 0.15);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(37, 99, 235, 0.15);
   border-radius: var(--radius-lg);
   padding: 26px 22px;
   width: 90%;
@@ -753,10 +780,10 @@ html, body {
 }
 
 .routine-tab-pill.active {
-  background-color: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-  box-shadow: 0 0 16px rgba(0, 230, 118, 0.35);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.45);
 }
 
 .routine-tab-pill.btn-add-routine {
@@ -796,8 +823,8 @@ html, body {
 }
 
 .wakelock-pill.active {
-  border-color: rgba(0, 230, 118, 0.4);
-  color: var(--accent);
+  border-color: var(--accent-border);
+  color: var(--accent-light);
 }
 
 .pulse-dot {
@@ -875,7 +902,7 @@ html, body {
 
 .chip-timer:active {
   background-color: var(--accent);
-  color: #000;
+  color: #ffffff;
 }
 
 .chip-stop {
@@ -998,7 +1025,7 @@ html, body {
 }
 
 .set-row.completed {
-  background-color: rgba(0, 230, 118, 0.05);
+  background-color: var(--accent-soft);
 }
 
 .set-badge {
@@ -1056,9 +1083,10 @@ html, body {
 }
 
 .btn-check-set.checked {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: #000;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
 }
 
 .btn-add-set {
@@ -1129,7 +1157,7 @@ html, body {
   transition: width 0.3s ease;
 }
 
-.fill-kcal { background: linear-gradient(90deg, #10b981, #00e676); }
+.fill-kcal { background: linear-gradient(90deg, #ef4444, #f97316); }
 .fill-protein, .dot-protein { background-color: var(--macro-p); }
 .fill-carbs, .dot-carbs { background-color: var(--macro-c); }
 .fill-fat, .dot-fat { background-color: var(--macro-f); }
@@ -1213,7 +1241,7 @@ html, body {
 
 .btn-water-add:active {
   background-color: var(--water);
-  color: #000;
+  color: #ffffff;
 }
 
 .btn-water-reset {
@@ -1243,7 +1271,7 @@ html, body {
 
 .meal-item-card.done {
   opacity: 0.75;
-  border-color: rgba(0, 230, 118, 0.3);
+  border-color: var(--accent-border);
 }
 
 .meal-row-header {
@@ -1431,8 +1459,8 @@ html, body {
 .sub-tab-btn.active {
   background-color: var(--bg-card);
   border-color: var(--accent);
-  color: var(--accent);
-  box-shadow: 0 0 14px rgba(0, 230, 118, 0.2);
+  color: var(--accent-light);
+  box-shadow: 0 0 14px var(--accent-glow);
 }
 
 .sub-tab-content {
@@ -1445,7 +1473,7 @@ html, body {
 }
 
 .photo-upload-card {
-  border-color: rgba(0, 230, 118, 0.3);
+  border-color: var(--accent-border);
 }
 
 .photo-upload-header {
@@ -1535,12 +1563,12 @@ html, body {
   position: absolute;
   bottom: 6px;
   left: 6px;
-  background: rgba(0, 230, 118, 0.9);
-  color: #000;
+  background: var(--accent);
+  color: #ffffff;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .photo-card-actions {
@@ -1649,8 +1677,8 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgba(0, 230, 118, 0.1);
-  border: 1px solid rgba(0, 230, 118, 0.3);
+  background-color: var(--accent-soft);
+  border: 1px solid var(--accent-border);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   margin-bottom: 12px;
@@ -1684,13 +1712,13 @@ html, body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00e676, #00c853);
-  color: #06080d;
-  box-shadow: 0 4px 18px rgba(0, 230, 118, 0.3);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
 }
 
 .btn-primary:active {
-  box-shadow: 0 2px 8px rgba(0, 230, 118, 0.2);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
 .btn-outline {
@@ -1993,7 +2021,7 @@ html, body {
   pointer-events: auto;
 }
 
-.toast-msg.success { border-color: rgba(0, 230, 118, 0.5); }
+.toast-msg.success { border-color: rgba(37, 99, 235, 0.6); }
 .toast-msg.error { border-color: rgba(255, 71, 87, 0.5); }
 
 .spacer-bottom {

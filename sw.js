@@ -1,10 +1,10 @@
 /**
  * Service Worker - IronPulse PWA
- * Build: 2026-10-29-0047
+ * Build: 2026-10-29-0115
  * Suporte offline robusto com estratégia Network First
  */
 
-const CACHE_NAME = 'ironpulse-cache-v9';
+const CACHE_NAME = 'ironpulse-cache-v10';
 
 const STATIC_ASSETS = [
   './',

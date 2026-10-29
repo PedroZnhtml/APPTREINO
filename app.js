@@ -26,6 +26,12 @@
     }
   }
 
+  // Helper defensivo para atualizar texto sem risco de TypeError se o elemento não existir
+  function setText(idOrEl, text) {
+    const el = typeof idOrEl === 'string' ? document.getElementById(idOrEl) : idOrEl;
+    if (el) el.textContent = text != null ? String(text) : '';
+  }
+
   // Helper para somar calorias e macros de uma refeição baseada em seus itens TACO
   function getMealTotals(meal) {
     let kcal = 0, p = 0, c = 0, f = 0;
@@ -113,8 +119,8 @@
       const okBtn = document.getElementById('btn-confirm-ok');
       const cancelBtn = document.getElementById('btn-confirm-cancel');
 
-      if (titleEl) titleEl.textContent = title;
-      if (msgEl) msgEl.textContent = message;
+      if (titleEl) setText(titleEl, title);
+      if (msgEl) setText(msgEl, message);
       if (iconEl) {
         if (icon) {
           iconEl.innerHTML = icon;
@@ -123,7 +129,7 @@
         }
       }
       if (okBtn) {
-        okBtn.textContent = okText;
+        setText(okBtn, okText);
         okBtn.className = `btn ${okClass}`;
       }
 
@@ -257,22 +263,22 @@
       if (isConn) {
         dot.style.background = 'var(--accent)';
         dot.style.boxShadow = '0 0 8px var(--accent)';
-        title.textContent = 'Banco em Nuvem Ativo';
-        sub.textContent = 'Sincronizado entre navegadores e celular';
-        tag.textContent = 'Conectado';
+        setText(title, 'Banco de Dados Conectado');
+        setText(sub, 'Sincronizado entre navegadores e celular');
+        setText(tag, 'Conectado');
         tag.className = 'tag tag-accent';
       } else {
         dot.style.background = '#888';
         dot.style.boxShadow = 'none';
-        title.textContent = 'Banco em Nuvem (Multi-aparelho)';
-        sub.textContent = 'Toque aqui para conectar e sincronizar';
-        tag.textContent = 'Configurar';
+        setText(title, 'Banco de Dados (Multi-aparelho)');
+        setText(sub, 'Toque aqui para conectar e sincronizar');
+        setText(tag, 'Configurar');
         tag.className = 'tag tag-outline';
       }
     }
 
     if (headerCloudBtn) {
-      headerCloudBtn.title = isConn ? 'Nuvem Conectada' : 'Configurar Nuvem';
+      headerCloudBtn.title = isConn ? 'Banco Conectado' : 'Configurar Banco';
       headerCloudBtn.style.opacity = isConn ? '1' : '0.6';
     }
   }
@@ -295,10 +301,12 @@
     openBtns.forEach(btn => {
       if (!btn) return;
       btn.onclick = () => {
-        if (window.CloudDB && window.CloudDB.config && window.CloudDB.config.url) {
-          urlInput.value = window.CloudDB.config.url;
-        } else if (window.IRONPULSE_CLOUD_URL) {
-          urlInput.value = window.IRONPULSE_CLOUD_URL;
+        if (urlInput) {
+          if (window.CloudDB && window.CloudDB.config && window.CloudDB.config.url) {
+            urlInput.value = window.CloudDB.config.url;
+          } else if (window.IRONPULSE_CLOUD_URL) {
+            urlInput.value = window.IRONPULSE_CLOUD_URL;
+          }
         }
         if (statusBox) statusBox.style.display = 'none';
         if (modal) modal.classList.add('open');
@@ -307,19 +315,21 @@
 
     if (btnTest) {
       btnTest.onclick = async () => {
-        const url = urlInput.value.trim();
+        const url = urlInput ? urlInput.value.trim() : '';
         if (!url) {
           showToast('Informe a URL do Firebase Realtime Database.', 'error');
           return;
         }
-        statusBox.style.display = 'block';
-        statusBox.innerHTML = '<span style="color: var(--cyan);">⏳ Testando conexão com a nuvem...</span>';
+        if (statusBox) {
+          statusBox.style.display = 'block';
+          statusBox.innerHTML = '<span style="color: var(--accent-light);">Testando conexão com o banco...</span>';
+        }
         try {
           const res = await window.CloudDB.testConnection(url);
-          statusBox.innerHTML = `<span style="color: var(--accent);">✅ ${res.message}</span>`;
+          if (statusBox) statusBox.innerHTML = `<span style="color: var(--accent); font-weight: 700;">${res.message}</span>`;
           showToast('Conexão testada com sucesso!', 'success');
         } catch (err) {
-          statusBox.innerHTML = `<span style="color: var(--danger);">❌ ${err.message}</span>`;
+          if (statusBox) statusBox.innerHTML = `<span style="color: var(--danger); font-weight: 700;">${err.message}</span>`;
           showToast(err.message, 'error');
         }
       };
@@ -328,7 +338,7 @@
     if (form) {
       form.onsubmit = async (e) => {
         e.preventDefault();
-        const url = urlInput.value.trim();
+        const url = urlInput ? urlInput.value.trim() : '';
         if (!url) {
           showToast('Informe uma URL válida.', 'error');
           return;
@@ -344,7 +354,7 @@
           }
 
           if (modal) modal.classList.remove('open');
-          showToast('Banco em nuvem salvo e conectado com sucesso! ☁️', 'success');
+          showToast('Banco de dados salvo e conectado com sucesso!', 'success');
         } catch (err) {
           showToast('Erro ao salvar conexão: ' + err.message, 'error');
         }
@@ -360,18 +370,18 @@
 
   async function activateWakeLock() {
     const pill = document.getElementById('wakelock-pill');
+    if (!pill) return;
     if ('wakeLock' in navigator) {
       try {
         wakeLock = await navigator.wakeLock.request('screen');
         pill.classList.add('active');
-        pill.querySelector('.wakelock-text').textContent = 'Tela Ligada';
+        setText(pill.querySelector('.wakelock-text'), 'Tela Ligada');
         wakeLock.addEventListener('release', () => {
           pill.classList.remove('active');
-          pill.querySelector('.wakelock-text').textContent = 'Tela Normal';
+          setText(pill.querySelector('.wakelock-text'), 'Tela Normal');
         });
       } catch (err) {
-        pill.classList.remove('active');
-        pill.querySelector('.wakelock-text').textContent = 'Sem suporte';
+        setText(pill.querySelector('.wakelock-text'), 'Sem suporte');
       }
     }
   }
@@ -382,41 +392,41 @@
       wakeLock = null;
     }
     const pill = document.getElementById('wakelock-pill');
-    pill.classList.remove('active');
-    pill.querySelector('.wakelock-text').textContent = 'Tela Normal';
+    if (pill) {
+      pill.classList.remove('active');
+      setText(pill.querySelector('.wakelock-text'), 'Tela Normal');
+    }
   }
 
   function toggleSession() {
     const user = getCurrentUser();
-    if (!user || user.routines.length === 0) {
+    if (!user || !user.routines || user.routines.length === 0) {
       showToast('Crie uma ficha de treino primeiro antes de iniciar o treino.', 'error');
       return;
     }
 
     const btn = document.getElementById('btn-start-session');
-    const icon = document.getElementById('session-icon');
-    const text = document.getElementById('session-text');
 
     if (!isSessionRunning) {
       isSessionRunning = true;
-      icon.textContent = '⏹';
-      text.textContent = 'Finalizar';
-      btn.style.backgroundColor = 'var(--danger)';
+      setText('session-icon', '⏹');
+      setText('session-text', 'Finalizar');
+      if (btn) btn.style.backgroundColor = 'var(--danger)';
       activateWakeLock();
 
       sessionTimer = setInterval(() => {
         sessionSeconds++;
         const m = String(Math.floor(sessionSeconds / 60)).padStart(2, '0');
         const s = String(sessionSeconds % 60).padStart(2, '0');
-        document.getElementById('session-stopwatch').textContent = `${m}:${s}`;
+        setText('session-stopwatch', `${m}:${s}`);
       }, 1000);
 
       showToast('Sessão iniciada! Tela mantida acesa.', 'success');
     } else {
       isSessionRunning = false;
-      icon.textContent = '▶';
-      text.textContent = 'Iniciar Treino';
-      btn.style.backgroundColor = 'var(--accent)';
+      setText('session-icon', '▶');
+      setText('session-text', 'Iniciar Treino');
+      if (btn) btn.style.backgroundColor = 'var(--accent)';
       clearInterval(sessionTimer);
       deactivateWakeLock();
 
@@ -443,7 +453,7 @@
       showToast(`Treino concluído! Duração: ${Math.floor(sessionSeconds / 60)} min.`, 'success');
 
       sessionSeconds = 0;
-      document.getElementById('session-stopwatch').textContent = '00:00';
+      setText('session-stopwatch', '00:00');
     }
   }
 
@@ -474,16 +484,15 @@
   function startRestTimer(secs) {
     if (restTimer) clearInterval(restTimer);
     restSecondsLeft = secs;
-    const display = document.getElementById('rest-timer-text');
 
     function update() {
       const m = Math.floor(restSecondsLeft / 60);
       const s = restSecondsLeft % 60;
-      display.textContent = `${m > 0 ? `${m}m ` : ''}${s}s`;
+      setText('rest-timer-text', `${m > 0 ? `${m}m ` : ''}${s}s`);
       if (restSecondsLeft <= 0) {
         clearInterval(restTimer);
         restTimer = null;
-        display.textContent = 'Descanso Finalizado';
+        setText('rest-timer-text', 'Descanso Finalizado');
         playAlertBeep();
         showToast('Hora da próxima série! Prepare-se.', 'success');
       } else {
@@ -500,7 +509,7 @@
       clearInterval(restTimer);
       restTimer = null;
     }
-    document.getElementById('rest-timer-text').textContent = 'Parado';
+    setText('rest-timer-text', 'Parado');
   }
 
   // ==================== NAVEGAÇÃO ====================
@@ -512,8 +521,11 @@
       });
     });
 
-    document.getElementById('btn-home-manage-workouts').onclick = () => switchTab('tab-workouts');
-    document.getElementById('btn-home-go-diet').onclick = () => switchTab('tab-diet');
+    const btnManageWorkouts = document.getElementById('btn-home-manage-workouts');
+    if (btnManageWorkouts) btnManageWorkouts.onclick = () => switchTab('tab-workouts');
+
+    const btnGoDiet = document.getElementById('btn-home-go-diet');
+    if (btnGoDiet) btnGoDiet.onclick = () => switchTab('tab-diet');
 
     // Sub-abas Progresso
     document.querySelectorAll('.sub-tab-btn').forEach(btn => {
@@ -564,51 +576,31 @@
     if (!user) return;
 
     const initials = (user.name || 'U').charAt(0).toUpperCase();
-    const avatarEl = document.getElementById('header-avatar-circle');
-    if (avatarEl) avatarEl.textContent = initials;
-
-    const nameEl = document.getElementById('header-profile-name');
-    if (nameEl) nameEl.textContent = user.name || 'Atleta';
-
-    const goalEl = document.getElementById('header-profile-goal');
-    if (goalEl) goalEl.textContent = user.goal || 'Hipertrofia';
-
-    const emailEl = document.getElementById('header-user-email');
-    if (emailEl) emailEl.textContent = user.email || '';
+    setText('header-avatar-circle', initials);
+    setText('header-profile-name', user.name || 'Atleta');
+    setText('header-profile-goal', user.goal || 'Hipertrofia');
+    setText('header-user-email', user.email || '');
 
     const syncDot = document.getElementById('header-sync-dot');
-    const syncText = document.getElementById('header-sync-text');
     const isCloud = window.CloudDB && window.CloudDB.isConnected();
     if (syncDot) {
       syncDot.style.background = isCloud ? 'var(--accent)' : 'var(--cyan)';
       syncDot.style.boxShadow = isCloud ? '0 0 8px var(--accent)' : 'none';
     }
-    if (syncText) {
-      syncText.textContent = isCloud ? 'Firebase Conectado' : 'Local';
-    }
+    setText('header-sync-text', isCloud ? 'Firebase Conectado' : 'Local');
 
     const minWater = Math.round((Number(user.weight) || 70) * 35);
-    const waterDisplay = document.getElementById('water-display');
-    if (waterDisplay) waterDisplay.textContent = user.water || 0;
-
-    const waterDesc = document.getElementById('water-calc-desc');
-    if (waterDesc) waterDesc.textContent = `Mínimo recomendado: 35ml × ${user.weight || 70}kg = ${minWater}ml`;
-
-    const waterCur = document.getElementById('water-current-total');
-    if (waterCur) waterCur.textContent = user.water || 0;
-
-    const waterTar = document.getElementById('water-target-total');
-    if (waterTar) waterTar.textContent = minWater;
+    setText('water-display', user.water || 0);
+    setText('water-calc-desc', `Mínimo recomendado: 35ml × ${user.weight || 70}kg = ${minWater}ml`);
+    setText('water-current-total', user.water || 0);
+    setText('water-target-total', minWater);
 
     const pct = minWater > 0 ? Math.min(100, Math.round(((user.water || 0) / minWater) * 100)) : 0;
     const waterFill = document.getElementById('water-progress-fill');
     if (waterFill) waterFill.style.width = `${pct}%`;
 
-    const waterBadge = document.getElementById('water-percent-badge');
-    if (waterBadge) waterBadge.textContent = `${pct}%`;
-
-    const homeWaterRatio = document.getElementById('home-water-ratio');
-    if (homeWaterRatio) homeWaterRatio.textContent = `${pct}%`;
+    setText('water-percent-badge', `${pct}%`);
+    setText('home-water-ratio', `${pct}%`);
   }
 
   // 1. Início
@@ -617,7 +609,7 @@
     const user = getCurrentUser();
     if (!user) return;
 
-    document.getElementById('home-goal-badge').textContent = user.goal;
+    setText('home-goal-badge', user.goal || 'Hipertrofia');
 
     const btnHomeAddRoutine = document.getElementById('btn-home-add-routine');
     if (btnHomeAddRoutine) {
@@ -734,14 +726,15 @@
       });
     }
 
-    document.getElementById('home-kcal-val').textContent = eatenKcal;
-    document.getElementById('home-target-kcal-val').textContent = user.targetKcal || 2400;
+    setText('home-kcal-val', eatenKcal);
+    setText('home-target-kcal-val', user.targetKcal || 2400);
 
     renderWeekStrip();
   }
 
   function renderWeekStrip() {
     const container = document.getElementById('home-week-strip');
+    if (!container) return;
     container.innerHTML = '';
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     let workoutsCount = 0;
@@ -766,7 +759,7 @@
       `;
       container.appendChild(col);
     }
-    document.getElementById('home-week-workouts-count').textContent = `${workoutsCount}/7`;
+    setText('home-week-workouts-count', `${workoutsCount}/7`);
   }
 
   // 2. Treinos (ZERADOS POR PADRÃO)
@@ -789,44 +782,47 @@
 
     // Se ZERADO: Exibe apenas 1 opção clara de criação no centro
     if (!user.routines || user.routines.length === 0) {
-      if (countLabel) countLabel.textContent = 'Nenhuma ficha criada ainda';
+      setText('workouts-count-label', 'Nenhuma ficha criada ainda');
       if (btnAddRoutineTop) btnAddRoutineTop.style.display = 'none';
       if (navBar) navBar.style.display = 'none';
       if (sessionHud) sessionHud.style.display = 'none';
       if (restTimerBar) restTimerBar.style.display = 'none';
-      headerCard.style.display = 'none';
-      bottomActions.style.display = 'none';
+      if (headerCard) headerCard.style.display = 'none';
+      if (bottomActions) bottomActions.style.display = 'none';
       bar.innerHTML = '';
 
-      stack.innerHTML = `
-        <div class="empty-state-luxury" style="margin-top: 14px; padding: 32px 20px;">
-          <h4 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">Nenhum Treino Cadastrado</h4>
-          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
-            Monte suas divisões de treino (Treino A, B, C...) e adicione seus exercícios com cargas e séries personalizadas.
-          </p>
-          <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-routine">
-            + Criar Ficha de Treino
-          </button>
-        </div>
-      `;
-
-      document.getElementById('btn-create-first-routine').onclick = openNewRoutineModal;
+      if (stack) {
+        stack.innerHTML = `
+          <div class="empty-state-luxury" style="margin-top: 14px; padding: 32px 20px;">
+            <h4 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">Nenhum Treino Cadastrado</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+              Monte suas divisões de treino (Treino A, B, C...) e adicione seus exercícios com cargas e séries personalizadas.
+            </p>
+            <button class="btn btn-primary btn-block btn-lg" id="btn-create-first-routine">
+              + Criar Ficha de Treino
+            </button>
+          </div>
+        `;
+        const btnCreateFirst = document.getElementById('btn-create-first-routine');
+        if (btnCreateFirst) btnCreateFirst.onclick = openNewRoutineModal;
+      }
       return;
     }
 
     // Se tem fichas
     if (btnAddRoutineTop) btnAddRoutineTop.style.display = 'inline-flex';
     if (navBar) navBar.style.display = 'block';
-    if (countLabel) {
-      countLabel.textContent = `${user.routines.length} ${user.routines.length === 1 ? 'ficha cadastrada' : 'fichas cadastradas'}`;
-    }
+    setText('workouts-count-label', `${user.routines.length} ${user.routines.length === 1 ? 'ficha cadastrada' : 'fichas cadastradas'}`);
     if (sessionHud) sessionHud.style.display = 'flex';
     if (restTimerBar) restTimerBar.style.display = 'flex';
-    headerCard.style.display = 'flex';
-    bottomActions.style.display = 'block';
+    if (headerCard) headerCard.style.display = 'flex';
+    if (bottomActions) bottomActions.style.display = 'block';
 
     if (btnAddExTop) {
-      btnAddExTop.onclick = () => document.getElementById('btn-open-catalog').click();
+      btnAddExTop.onclick = () => {
+        const btnCat = document.getElementById('btn-open-catalog');
+        if (btnCat) btnCat.click();
+      };
     }
 
     let activeRoutine = user.routines.find(r => r.id === user.activeRoutineId);
@@ -850,11 +846,13 @@
 
     if (!activeRoutine) return;
 
-    document.getElementById('active-routine-name').textContent = activeRoutine.name;
-    document.getElementById('active-routine-focus').textContent = activeRoutine.focus;
+    setText('active-routine-name', activeRoutine.name);
+    setText('active-routine-focus', activeRoutine.focus);
 
-    document.getElementById('btn-edit-routine').onclick = () => openEditRoutineModal(activeRoutine);
-    document.getElementById('btn-delete-routine').onclick = () => confirmDeleteRoutine(activeRoutine);
+    const btnEditR = document.getElementById('btn-edit-routine');
+    if (btnEditR) btnEditR.onclick = () => openEditRoutineModal(activeRoutine);
+    const btnDelR = document.getElementById('btn-delete-routine');
+    if (btnDelR) btnDelR.onclick = () => confirmDeleteRoutine(activeRoutine);
 
     stack.innerHTML = '';
 
@@ -1032,22 +1030,26 @@
     const targetC = user.targetCarbs || 260;
     const targetF = user.targetFat || 65;
 
-    document.getElementById('diet-consumed-kcal').textContent = sumKcal;
-    document.getElementById('diet-goal-kcal').textContent = targetKcal;
-    document.getElementById('diet-remaining-kcal').textContent = Math.max(0, targetKcal - sumKcal);
-    document.getElementById('diet-kcal-progress').style.width = `${Math.min(100, Math.round((sumKcal / targetKcal) * 100))}%`;
+    setText('diet-consumed-kcal', sumKcal);
+    setText('diet-goal-kcal', targetKcal);
+    setText('diet-remaining-kcal', Math.max(0, targetKcal - sumKcal));
+    const kFill = document.getElementById('diet-kcal-progress');
+    if (kFill) kFill.style.width = `${Math.min(100, Math.round((sumKcal / targetKcal) * 100))}%`;
 
-    document.getElementById('diet-consumed-p').textContent = Math.round(sumP);
-    document.getElementById('diet-goal-p').textContent = targetP;
-    document.getElementById('diet-p-progress').style.width = `${Math.min(100, Math.round((sumP / targetP) * 100))}%`;
+    setText('diet-consumed-p', Math.round(sumP));
+    setText('diet-goal-p', targetP);
+    const pFill = document.getElementById('diet-p-progress');
+    if (pFill) pFill.style.width = `${Math.min(100, Math.round((sumP / targetP) * 100))}%`;
 
-    document.getElementById('diet-consumed-c').textContent = Math.round(sumC);
-    document.getElementById('diet-goal-c').textContent = targetC;
-    document.getElementById('diet-c-progress').style.width = `${Math.min(100, Math.round((sumC / targetC) * 100))}%`;
+    setText('diet-consumed-c', Math.round(sumC));
+    setText('diet-goal-c', targetC);
+    const cFill = document.getElementById('diet-c-progress');
+    if (cFill) cFill.style.width = `${Math.min(100, Math.round((sumC / targetC) * 100))}%`;
 
-    document.getElementById('diet-consumed-f').textContent = Math.round(sumF);
-    document.getElementById('diet-goal-f').textContent = targetF;
-    document.getElementById('diet-f-progress').style.width = `${Math.min(100, Math.round((sumF / targetF) * 100))}%`;
+    setText('diet-consumed-f', Math.round(sumF));
+    setText('diet-goal-f', targetF);
+    const fFill = document.getElementById('diet-f-progress');
+    if (fFill) fFill.style.width = `${Math.min(100, Math.round((sumF / targetF) * 100))}%`;
 
     const stack = document.getElementById('meals-stack');
     stack.innerHTML = '';
@@ -1283,15 +1285,17 @@
 
   function selectTacoFood(food) {
     currentSelectedTacoFood = food;
-    document.getElementById('taco-calc-food-name').textContent = food.name;
-    document.getElementById('taco-calc-category').textContent = food.category;
-    document.getElementById('taco-calc-box').style.display = 'block';
+    setText('taco-calc-food-name', food.name);
+    setText('taco-calc-category', food.category);
+    const calcBox = document.getElementById('taco-calc-box');
+    if (calcBox) calcBox.style.display = 'block';
     calculateLiveTacoMacros();
   }
 
   function calculateLiveTacoMacros() {
     if (!currentSelectedTacoFood) return;
-    const grams = parseFloat(document.getElementById('taco-grams-input').value) || 0;
+    const gramsInput = document.getElementById('taco-grams-input');
+    const grams = parseFloat(gramsInput ? gramsInput.value : 0) || 0;
     const factor = grams / 100;
 
     const kcal = Math.round(currentSelectedTacoFood.kcal * factor);
@@ -1299,10 +1303,10 @@
     const c = Math.round((currentSelectedTacoFood.carbs * factor) * 10) / 10;
     const f = Math.round((currentSelectedTacoFood.fat * factor) * 10) / 10;
 
-    document.getElementById('taco-res-kcal').textContent = `${kcal} kcal`;
-    document.getElementById('taco-res-p').textContent = `${p}g`;
-    document.getElementById('taco-res-c').textContent = `${c}g`;
-    document.getElementById('taco-res-f').textContent = `${f}g`;
+    setText('taco-res-kcal', `${kcal} kcal`);
+    setText('taco-res-p', `${p}g`);
+    setText('taco-res-c', `${c}g`);
+    setText('taco-res-f', `${f}g`);
   }
 
   // ==================== GALERIA DE FOTOS & COMPARADOR ====================
@@ -1313,11 +1317,12 @@
     if (!user) return;
 
     const grid = document.getElementById('photos-grid');
+    if (!grid) return;
     grid.innerHTML = '<p class="text-muted text-center" style="grid-column: 1/-1;">Carregando fotos...</p>';
 
     try {
       const photos = await window.IronDB.getPhotosByProfile(user.id);
-      document.getElementById('photos-count-badge').textContent = `${photos.length} fotos`;
+      setText('photos-count-badge', `${photos.length} fotos`);
       grid.innerHTML = '';
 
       if (photos.length === 0) {
@@ -1718,8 +1723,8 @@
       <svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="pulseGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#00e676" stop-opacity="0.35" />
-            <stop offset="100%" stop-color="#00e676" stop-opacity="0.0" />
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
           </linearGradient>
         </defs>
 
@@ -1737,7 +1742,7 @@
         ${points.map(p => `
           <g>
             <circle cx="${p.x}" cy="${p.y}" r="5" class="chart-dot" />
-            <text x="${p.x}" y="${p.y - 8}" font-size="10" font-weight="700" fill="#00e676" text-anchor="middle">${p.weight}kg</text>
+            <text x="${p.x}" y="${p.y - 8}" font-size="10" font-weight="700" fill="#3b82f6" text-anchor="middle">${p.weight}kg</text>
             <text x="${p.x}" y="${height - 8}" class="chart-text" text-anchor="middle">${formatDateBadge(p.date)}</text>
           </g>
         `).join('')}
@@ -1883,19 +1888,27 @@
   // Modais de Fichas
   function openNewRoutineModal() {
     switchTab('tab-workouts');
-    document.getElementById('modal-routine-title').textContent = 'Montar Ficha de Treino';
-    document.getElementById('input-routine-id').value = '';
-    document.getElementById('input-routine-name').value = '';
-    document.getElementById('input-routine-focus').value = '';
-    document.getElementById('modal-routine').classList.add('open');
+    setText('modal-routine-title', 'Montar Ficha de Treino');
+    const inpId = document.getElementById('input-routine-id');
+    if (inpId) inpId.value = '';
+    const inpName = document.getElementById('input-routine-name');
+    if (inpName) inpName.value = '';
+    const inpFocus = document.getElementById('input-routine-focus');
+    if (inpFocus) inpFocus.value = '';
+    const modalR = document.getElementById('modal-routine');
+    if (modalR) modalR.classList.add('open');
   }
 
   function openEditRoutineModal(routine) {
-    document.getElementById('modal-routine-title').textContent = 'Editar Ficha';
-    document.getElementById('input-routine-id').value = routine.id;
-    document.getElementById('input-routine-name').value = routine.name;
-    document.getElementById('input-routine-focus').value = routine.focus;
-    document.getElementById('modal-routine').classList.add('open');
+    setText('modal-routine-title', 'Editar Ficha');
+    const inpId = document.getElementById('input-routine-id');
+    if (inpId) inpId.value = routine.id;
+    const inpName = document.getElementById('input-routine-name');
+    if (inpName) inpName.value = routine.name;
+    const inpFocus = document.getElementById('input-routine-focus');
+    if (inpFocus) inpFocus.value = routine.focus;
+    const modalR = document.getElementById('modal-routine');
+    if (modalR) modalR.classList.add('open');
   }
 
   document.getElementById('form-routine').addEventListener('submit', (e) => {
@@ -1973,42 +1986,53 @@
   });
 
   function openHistoryModal(ex) {
-    document.getElementById('history-modal-title').textContent = ex.name;
-    document.getElementById('history-modal-sub').textContent = `Músculo: ${ex.muscle || 'Geral'}`;
-    renderInteractiveSVGChart(document.getElementById('history-modal-chart'), ex);
+    setText('history-modal-title', ex.name);
+    setText('history-modal-sub', `Músculo: ${ex.muscle || 'Geral'}`);
+    const chartEl = document.getElementById('history-modal-chart');
+    if (chartEl) renderInteractiveSVGChart(chartEl, ex);
 
     const table = document.getElementById('history-table-records');
-    table.innerHTML = '';
-    const sorted = [...(ex.history || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    if (table) {
+      table.innerHTML = '';
+      const sorted = [...(ex.history || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-    if (sorted.length === 0) {
-      table.innerHTML = '<p class="text-muted text-sm text-center">Nenhuma carga registrada ainda.</p>';
-    } else {
-      sorted.forEach(rec => {
-        const row = document.createElement('div');
-        row.className = 'history-item-row';
-        row.innerHTML = `<span>${rec.date}</span><strong style="color:var(--accent);">${rec.weight} kg</strong>`;
-        table.appendChild(row);
-      });
+      if (sorted.length === 0) {
+        table.innerHTML = '<p class="text-muted text-sm text-center">Nenhuma carga registrada ainda.</p>';
+      } else {
+        sorted.forEach(rec => {
+          const row = document.createElement('div');
+          row.className = 'history-item-row';
+          row.innerHTML = `<span>${rec.date}</span><strong style="color:var(--accent);">${rec.weight} kg</strong>`;
+          table.appendChild(row);
+        });
+      }
     }
 
-    document.getElementById('modal-history').classList.add('open');
+    const modalHist = document.getElementById('modal-history');
+    if (modalHist) modalHist.classList.add('open');
   }
 
   // Modais de Refeição
   function openAddMealModal() {
-    document.getElementById('modal-meal-title').textContent = 'Nova Refeição';
-    document.getElementById('input-meal-id').value = '';
-    document.getElementById('form-meal').reset();
-    document.getElementById('modal-meal').classList.add('open');
+    setText('modal-meal-title', 'Nova Refeição');
+    const inpId = document.getElementById('input-meal-id');
+    if (inpId) inpId.value = '';
+    const formMeal = document.getElementById('form-meal');
+    if (formMeal) formMeal.reset();
+    const modalMeal = document.getElementById('modal-meal');
+    if (modalMeal) modalMeal.classList.add('open');
   }
 
   function openEditMealModal(meal) {
-    document.getElementById('modal-meal-title').textContent = 'Editar Refeição';
-    document.getElementById('input-meal-id').value = meal.id;
-    document.getElementById('input-meal-name').value = meal.name;
-    document.getElementById('input-meal-time').value = meal.time;
-    document.getElementById('modal-meal').classList.add('open');
+    setText('modal-meal-title', 'Editar Refeição');
+    const inpId = document.getElementById('input-meal-id');
+    if (inpId) inpId.value = meal.id;
+    const inpName = document.getElementById('input-meal-name');
+    if (inpName) inpName.value = meal.name;
+    const inpTime = document.getElementById('input-meal-time');
+    if (inpTime) inpTime.value = meal.time;
+    const modalMeal = document.getElementById('modal-meal');
+    if (modalMeal) modalMeal.classList.add('open');
   }
 
   document.getElementById('form-meal').addEventListener('submit', (e) => {

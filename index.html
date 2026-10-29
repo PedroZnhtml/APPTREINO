@@ -7,14 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IronPulse">
-  <meta name="description" content="App de Treinos, Nutrição e Evolução com Banco de Dados em Nuvem">
+  <meta name="description" content="App de Treinos, Nutrição e Evolução com Sincronização em Tempo Real">
   
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon.svg">
   
-  <title>IronPulse • Treinos & Dieta em Nuvem</title>
-  <link rel="stylesheet" href="./style.css?v=20261029_v9">
+  <title>IronPulse • Treinos & Nutrição</title>
+  <link rel="stylesheet" href="./style.css?v=20261029_v10">
 </head>
 <body>
 
@@ -32,16 +32,16 @@
         <p class="auth-desc">Treinos de Alta Performance & Nutrição Inteligente</p>
       </div>
 
-      <!-- Card de Status do Banco de Dados em Nuvem -->
+      <!-- Card de Status do Banco de Dados / Sincronização -->
       <div class="cloud-status-banner mb-3" id="btn-auth-open-cloud-modal">
         <div class="cloud-status-left">
           <span class="cloud-dot" id="auth-cloud-status-dot"></span>
           <div>
-            <strong id="auth-cloud-status-title">Banco em Nuvem</strong>
-            <span class="text-xs" id="auth-cloud-status-sub">Toque para configurar multi-dispositivo</span>
+            <strong id="auth-cloud-status-title">Sincronização Online</strong>
+            <span class="text-xs" id="auth-cloud-status-sub">Acesse seus dados em múltiplos dispositivos</span>
           </div>
         </div>
-        <span class="tag tag-accent" id="auth-cloud-tag">Configurar</span>
+        <span class="tag tag-accent" id="auth-cloud-tag">Conectado</span>
       </div>
 
       <!-- Abas de Autenticação -->
@@ -618,8 +618,8 @@
     <div class="modal-sheet">
       <div class="modal-sheet-header">
         <div>
-          <h3>Banco de Dados em Nuvem</h3>
-          <span class="text-xs text-muted">Acesse seus dados em qualquer navegador e aparelho</span>
+          <h3>Banco de Dados & Sincronização</h3>
+          <span class="text-xs text-muted">Acesse seus dados em qualquer navegador e aparelho com Firebase</span>
         </div>
         <button class="btn-modal-close" data-dismiss="modal-cloud-config">✕</button>
       </div>
@@ -913,12 +913,12 @@
   <div class="toast-hub" id="toast-hub"></div>
 
   <!-- Scripts com Cache Busting -->
-  <script src="./cloud-config.js?v=20261029_v9"></script>
-  <script src="./cloud-db.js?v=20261029_v9"></script>
-  <script src="./auth.js?v=20261029_v9"></script>
-  <script src="./taco.js?v=20261029_v9"></script>
-  <script src="./db.js?v=20261029_v9"></script>
-  <script src="./app.js?v=20261029_v9"></script>
+  <script src="./cloud-config.js?v=20261029_v10"></script>
+  <script src="./cloud-db.js?v=20261029_v10"></script>
+  <script src="./auth.js?v=20261029_v10"></script>
+  <script src="./taco.js?v=20261029_v10"></script>
+  <script src="./db.js?v=20261029_v10"></script>
+  <script src="./app.js?v=20261029_v10"></script>
 
   <!-- Auto-update Service Worker -->
   <script>
